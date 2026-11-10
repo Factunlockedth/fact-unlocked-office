@@ -8,3 +8,5 @@ Cloudflare Worker source lives in this directory.
 - Deploy command: `npx wrangler deploy`
 
 This file also records the intended deployment layout for the project.
+
+The production Wrangler config is at the repository root and targets `cloudflare/worker.js`.
