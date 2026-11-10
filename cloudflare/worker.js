@@ -111,16 +111,52 @@ function buildSystemPrompt(department) {
   ].join("\n");
 }
 
+function extractAIText(result) {
+  // Older Workers AI text-generation models may return { response: "..." }.
+  if (typeof result?.response === "string" && result.response.trim()) {
+    return result.response.trim();
+  }
+
+  // Gemma 4 chat-completion output follows the OpenAI-compatible choices shape.
+  const message = result?.choices?.[0]?.message;
+  if (typeof message?.content === "string" && message.content.trim()) {
+    return message.content.trim();
+  }
+
+  // Support content parts in case a future model response is multimodal.
+  if (Array.isArray(message?.content)) {
+    const text = message.content
+      .map(part => typeof part === "string" ? part : (part?.text || ""))
+      .filter(Boolean)
+      .join("\\n")
+      .trim();
+    if (text) return text;
+  }
+
+  if (typeof result?.output_text === "string" && result.output_text.trim()) {
+    return result.output_text.trim();
+  }
+
+  return "";
+}
+
 async function askAI(env, messages) {
   if (!env.AI) throw new Error("ไม่พบ Workers AI Binding ชื่อ AI");
+
   const result = await env.AI.run(MODEL, {
     messages,
-    max_tokens: 900,
-    temperature: 0.35
+    max_completion_tokens: 900,
+    temperature: 0.35,
+    chat_template_kwargs: {
+      enable_thinking: false
+    }
   });
-  const answer = result && result.response;
-  if (!answer || typeof answer !== "string") {
-    throw new Error("Workers AI ไม่ได้ส่งข้อความ response กลับมา");
+
+  const answer = extractAIText(result);
+  if (!answer) {
+    const keys = result && typeof result === "object" ? Object.keys(result).join(", ") : typeof result;
+    const finishReason = result?.choices?.[0]?.finish_reason || "unknown";
+    throw new Error("ไม่พบข้อความคำตอบจาก Gemma 4 (fields: " + keys + ", finish_reason: " + finishReason + ")");
   }
   return answer;
 }
