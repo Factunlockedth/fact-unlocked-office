@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#101b31"><title>FACT UNLOCKED — AI Content HQ</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#0b1324;color:#f6f0df;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;touch-action:none}
+#app{height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 0%,#263b5c,#0b1324 72%)}
+header{height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#101a2e;border-bottom:1px solid #b78c42;z-index:2}
+.brand{display:flex;align-items:center;gap:9px;font-weight:900;letter-spacing:.08em;font-size:12px}.logo{width:31px;height:31px;border:2px solid #e6bd65;color:#e6bd65;display:grid;place-items:center;transform:rotate(45deg);border-radius:5px}.logo span{transform:rotate(-45deg)}.brand small{display:block;font-size:8px;color:#b7c2d2;font-weight:500;letter-spacing:.15em}
+.topright{display:flex;gap:6px}.topright button{font-size:10px;padding:7px 9px;border-radius:8px;border:1px solid #596b86;background:#1b2b46;color:#fff}
+#status{font-size:10px;color:#f3d38c;padding:0 8px;white-space:nowrap}
+#stage{position:relative;flex:1;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+canvas{width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none}
+#hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:#0b172be8;border:1px solid #9f8149;border-radius:18px;padding:7px 12px;font-size:10px;white-space:nowrap;pointer-events:none}
+#controls{position:absolute;right:10px;bottom:10px;display:flex;gap:6px}#controls button{border:1px solid #b28b4a;background:#152641eF;color:#f6e4b8;border-radius:8px;padding:8px 10px;font-size:10px}
+#toast{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#1b2d49;border:1px solid #d0a75c;border-radius:9px;padding:8px 12px;font-size:11px;display:none;z-index:4}
+#panelbg{position:absolute;inset:0;background:#050b16bb;display:none;align-items:flex-end;justify-content:center;z-index:5}
+#panel{width:min(540px,100%);max-height:76%;overflow:auto;background:linear-gradient(145deg,#1d304e,#0e192d);border:1px solid #c29b51;border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px #0009}
+#panel h2{margin:0;color:#f3cf7f;font-size:18px}#panel p{font-size:12px;line-height:1.6;color:#c7d0df}.item{display:flex;justify-content:space-between;gap:10px;border-top:1px solid #ffffff20;padding:10px 0;font-size:12px}.tag{color:#e9c77e;font-size:10px}
+#close{float:right;background:#2b405f;border:1px solid #73839b;border-radius:7px;padding:6px 9px;color:white}
+@media(max-width:480px){header{height:48px;padding:0 8px}.brand{font-size:10px}.topright button{font-size:9px;padding:6px}.brand small{font-size:7px}#hint{font-size:9px;bottom:52px;max-width:94%;white-space:normal;text-align:center}}
+</style></head><body><div id="app">
+<header><div class="brand"><div class="logo"><span>FU</span></div><div>FACT UNLOCKED<small>AI CONTENT HQ · HABBO STYLE</small></div></div><div class="topright"><span id="status">ทีมงาน 9 คน</span><button id="meeting">เรียกประชุม</button></div></header>
+<div id="stage"><canvas id="game"></canvas><div id="hint">แตะพื้นเพื่อเดิน · แตะพนักงานเพื่อพูดคุย</div><div id="controls"><button id="zoomout">－</button><button id="zoomin">＋</button><button id="center">⌖</button></div><div id="toast"></div>
+<div id="panelbg"><div id="panel"><button id="close">ปิด ✕</button><h2 id="ptitle">พนักงาน</h2><p id="pdesc"></p><div id="pitems"></div><button id="paction" style="width:100%;margin-top:12px;background:linear-gradient(90deg,#e9c66c,#b28339);color:#172238;border:0;border-radius:8px;padding:11px;font-weight:800">รับทราบ</button></div></div>
+</div></div>
+<script>
+(()=>{
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),stage=document.getElementById('stage');
+const CW=960,CH=600,TW=52,TH=26,OX=480,OY=155;
+let dpr=1,scale=1,camX=0,camY=0,selected=null,drag=null,movePath=[],last=0;
+const W=13,H=11;
+const floor=Array.from({length:H},()=>Array(W).fill(1));
+const blocked=new Set();
+const furniture=[];
+const staff=[
+{id:'ceo',name:'CEO AI',role:'ผู้บริหารและวางกลยุทธ์',x:8,y:2,color:'#d5a342',hair:'#302631',desc:'รับเป้าหมายจากคุณ วางแผนงาน จัดลำดับความสำคัญ และประสานงานทุกแผนก'},
+{id:'strategy',name:'Strategy AI',role:'กลยุทธ์และวางแผน',x:2,y:7,color:'#507ab8',hair:'#332631',desc:'วางทิศทางช่อง กำหนดกลุ่มผู้ชม และจัดทำปฏิทินคอนเทนต์'},
+{id:'research',name:'Research AI',role:'วิจัยข้อมูล',x:2,y:4,color:'#3c9d9c',hair:'#3b2b25',desc:'ค้นคว้าข้อมูลต้นทาง รวบรวมหลักฐาน และจัดทำ Research Brief'},
+{id:'fact',name:'Fact Check AI',role:'ตรวจสอบข้อเท็จจริง',x:5,y:4,color:'#b88c39',hair:'#372a2d',desc:'ตรวจสอบคำกล่าวอ้าง เทียบแหล่งข้อมูล และแจ้งจุดเสี่ยง'},
+{id:'editorial',name:'Editorial AI',role:'เขียนบทและเรียบเรียง',x:8,y:4,color:'#ad6d9a',hair:'#38263c',desc:'เขียน Hook สคริปต์ และเรียบเรียงเรื่องราวทั้งคลิปสั้นและคลิปยาว'},
+{id:'creative',name:'Creative AI',role:'ออกแบบและ Storyboard',x:3,y:9,color:'#a65cbd',hair:'#312a38',desc:'ออกแบบ Moodboard, Storyboard และแนวทางภาพ Cinematic'},
+{id:'production',name:'Production AI',role:'ผลิตวิดีโอและเสียง',x:3,y:2,color:'#3f80bd',hair:'#332a26',desc:'ผลิตวิดีโอ เสียงบรรยาย ภาพประกอบ และตรวจคุณภาพงาน'},
+{id:'distribution',name:'Distribution AI',role:'เผยแพร่คอนเทนต์',x:7,y:9,color:'#408f9b',hair:'#30282e',desc:'เตรียมโพสต์และจัดตาราง TikTok, YouTube, Facebook, Instagram'},
+{id:'analytics',name:'Analytics AI',role:'วิเคราะห์ผล',x:10,y:8,color:'#7a9c57',hair:'#292633',desc:'วิเคราะห์ Views, Retention, CTR และเสนอการปรับปรุง'}
+];
+function iso(x,y,z=0){return {x:(x-y)*TW/2+OX+camX,y:(x+y)*TH/2+OY+camY-z}}
+function resize(){let r=stage.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
+function clear(){ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight);ctx.fillStyle='#101a2d';ctx.fillRect(0,0,stage.clientWidth,stage.clientHeight)}
+function poly(pts,c,stroke='#26384e'){ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=c;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke()}}
+function diamond(x,y,w,h,c,stroke){poly([{x,y:y-h/2},{x:x+w/2,y},{x,y:y+h/2},{x:x-w/2,y}],c,stroke)}
+function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function drawFloor(){
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){let p=iso(x,y);let c=((x+y)%2)?'#c5bca8':'#d4cbb7';diamond(p.x,p.y,TW,TH,c,'#a79d8b');}
+ // back wall sections
+ for(let x=0;x<W;x++){let p=iso(x,0);poly([{x:p.x-TW/2,y:p.y},{x:p.x,y:p.y-48},{x:p.x+TW/2,y:p.y},{x:p.x+TW/2,y:p.y+TH/2},{x:p.x,y:p.y-24},{x:p.x-TW/2,y:p.y+TH/2}],'#52647a','#27374c');px(p.x-10,p.y-38,20,23,'#7fc5d1');px(p.x-8,p.y-36,16,19,'#1f435a');}
+ for(let y=0;y<H;y++){let p=iso(0,y);poly([{x:p.x-TW/2,y:p.y},{x:p.x,y:p.y+TH/2},{x:p.x,y:p.y+TH/2-48},{x:p.x-TW/2,y:p.y-48}],'#394b63','#24344a');}
+}
+function wallPanel(x,y,w,h,c,edge='#26384e'){
+ let p=iso(x,y);poly([{x:p.x-w/2,y:p.y},{x:p.x,y:p.y-h},{x:p.x+w/2,y:p.y},{x:p.x+w/2,y:p.y+8},{x:p.x,y:p.y-h+8},{x:p.x-w/2,y:p.y+8}],c,edge);
+}
+function desk(x,y,label){
+ let p=iso(x,y,0);
+ // metal legs, wood desktop, drawer and keyboard
+ px(p.x-13,p.y-1,3,17,'#51483f');px(p.x+10,p.y-1,3,17,'#51483f');
+ diamond(p.x,p.y-6,38,20,'#986d45','#4b3c32');
+ poly([{x:p.x-19,y:p.y-6},{x:p.x,y:p.y+4},{x:p.x,y:p.y+10},{x:p.x-19,y:p.y}], '#62462f','#3b302b');
+ poly([{x:p.x,y:p.y+4},{x:p.x+19,y:p.y-6},{x:p.x+19,y:p.y},{x:p.x,y:p.y+10}], '#765335','#3b302b');
+ px(p.x-8,p.y-20,16,11,'#17253a');px(p.x-6,p.y-18,12,7,'#57b6ce');px(p.x-1,p.y-9,3,4,'#d1c3a5');
+ px(p.x-8,p.y-3,10,3,'#2a3342');px(p.x+5,p.y-3,5,3,'#d6c6a2');
+ px(p.x+14,p.y-9,3,5,'#d9b66d'); // desk lamp
+ px(p.x+12,p.y-12,7,3,'#f5d98b');
+}
+function plant(x,y){let p=iso(x,y);diamond(p.x,p.y+2,17,9,'#4c4038');px(p.x-5,p.y-14,10,14,'#2f7656');px(p.x-10,p.y-12,7,7,'#4c9b68');px(p.x+4,p.y-18,7,9,'#5aa66e');px(p.x-2,p.y-24,6,8,'#79b77a');px(p.x-1,p.y-9,3,4,'#b68b54')}
+function sofa(x,y){let p=iso(x,y);diamond(p.x,p.y+2,43,23,'#293e58');poly([{x:p.x-20,y:p.y-7},{x:p.x,y:p.y-18},{x:p.x+20,y:p.y-7},{x:p.x+20,y:p.y+1},{x:p.x,y:p.y-10},{x:p.x-20,y:p.y+1}],'#637b94','#34475d');diamond(p.x,p.y-8,35,17,'#8b9bae','#34475d');px(p.x-14,p.y-8,8,6,'#e2c58c');px(p.x+8,p.y-8,8,6,'#d3a96b')}
+function bookshelf(x,y){let p=iso(x,y);px(p.x-17,p.y-31,34,30,'#60442f');px(p.x-14,p.y-28,28,3,'#b58b56');px(p.x-14,p.y-16,28,3,'#b58b56');px(p.x-14,p.y-4,28,3,'#b58b56');let cols=['#b46e53','#5d8cae','#8d6ba0','#6d9b70','#d0ad62'];for(let i=0;i<5;i++){px(p.x-13+i*6,p.y-27,4,9,cols[i]);px(p.x-13+i*6,p.y-15,4,9,cols[(i+2)%5]);}}
+function partition(x,y){let p=iso(x,y);poly([{x:p.x-17,y:p.y},{x:p.x,y:p.y-9},{x:p.x+17,y:p.y},{x:p.x+17,y:p.y-28},{x:p.x,y:p.y-37},{x:p.x-17,y:p.y-28}],'#6b8794','#34485c');poly([{x:p.x-13,y:p.y-25},{x:p.x,y:p.y-32},{x:p.x+13,y:p.y-25},{x:p.x+13,y:p.y-4},{x:p.x,y:p.y+3},{x:p.x-13,y:p.y-4}],'#9dd7df55','#a8cbd0');px(p.x-1,p.y-28,2,27,'#d3c29c')}
+function equipment(x,y,type){let p=iso(x,y);if(type==='camera'){px(p.x-11,p.y-18,22,13,'#27384d');px(p.x-7,p.y-15,14,7,'#5aa8c7');px(p.x-3,p.y-5,6,5,'#b38a4d');px(p.x-1,p.y,2,15,'#39485a');px(p.x-10,p.y+14,20,2,'#39485a')}else if(type==='server'){px(p.x-12,p.y-30,24,30,'#46586b');for(let i=0;i<3;i++){px(p.x-9,p.y-26+i*8,18,5,'#1b2a40');px(p.x-7,p.y-24+i*8,3,2,'#5ed1c2');px(p.x+4,p.y-24+i*8,4,2,'#e8bc63')}}else{px(p.x-12,p.y-20,24,20,'#42566d');px(p.x-8,p.y-16,16,10,'#70c4d4');px(p.x-4,p.y-5,8,5,'#b58c53')}}
+function rug(x,y,w=64,h=34,c='#304d70'){let p=iso(x,y);diamond(p.x,p.y,w,h,c,'#b18c52');diamond(p.x,p.y,w-8,h-5,'#263d5a','#637b91')}
+function drawFurniture(){
+ // rugs and zones
+ rug(2,5,88,45,'#304969');rug(7,6,94,48,'#32445c');rug(5,9,80,40,'#594b3b');
+ // desks arranged as department workstations
+ [[3,1],[8,1],[2,3],[5,3],[8,3],[2,6],[3,8],[7,8],[10,7],[10,3]].forEach(([x,y])=>desk(x,y));
+ // room separators and partitions
+ [[1,2],[4,2],[7,2],[1,5],[4,5],[7,5],[9,6],[4,8],[8,8]].forEach(([x,y])=>partition(x,y));
+ // plants, trees and decor
+ [[0,3],[0,8],[5,0],[10,2],[11,7],[6,9],[12,4],[2,10],[9,0]].forEach(([x,y])=>plant(x,y));
+ [[0,1],[0,4],[0,7],[0,9],[11,1]].forEach(([x,y])=>bookshelf(x,y));
+ // lounge with couches, coffee table and floor lamp
+ sofa(5,7);sofa(6,7);let q=iso(5.5,8);diamond(q.x,q.y,20,12,'#8b6846','#4a3c31');px(q.x-3,q.y-8,6,7,'#e0c58c');let lamp=iso(4,7);px(lamp.x-2,lamp.y-26,4,26,'#d5b36d');px(lamp.x-7,lamp.y-31,14,7,'#f6d88e');
+ // central meeting table and chairs
+ let p=iso(5,6);diamond(p.x,p.y+2,56,31,'#57483d','#352d2c');diamond(p.x,p.y-3,50,27,'#b28d5d','#5b4632');diamond(p.x,p.y-4,18,10,'#263c55','#c5a76c');px(p.x-3,p.y-12,6,6,'#5cc1d5');
+ [[4,5],[6,5],[4,7],[6,7]].forEach(([x,y])=>{let c=iso(x,y);diamond(c.x,c.y,13,8,'#41556b','#253448');px(c.x-5,c.y-9,10,8,'#617c96')});
+ // production studio cameras, softboxes and server racks
+ equipment(2,1,'camera');equipment(4,1,'camera');equipment(9,1,'server');equipment(9,3,'server');
+ // whiteboards and wall-mounted displays
+ [[3,0],[6,0],[9,0],[11,3]].forEach(([x,y],i)=>{let p=iso(x,y);px(p.x-18,p.y-53,36,22,'#273b56');px(p.x-15,p.y-50,30,16,['#65b4cb','#d0b16a','#7b72c5','#63b5a1'][i]);px(p.x-12,p.y-47,15,2,'#e8dcb7');px(p.x-12,p.y-42,21,2,'#e8dcb7')});
+ // vending / coffee station
+ let v=iso(11,5);px(v.x-11,v.y-28,22,28,'#536b7c');px(v.x-8,v.y-24,16,14,'#6cc5d4');px(v.x-7,v.y-7,14,4,'#d9b86d');px(v.x-5,v.y-2,10,2,'#28384b');
+ // glowing HQ sign above the back wall
+ let sign=iso(6,0);poly([{x:sign.x-83,y:sign.y-79},{x:sign.x,y:sign.y-123},{x:sign.x+83,y:sign.y-79},{x:sign.x,y:sign.y-35}],'#172a45','#e0b45b');ctx.fillStyle='#f3d17d';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED',sign.x,sign.y-81);ctx.fillStyle='#9bc7df';ctx.font='bold 8px system-ui';ctx.fillText('AI CONTENT HQ',sign.x,sign.y-68);
+}
+function drawNPCs(t){
+ npcState.forEach((n,i)=>{if(!n.path.length){n.wait--;if(n.wait<=0){let targets=[[3,1],[8,1],[2,3],[5,3],[8,3],[2,6],[3,8],[7,8],[10,7],[5,6],[6,7]];let dest=targets[(Math.floor(t/5000)+i*3)%targets.length];n.path=findPath(Math.round(n.x),Math.round(n.y),dest[0],dest[1]);n.wait=180+Math.random()*180}}
+ if(n.path.length){let [tx,ty]=n.path[0],dx=tx-n.x,dy=ty-n.y,dist=Math.hypot(dx,dy);if(dist<.035){n.x=tx;n.y=ty;n.path.shift()}else{n.x+=dx/dist*.035;n.y+=dy/dist*.035}}
+ sprite(n.x,n.y,n.data.color,n.data.hair,n.path.length>0,t/45+n.phase,1);
+ let p=iso(n.x,n.y);ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillStyle='#17243b';ctx.fillRect(p.x-20,p.y-52,40,12);ctx.fillStyle='#f7e8c4';ctx.fillText(n.data.name.split(' ')[0],p.x,p.y-43);
+ })}
+function drawPlayer(){let p=iso(player.x,player.y);sprite(player.x,player.y,'#e0b354','#342b37',movePath.length>0,performance.now()/45,1.1);diamond(p.x,p.y-43,15,8,'#f3c85f','#8b672b')}
+let player={x:6,y:6};
+function draw(t=0){
+ clear();ctx.save();ctx.translate(stage.clientWidth/2-CW/2,stage.clientHeight/2-CH/2);ctx.scale(scale,scale);ctx.translate(camX,camY);
+ drawFloor();drawFurniture();
+ // warm ceiling-light pools add a finished, cozy HQ atmosphere
+ [[2,2],[6,2],[9,5],[3,8],[10,8]].forEach(([x,y])=>{let lp=iso(x,y);let g=ctx.createRadialGradient(lp.x,lp.y-8,2,lp.x,lp.y-8,32);g.addColorStop(0,'#f7d98a30');g.addColorStop(1,'#f7d98a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(lp.x,lp.y-8,32,0,Math.PI*2);ctx.fill()});
+ drawNPCs(t);drawPlayer();
+ // signage and floor label
+ let sign=iso(6,0);ctx.fillStyle='#f2cf7e';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED · AI CONTENT HQ',sign.x,sign.y-68);
+ ctx.restore();requestAnimationFrame(draw)
+}
+function movePlayer(tx,ty){if(tx<0||ty<0||tx>=W||ty>=H)return;let p=findPath(Math.round(player.x),Math.round(player.y),tx,ty);if(p.length)movePath=p}
+function tickMove(){if(movePath.length){let [tx,ty]=movePath[0],dx=tx-player.x,dy=ty-player.y,d=Math.hypot(dx,dy);if(d<.04){player.x=tx;player.y=ty;movePath.shift()}else{player.x+=dx/d*.06;player.y+=dy/d*.06}}requestAnimationFrame(tickMove)}
+function openPanel(s){selected=s;document.getElementById('ptitle').textContent=s.name;document.getElementById('pdesc').textContent=s.role+' — '+s.desc;let items=document.getElementById('pitems');items.innerHTML='';['ตรวจสถานะงาน','ดูภารกิจประจำแผนก','ส่งข้อความถึง '+s.name].forEach((v,i)=>{let d=document.createElement('div');d.className='item';d.innerHTML='<span>'+v+'</span><span class="tag">'+(i===0?'พร้อมใช้งาน':'ตัวอย่าง')+'</span>';items.appendChild(d)});document.getElementById('paction').textContent='เริ่มสนทนา (ตัวอย่าง)';document.getElementById('paction').onclick=()=>toast('หน้าสนทนาเป็นตัวอย่าง · ยังไม่เชื่อม AI Backend');document.getElementById('panelbg').style.display='flex'}
+function toast(s){let e=document.getElementById('toast');e.textContent=s;e.style.display='block';clearTimeout(window.to);window.to=setTimeout(()=>e.style.display='none',2300)}
+function pointToTile(px0,py0){let x=px0-OX-camX,y=py0-OY-camY;let gx=y/TH+x/TW,gy=y/TH-x/TW;return [Math.round(gx),Math.round(gy)]}
+function onDown(e){let r=canvas.getBoundingClientRect();let sx=(e.clientX-r.left)*stage.clientWidth/r.width,sy=(e.clientY-r.top)*stage.clientHeight/r.height;drag={x:e.clientX,y:e.clientY,sx,sy,moved:false};canvas.setPointerCapture(e.pointerId)}
+canvas.addEventListener('pointerdown',onDown);
+canvas.addEventListener('pointerup',e=>{if(!drag)return;let dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>8){camX+=dx/scale;camY+=dy/scale;drag=null;return}
+ let xx=(drag.sx-(stage.clientWidth/2-CW/2))/scale, yy=(drag.sy-(stage.clientHeight/2-CH/2))/scale;let [tx,ty]=pointToTile(xx,yy);
+ let found=npcState.find(n=>{let p=iso(n.x,n.y);return Math.hypot(p.x-xx,p.y-yy)<22});
+ if(found){openPanel(found.data)}else if(Math.hypot(iso(player.x,player.y).x-xx,iso(player.x,player.y).y-yy)<20){toast('คุณกำลังควบคุมตัวละครผู้บริหาร');}else movePlayer(tx,ty);drag=null});
+document.getElementById('close').onclick=()=>document.getElementById('panelbg').style.display='none';document.getElementById('panelbg').addEventListener('click',e=>{if(e.target.id==='panelbg')e.currentTarget.style.display='none'});
+document.getElementById('zoomin').onclick=()=>scale=Math.min(1.35,scale+.1);document.getElementById('zoomout').onclick=()=>scale=Math.max(.7,scale-.1);document.getElementById('center').onclick=()=>{camX=camY=0;scale=1};
+document.getElementById('meeting').onclick=()=>{npcState.forEach((n,i)=>n.path=findPath(Math.round(n.x),Math.round(n.y),5+(i%3),5+Math.floor(i/3)));toast('เรียกประชุมทีม AI · การเคลื่อนที่จำลอง')};
+window.addEventListener('resize',resize);resize();tickMove();
+})();
+</script></body></html>
