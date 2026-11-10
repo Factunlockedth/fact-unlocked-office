@@ -99,6 +99,35 @@ function drawFurniture(){
  // glowing HQ sign above the back wall
  let sign=iso(6,0);poly([{x:sign.x-83,y:sign.y-79},{x:sign.x,y:sign.y-123},{x:sign.x+83,y:sign.y-79},{x:sign.x,y:sign.y-35}],'#172a45','#e0b45b');ctx.fillStyle='#f3d17d';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED',sign.x,sign.y-81);ctx.fillStyle='#9bc7df';ctx.font='bold 8px system-ui';ctx.fillText('AI CONTENT HQ',sign.x,sign.y-68);
 }
+// Staff actors: nine visible pixel-art characters, each tied to a department.
+const npcState=staff.map((data,i)=>({data,x:data.x,y:data.y,path:[],wait:60+i*24,phase:i*.8}));
+function sprite(x,y,shirt,hair,walking,phase,size=1){
+ const p=iso(x,y); const bob=walking?Math.round(Math.sin(phase)*2):0;
+ ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);
+ // shadow and shoes
+ diamond(0,1,18,8,'#1a2638aa',null);
+ px(-6, -8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');
+ // legs and torso
+ px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');
+ px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);
+ // neck, head, hair, face
+ px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');
+ px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);
+ px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');
+ // small gold ID badge
+ px(2,-24+bob,3,3,'#f3d17d');
+ ctx.restore();
+}
+function findPath(sx,sy,tx,ty){
+ // Short, safe grid path for the prototype. Keeps all movement within the office.
+ sx=Math.max(0,Math.min(W-1,sx));sy=Math.max(0,Math.min(H-1,sy));
+ tx=Math.max(0,Math.min(W-1,tx));ty=Math.max(0,Math.min(H-1,ty));
+ const q=[[sx,sy]],prev=new Map([[sx+','+sy,null]]);let end=null;
+ while(q.length){const [x,y]=q.shift();if(x===tx&&y===ty){end=x+','+y;break;}
+  for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,k=nx+','+ny;if(nx>=0&&ny>=0&&nx<W&&ny<H&&!prev.has(k)){prev.set(k,x+','+y);q.push([nx,ny]);}}
+ }
+ if(!end)return [];const path=[];let k=end;while(k&&k!==sx+','+sy){const [x,y]=k.split(',').map(Number);path.unshift([x,y]);k=prev.get(k);}return path;
+}
 function drawNPCs(t){
  npcState.forEach((n,i)=>{if(!n.path.length){n.wait--;if(n.wait<=0){let targets=[[3,1],[8,1],[2,3],[5,3],[8,3],[2,6],[3,8],[7,8],[10,7],[5,6],[6,7]];let dest=targets[(Math.floor(t/5000)+i*3)%targets.length];n.path=findPath(Math.round(n.x),Math.round(n.y),dest[0],dest[1]);n.wait=180+Math.random()*180}}
  if(n.path.length){let [tx,ty]=n.path[0],dx=tx-n.x,dy=ty-n.y,dist=Math.hypot(dx,dy);if(dist<.035){n.x=tx;n.y=ty;n.path.shift()}else{n.x+=dx/dist*.035;n.y+=dy/dist*.035}}
