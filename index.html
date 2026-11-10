@@ -25,7 +25,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated;touch-acti
 <header><div class="brand"><div class="logo"><span>FU</span></div><div>FACT UNLOCKED<small>AI CONTENT HQ · HABBO STYLE</small></div></div><div class="topright"><span id="status">ทีมงาน 9 คน</span><button id="meeting">เรียกประชุม</button></div></header>
 <div id="stage"><canvas id="game"></canvas><div id="hint">แตะพื้นเพื่อเดิน · แตะพนักงานเพื่อพูดคุย</div><div id="controls"><button id="zoomout">－</button><button id="zoomin">＋</button><button id="center">⌖</button></div><div id="toast"></div>
 <div id="panelbg"><div id="panel"><button id="close">ปิด ✕</button><h2 id="ptitle">พนักงาน</h2><p id="pdesc"></p><div id="pitems"></div><button id="paction" style="width:100%;margin-top:12px;background:linear-gradient(90deg,#e9c66c,#b28339);color:#172238;border:0;border-radius:8px;padding:11px;font-weight:800">เริ่มสนทนา</button></div></div>
-</div><div id="chatbg"><div id="chatbox"><div id="chathead"><div><strong id="chatname">AI Department</strong><div class="chatmeta">เชื่อมต่อ FACT UNLOCKED AI Backend</div></div><button id="chatclose">ปิด ✕</button></div><div id="chatlog"></div><div id="chatstate" role="status"></div><form id="chatform"><input id="chatinput" placeholder="พิมพ์คำสั่งถึงแผนกนี้..." autocomplete="off"><button id="chatsend" type="submit">ส่ง</button></form></div></div></div></div>
+</div><div id="chatbg"><div id="chatbox"><div id="chathead"><div><strong id="chatname">AI Department</strong><div class="chatmeta">เชื่อมต่อ FACT UNLOCKED AI Backend</div></div><button id="chatclose">ปิด ✕</button></div><div id="chatlog"></div><div id="chatstate" role="status"></div><div id="chatform"><input id="chatinput" type="text" placeholder="พิมพ์คำสั่งถึงแผนกนี้..." autocomplete="off"><button id="chatsend" type="button">ส่ง</button></div></div></div></div></div>
 <script>
 (()=>{
 const API_BASE='https://fact-unlocked-ai-api.songvit-sre.workers.dev';
@@ -76,7 +76,56 @@ function openPanel(s){selected=s;document.getElementById('ptitle').textContent=s
 function openChat(s){selected=s;document.getElementById('panelbg').style.display='none';document.getElementById('chatname').textContent=s.name;const log=document.getElementById('chatlog');log.innerHTML='';addBubble('ai','สวัสดีครับ ผมคือ '+s.name+' ('+s.role+')\nเชื่อมต่อ AI Backend แล้ว พิมพ์คำสั่งเพื่อเริ่มสนทนาได้เลยครับ');document.getElementById('chatstate').textContent='';document.getElementById('chatbg').style.display='flex';document.getElementById('chatinput').focus()}
 function addBubble(who,msg){const log=document.getElementById('chatlog');const b=document.createElement('div');b.className='bubble '+who;b.textContent=msg;log.appendChild(b);log.scrollTop=log.scrollHeight}
 const historyByDept={};
-document.getElementById('chatform').addEventListener('submit',async e=>{e.preventDefault();const input=document.getElementById('chatinput'),send=document.getElementById('chatsend'),state=document.getElementById('chatstate');const msg=input.value.trim();if(!msg||!selected)return;const dept=selected.id;const apiDepartment=dept==='fact'?'factcheck':dept;addBubble('user',msg);input.value='';send.disabled=true;state.textContent='กำลังส่งคำสั่งให้ '+selected.name+' ...';const history=historyByDept[dept]||[];try{const response=await fetch(API_BASE+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({department:apiDepartment,message:msg,history})});const data=await response.json().catch(()=>({ok:false,error:'เซิร์ฟเวอร์ส่งคำตอบที่ไม่ใช่ JSON'}));if(!response.ok||!data.ok)throw new Error(data.detail||data.error||data.message||('HTTP '+response.status));addBubble('ai',data.reply||'AI ไม่ได้ส่งข้อความตอบกลับ');history.push({role:'user',content:msg},{role:'assistant',content:data.reply||''});historyByDept[dept]=history.slice(-8);state.textContent='ตอบกลับแล้ว · '+(data.model||'Workers AI')}catch(error){addBubble('ai','ขออภัยครับ ส่งคำสั่งไม่สำเร็จ: '+error.message);state.textContent='การเชื่อมต่อล้มเหลว · ตรวจสอบข้อความด้านบน'}finally{send.disabled=false;input.focus()}});
+let chatSending=false;
+async function sendChatMessage(){
+  const input=document.getElementById('chatinput');
+  const send=document.getElementById('chatsend');
+  const state=document.getElementById('chatstate');
+  const msg=input.value.trim();
+  if(chatSending)return;
+  if(!selected){state.textContent='กรุณาเลือกพนักงานก่อนส่งข้อความ';return;}
+  if(!msg){state.textContent='กรุณาพิมพ์ข้อความก่อนกดส่ง';input.focus();return;}
+  const dept=selected.id;
+  const apiDepartment=dept==='fact'?'factcheck':dept;
+  addBubble('user',msg);
+  input.value='';
+  chatSending=true;
+  send.disabled=true;
+  send.textContent='กำลังส่ง';
+  state.textContent='กำลังเชื่อมต่อ AI ของ '+selected.name+' ...';
+  const history=historyByDept[dept]||[];
+  try{
+    const response=await fetch(API_BASE+'/chat',{
+      method:'POST',
+      mode:'cors',
+      cache:'no-store',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({department:apiDepartment,message:msg,history})
+    });
+    const raw=await response.text();
+    let data;
+    try{data=JSON.parse(raw)}catch(parseError){throw new Error('API ส่งข้อมูลที่อ่านไม่ได้ (HTTP '+response.status+'): '+raw.slice(0,250))}
+    if(!response.ok||!data.ok)throw new Error(data.detail||data.error||data.message||('HTTP '+response.status));
+    const reply=String(data.reply||'AI ไม่ได้ส่งข้อความตอบกลับ');
+    addBubble('ai',reply);
+    history.push({role:'user',content:msg},{role:'assistant',content:reply});
+    historyByDept[dept]=history.slice(-8);
+    state.textContent='ตอบกลับแล้ว · '+(data.model||'Workers AI');
+  }catch(error){
+    console.error('FACT UNLOCKED chat error:',error);
+    addBubble('ai','ส่งข้อความไม่สำเร็จ: '+String(error.message||error));
+    state.textContent='เชื่อมต่อไม่สำเร็จ · ดูรายละเอียดในข้อความนี้';
+  }finally{
+    chatSending=false;
+    send.disabled=false;
+    send.textContent='ส่ง';
+    input.focus();
+  }
+}
+document.getElementById('chatsend').addEventListener('click',sendChatMessage);
+document.getElementById('chatinput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();sendChatMessage();}
+});
 document.getElementById('chatclose').onclick=()=>document.getElementById('chatbg').style.display='none';document.getElementById('chatbg').addEventListener('click',e=>{if(e.target.id==='chatbg')e.currentTarget.style.display='none'});
 function toast(s){let e=document.getElementById('toast');e.textContent=s;e.style.display='block';clearTimeout(window.to);window.to=setTimeout(()=>e.style.display='none',2300)}
 function pointToTile(px0,py0){let x=px0-OX-camX,y=py0-OY-camY;let gx=y/TH+x/TW,gy=y/TH-x/TW;return[Math.round(gx),Math.round(gy)]}
