@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fact-unlocked-ai-api",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-11-10",
+  "workers_dev": true,
+  "ai": {
+    "binding": "AI"
+  }
+}
