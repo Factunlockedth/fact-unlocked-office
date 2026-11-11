@@ -94,6 +94,11 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated;touch-acti
     <div class="bridge-field"><label for="bridge-duration">ความยาวเป้าหมาย</label><input id="bridge-duration" value="75 วินาที"></div>
    </div>
    <div class="bridge-field"><label for="bridge-source">Script / Storyboard / Creative Pack <span style="color:#d9bd7a;font-size:10px">รองรับสูงสุด 12,000 ตัวอักษร</span></label><textarea id="bridge-source" placeholder="วางสคริปต์หรือผลลัพธ์จาก Creative AI ที่นี่..."></textarea><div id="bridge-charcount" style="font-size:10px;color:#b8c6d8;text-align:right;margin-top:4px">0 / 12,000 ตัวอักษร</div></div>
+   <div class="bridge-field" style="margin-top:12px">
+    <label for="bridge-voice-profile">FACT UNLOCKED · Master Voice Identity (ใช้เสียงเดียวกันทุกฉาก)</label>
+    <textarea id="bridge-voice-profile" style="min-height:88px">ผู้บรรยายชายไทยเสียงทุ้มลึก อบอุ่น สุขุม เป็นผู้ใหญ่ น่าเชื่อถือ ใช้ภาษาไทยกลางชัดเจน สำเนียงธรรมชาติ จังหวะการพูดแบบสารคดี Cinematic ไม่รีบเร่ง เว้นจังหวะอย่างมีความหมาย ถ่ายทอดความลึกลับอย่างจริงจังแต่ไม่โอเวอร์ ไม่ตะโกน ไม่กระซิบเกินจำเป็น เป็นเสียงบรรยายนอกจอ (off-screen voiceover) คนเดิม บุคลิกเสียงเดิมตลอดทุกฉาก ห้ามเปลี่ยนผู้พูด</textarea>
+    <div style="font-size:10px;color:#b8c6d8;text-align:right;margin-top:4px">Master Voice Profile · ใช้เป็นมาตรฐานเดียวกันทั้งโปรเจกต์</div>
+   </div>
    <div class="bridge-actions">
     <button class="bridge-btn primary" id="bridge-generate">สร้าง Prompt แยกฉากด้วย Creative AI</button>
     <button class="bridge-btn" id="bridge-parse">แยกฉากจากข้อความที่วาง</button>
@@ -225,11 +230,19 @@ function bridgeLoad(){
     const raw=localStorage.getItem(BRIDGE_KEY);
     if(!raw)return;
     const data=JSON.parse(raw);
-    if(data&&Array.isArray(data.scenes))bridgeScenes=data.scenes;
+    if(data&&Array.isArray(data.scenes))bridgeScenes=data.scenes.map(function(scene,index){
+      const defaults=bridgeSceneTemplate(index+1);
+      return Object.assign(defaults,scene,{
+        voiceover:scene.voiceover||'',
+        voiceDirection:scene.voiceDirection||defaults.voiceDirection,
+        audioDirection:scene.audioDirection||defaults.audioDirection
+      });
+    });
     if(data.project)document.getElementById('bridge-project').value=data.project;
     if(data.format)document.getElementById('bridge-format').value=data.format;
     if(data.duration)document.getElementById('bridge-duration').value=data.duration;
     if(data.source)document.getElementById('bridge-source').value=data.source;
+    if(data.voiceProfile)document.getElementById('bridge-voice-profile').value=data.voiceProfile;
   }catch(e){console.warn('Bridge local save unavailable',e)}
 }
 function bridgeSave(){
@@ -239,6 +252,7 @@ function bridgeSave(){
       format:document.getElementById('bridge-format').value,
       duration:document.getElementById('bridge-duration').value,
       source:document.getElementById('bridge-source').value,
+      voiceProfile:document.getElementById('bridge-voice-profile').value,
       scenes:bridgeScenes
     }));
   }catch(e){bridgeStatus('บันทึกบนอุปกรณ์นี้ไม่ได้ · อาจไม่มีพื้นที่จัดเก็บ')}
@@ -263,7 +277,19 @@ function bridgeFallbackCopy(value){
   area.remove();bridgeStatus(ok?'คัดลอกแล้ว · พร้อมวางใน Meta AI':'คัดลอกไม่สำเร็จ · แตะเลือกข้อความแล้วคัดลอกด้วยตนเอง');
 }
 function bridgeSceneTemplate(index){
-  return {title:'ฉาก '+String(index).padStart(2,'0'),timecode:'',prompt:'',negative:'',label:'ภาพประกอบ / Artist Impression',continuity:'',asset:'',status:'pending'};
+  return {
+    title:'ฉาก '+String(index).padStart(2,'0'),
+    timecode:'',
+    prompt:'',
+    voiceover:'',
+    voiceDirection:'เสียงผู้บรรยายชายไทยคนเดิม เสียงทุ้ม สุขุม ชัดเจน เว้นจังหวะตามอารมณ์ฉาก',
+    audioDirection:'ดนตรี Ambient เบา ๆ และ SFX ตามภาพ ห้ามดังทับเสียงบรรยาย',
+    negative:'',
+    label:'ภาพประกอบ / Artist Impression',
+    continuity:'',
+    asset:'',
+    status:'pending'
+  };
 }
 function bridgeUpdateStats(){
   const total=bridgeScenes.length;
@@ -337,7 +363,7 @@ function bridgeUpdateCharCount(){
   counter.textContent=n.toLocaleString('th-TH')+' / '+limit.toLocaleString('th-TH')+' ตัวอักษร';
   counter.style.color=n>limit?'#ff9b9b':'#b8c6d8';
 }
-['bridge-project','bridge-format','bridge-duration','bridge-source'].forEach(function(id){
+['bridge-project','bridge-format','bridge-duration','bridge-source','bridge-voice-profile'].forEach(function(id){
   document.getElementById(id).addEventListener('input',function(){bridgeSave();if(id==='bridge-source')bridgeUpdateCharCount()});
   document.getElementById(id).addEventListener('change',function(){bridgeSave();if(id==='bridge-source')bridgeUpdateCharCount()});
 });
