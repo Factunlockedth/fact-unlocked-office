@@ -324,6 +324,7 @@ function bridgeParseText(raw){
 }
 document.getElementById('bridgeopen').addEventListener('click',function(){
   bridgeLoad();
+  bridgeUpdateCharCount();
   document.getElementById('bridgebg').style.display='flex';
   bridgeRender();
 });
