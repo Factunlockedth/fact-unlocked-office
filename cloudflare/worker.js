@@ -207,11 +207,14 @@ export default {
       const requestedDepartment = url.searchParams.get("department") || "ceo";
       const department = DEPARTMENTS[requestedDepartment] ? requestedDepartment : "ceo";
       try {
+        const testMessage = department === "research"
+          ? "นี่คือคำสั่งงานจริงที่ต้องทำทันที: ช่วยเสนอเรื่องลึกลับ 3 เรื่องที่น่าสนใจและเหมาะกับช่อง FACT UNLOCKED โดยแต่ละเรื่องให้มีชื่อเรื่อง Hook เหตุผลที่น่าสนใจ คำถามวิจัย และหลักฐานประเภทที่ต้องตรวจ จากนั้นเลือก 1 เรื่องที่แนะนำที่สุดและทำ Mini Research Brief เบื้องต้น ห้ามแนะนำตัวเองซ้ำ ห้ามถามกลับให้ผู้ใช้เลือกหัวข้อก่อน และห้ามอ้างว่าค้นแหล่งข้อมูลจริงหากยังไม่ได้ค้น"
+          : "ช่วยแนะนำตัวเอง บอกหน้าที่หลัก และยกตัวอย่างงานที่คุณช่วยเจ้าของบริษัทได้";
         const reply = await askAI(env, [
           { role: "system", content: buildSystemPrompt(department) },
-          { role: "user", content: "ช่วยแนะนำตัวเอง บอกหน้าที่หลัก และยกตัวอย่างงานที่คุณช่วยเจ้าของบริษัทได้" }
+          { role: "user", content: testMessage }
         ]);
-        return json({ ok: true, test: "passed", department, model: MODEL, reply }, 200, responseOrigin);
+        return json({ ok: true, test: "passed", testType: department === "research" ? "topic-research-task" : "self-introduction", department, model: MODEL, reply }, 200, responseOrigin);
       } catch (error) {
         console.error("FACT UNLOCKED test error:", error);
         return json({
