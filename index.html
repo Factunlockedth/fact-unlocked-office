@@ -93,7 +93,7 @@ canvas{width:100%;height:100%;display:block;image-rendering:pixelated;touch-acti
     <div class="bridge-field"><label for="bridge-format">สัดส่วนวิดีโอ</label><select id="bridge-format"><option value="9:16">9:16 แนวตั้ง</option><option value="16:9">16:9 แนวนอน</option><option value="1:1">1:1 สี่เหลี่ยม</option></select></div>
     <div class="bridge-field"><label for="bridge-duration">ความยาวเป้าหมาย</label><input id="bridge-duration" value="75 วินาที"></div>
    </div>
-   <div class="bridge-field"><label for="bridge-source">Script / Storyboard / Creative Pack</label><textarea id="bridge-source" placeholder="วางสคริปต์หรือผลลัพธ์จาก Creative AI ที่นี่..."></textarea></div>
+   <div class="bridge-field"><label for="bridge-source">Script / Storyboard / Creative Pack <span style="color:#d9bd7a;font-size:10px">รองรับสูงสุด 12,000 ตัวอักษร</span></label><textarea id="bridge-source" placeholder="วางสคริปต์หรือผลลัพธ์จาก Creative AI ที่นี่..."></textarea><div id="bridge-charcount" style="font-size:10px;color:#b8c6d8;text-align:right;margin-top:4px">0 / 12,000 ตัวอักษร</div></div>
    <div class="bridge-actions">
     <button class="bridge-btn primary" id="bridge-generate">สร้าง Prompt แยกฉากด้วย Creative AI</button>
     <button class="bridge-btn" id="bridge-parse">แยกฉากจากข้อความที่วาง</button>
@@ -329,10 +329,18 @@ document.getElementById('bridgeopen').addEventListener('click',function(){
 });
 document.getElementById('bridgeclose').addEventListener('click',function(){document.getElementById('bridgebg').style.display='none'});
 document.getElementById('bridgebg').addEventListener('click',function(e){if(e.target.id==='bridgebg')e.currentTarget.style.display='none'});
+function bridgeUpdateCharCount(){
+  const source=document.getElementById('bridge-source');
+  const counter=document.getElementById('bridge-charcount');
+  const n=source.value.length, limit=12000;
+  counter.textContent=n.toLocaleString('th-TH')+' / '+limit.toLocaleString('th-TH')+' ตัวอักษร';
+  counter.style.color=n>limit?'#ff9b9b':'#b8c6d8';
+}
 ['bridge-project','bridge-format','bridge-duration','bridge-source'].forEach(function(id){
-  document.getElementById(id).addEventListener('input',bridgeSave);
-  document.getElementById(id).addEventListener('change',bridgeSave);
+  document.getElementById(id).addEventListener('input',function(){bridgeSave();if(id==='bridge-source')bridgeUpdateCharCount()});
+  document.getElementById(id).addEventListener('change',function(){bridgeSave();if(id==='bridge-source')bridgeUpdateCharCount()});
 });
+bridgeUpdateCharCount();
 document.getElementById('bridge-add').addEventListener('click',function(){
   bridgeScenes.push(bridgeSceneTemplate(bridgeScenes.length+1));bridgeRender();bridgeStatus('เพิ่มฉากใหม่แล้ว');
 });
@@ -345,6 +353,7 @@ document.getElementById('bridge-parse').addEventListener('click',function(){
 document.getElementById('bridge-generate').addEventListener('click',async function(){
   const source=document.getElementById('bridge-source').value.trim();
   if(!source){bridgeStatus('กรุณาวาง Script หรือ Storyboard ก่อน');return}
+  if(source.length>12000){bridgeStatus('ข้อความยาว '+source.length.toLocaleString('th-TH')+' ตัวอักษร · Bridge รองรับสูงสุด 12,000 ตัวอักษร กรุณาวางเฉพาะ Storyboard ที่จำเป็น');return}
   const button=this;button.disabled=true;button.textContent='กำลังสร้าง Prompt...';bridgeStatus('Creative AI กำลังแปลง Storyboard เป็น Prompt รายฉาก');
   const project=document.getElementById('bridge-project').value.trim()||'FACT UNLOCKED';
   const format=document.getElementById('bridge-format').value;
