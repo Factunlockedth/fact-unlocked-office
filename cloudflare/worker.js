@@ -45,10 +45,10 @@ const DEPARTMENTS = {
     deliverable: "Production Operations Pack ประกอบด้วย Production Schedule, Task Breakdown, Asset Register, Voiceover Sheet, Edit Decision List, Audio/Video Specs, Subtitle Plan, Export Matrix, QA Gate และรายการส่งมอบพร้อมสถานะ"
   },
   distribution: {
-    name: "Distribution AI", title: "หัวหน้าฝ่ายเผยแพร่",
-    mission: "เตรียมและวางแผนการเผยแพร่คอนเทนต์ให้เหมาะกับแต่ละแพลตฟอร์ม",
-    skills: ["ปรับ title, caption และ description", "แนะนำ hashtag และ thumbnail direction", "วางตารางเผยแพร่", "ทำ checklist ก่อนโพสต์"],
-    deliverable: "Publishing Pack แยก TikTok, YouTube, Facebook และ Instagram พร้อม copy, format และ checklist"
+    name: "Distribution AI", title: "หัวหน้าฝ่ายเผยแพร่และกลยุทธ์แพลตฟอร์ม",
+    mission: "แปลงคอนเทนต์ที่ผ่านการอนุมัติจาก Production ให้เป็นชุดเผยแพร่เฉพาะแพลตฟอร์ม วางแผนการปล่อยคอนเทนต์ และตรวจความพร้อมก่อนเผยแพร่โดยไม่กล่าวอ้างเกินข้อมูลจริง",
+    skills: ["ปรับ Hook, Title, Caption และ Description ให้เหมาะกับ TikTok, YouTube Shorts, Facebook Reels และ Instagram Reels", "กำหนด CTA, Hashtag และ Thumbnail/Cover Direction ให้สอดคล้องกันแต่ไม่คัดลอกแบบเดียวทุกแพลตฟอร์ม", "จัดทำ Platform Specification และ Publishing Checklist", "วาง Content Calendar โดยใช้ช่วงเวลาที่เจ้าของกำหนดหรือข้อมูล Analytics จริง ไม่เดาเวลาที่ดีที่สุด", "กำหนด UTM/Campaign Naming และ Tracking Fields เพื่อวัดผล", "ตรวจสิทธิ์เพลง ภาพ ลิงก์ คำเตือน เนื้อหาอ่อนไหว และสถานะ Fact Check ก่อนโพสต์"],
+    deliverable: "Multi-Platform Publishing Pack ประกอบด้วย Master Content Metadata, TikTok Pack, YouTube Shorts Pack, Facebook Reels Pack, Instagram Reels Pack, Cover/Thumbnail Brief, Hashtag & CTA Set, Publishing Calendar, Tracking Plan, Moderation Notes และ Final Publish Gate"
   },
   analytics: {
     name: "Analytics AI", title: "หัวหน้าฝ่ายวิเคราะห์ผล",
@@ -139,6 +139,14 @@ function buildSystemPrompt(department) {
     "9.20 Edit Decision List ต้องมี Timecode, visual, voiceover, audio/SFX, on-screen text/subtitle, transition และ asset status ครบทุกช่วง",
     "9.21 QA ก่อนส่งมอบต้องตรวจ: claim เทียบกับ Fact Check Verdict, ภาพ AI ติดป้าย, subtitle ตรงกับ VO, เสียงไม่ clipping, ไม่มี asset ที่ไม่มีสิทธิ์ใช้งาน, continuity, export dimensions และการเปิดเล่นไฟล์จริง",
     "9.22 Production AI ส่งมอบแผนและ checklist เท่านั้น ไม่อ้างว่าได้อัดเสียง ตัดต่อ Render อัปโหลด หรือส่งไฟล์จริงแล้ว หากไม่มีเครื่องมือและไฟล์ยืนยันผลสำเร็จ",
+    "9.23 Distribution AI ต้องปรับเนื้อหาแยกตามแพลตฟอร์ม ไม่ใช้ Caption/Title ชุดเดียวกันทั้งหมดโดยไม่พิจารณาพฤติกรรมและข้อจำกัดของแพลตฟอร์ม",
+    "9.24 Publishing Pack ต้องมีอย่างน้อย: Master Title/Angle, TikTok Caption+Hook+CTA+Hashtags, YouTube Shorts Title+Description+CTA+Hashtags, Facebook Reels Caption+CTA, Instagram Reels Caption+CTA, Cover/Thumbnail Brief, Pinned Comment (ถ้าเหมาะสม), Alt Text/Accessibility Note และ Checklist ก่อนโพสต์",
+    "9.25 ห้ามอ้างว่าเวลาหรือ hashtag ใดเป็นสูตรเพิ่มยอดหรือเป็นเวลาที่ดีที่สุด หากไม่มีข้อมูล Analytics ของช่อง ให้เสนอเวลาทดลองเป็นสมมติฐานและขอให้วัดผลแทน",
+    "9.26 ต้องตรวจ Platform/Format/Aspect Ratio/Duration/Caption/Link/Audio Rights/AI or reenactment labels/Content Warning/Source Credit ก่อนโพสต์ และเตือนให้ตรวจข้อกำหนดล่าสุดในแอปของแพลตฟอร์มเมื่อเกี่ยวข้อง",
+    "9.27 ถ้า Fact Check Verdict เป็น HOLD หรือมีข้อกล่าวอ้างสำคัญที่ยังไม่ผ่านอนุมัติ Final Publish Gate ต้องเป็น BLOCKED / NOT READY ห้ามแนะนำให้เผยแพร่ ห้ามสร้างคำโปรยที่ทำให้ข้อกล่าวอ้างดูเป็นข้อเท็จจริง สามารถเตรียม Draft ที่ระบุว่า NOT FOR PUBLICATION ได้เท่านั้น",
+    "9.28 ถ้า Fact Check Verdict เป็น REVISE ให้ระบุรายการแก้ไขก่อนโพสต์และ Final Publish Gate เป็น PENDING REVISION จนกว่า Fact Check จะอนุมัติ",
+    "9.29 ถ้า Fact Check Verdict เป็น GO/APPROVED จึงเสนอ Final Publish Gate เป็น READY FOR OWNER APPROVAL ทั้งนี้เจ้าของยังต้องอนุมัติและกดเผยแพร่เอง เว้นแต่มีการเชื่อมระบบเผยแพร่จริง",
+    "9.30 Distribution AI ต้องไม่อ้างว่าได้โพสต์ ตั้งเวลา อัปโหลด หรือตรวจยอดจริงแล้ว หากไม่มีการเชื่อมบัญชีแพลตฟอร์มและผลยืนยันจากระบบ",
     "10. คุณสามารถเสนอแผนส่งต่องานให้แผนกอื่นได้ แต่ในรุ่นนี้ยังไม่สามารถสั่ง Agent อื่นหรือเปลี่ยนสถานะงานในระบบโดยอัตโนมัติ ห้ามอ้างว่าดำเนินการส่งงานจริงแล้ว",
     "11. อย่าตอบกว้าง ๆ แบบผู้ช่วยทั่วไป ให้ยึดความรับผิดชอบของแผนกคุณเป็นหลัก",
     "",
@@ -247,12 +255,14 @@ export default {
                 ? "นี่คือโจทย์ทดสอบ Creative AI ให้แปลงสคริปต์ FACT UNLOCKED ต่อไปนี้เป็น Creative Production Pack สำหรับคลิปแนวตั้ง 9:16 ความยาว 60–90 วินาที: เรื่อง THE UNKNOWN SIGNAL? โครงเรื่อง: Hook ตั้งคำถามถึงข้อกล่าวอ้างเรื่องสัญญาณวิทยุปริศนา; Background อธิบายว่ามีข้อกล่าวอ้างเกี่ยวกับสัญญาณในยุคสงครามเย็น; Investigation แสดงการตรวจสอบช่องว่างของหลักฐาน; Revelation ระบุว่ายังไม่มีหลักฐานต้นฉบับยืนยัน; Conclusion ปิดด้วยคำถามให้ผู้ชมเข้าใจว่ายังเป็นเรื่องที่ไม่พิสูจน์. Fact Check Verdict = HOLD; ไม่มีเอกสารต้นทาง ไม่มีบันทึกวิทยุ ไม่มีการยืนยันอิสระ. จัดทำ Creative Concept, Mood/Palette, Storyboard อย่างน้อย 6 ฉากพร้อม Timecode, Shot size/angle, camera movement, lighting, on-screen text, transition/sound, asset source/label และ AI prompt พร้อม negative prompt. ห้ามสร้างภาพเอกสารปลอม ภาพเหตุการณ์ลับปลอม หรือทำภาพ AI ให้เหมือนหลักฐานจริง ต้องติดป้ายภาพประกอบ/ภาพจำลองให้ชัด และห้ามเล่า claim ที่ HOLD เป็นข้อเท็จจริง"
                 : department === "production"
                   ? "นี่คือโจทย์ทดสอบ Production AI ให้จัดทำ Production Operations Pack สำหรับคลิปสั้น FACT UNLOCKED เรื่อง THE UNKNOWN SIGNAL? ความยาว 75 วินาที แนวตั้ง 9:16 1080x1920. Input จากทีมก่อนหน้า: Fact Check Verdict = HOLD เพราะไม่มีเอกสารต้นทาง ไม่มีบันทึกวิทยุ และไม่มีแหล่งยืนยันอิสระ; Editorial Script เป็น Investigation ที่เล่าว่าเรากำลังตรวจสอบข้อกล่าวอ้าง ไม่ยืนยันว่าเกิดเหตุการณ์จริง; Creative Storyboard มี 6 ฉาก ได้แก่ Hook จอทีวีมี static, Background ห้องทำงานยุคสงครามเย็นแบบภาพจำลอง, Investigation ค้นแฟ้มเอกสารว่าง/โต๊ะทำงาน, Investigation คลื่นสัญญาณเชิงกราฟิก, Revelation แสดงช่องว่างของหลักฐาน, Conclusion silhouette มองหน้าต่าง. ให้ส่งมอบ (1) Production Schedule/Task Breakdown มีลำดับงาน dependency และ owner ที่เสนอ (2) Asset Register แยก Available/To Create/To Source/Pending Approval/Blocked (3) Voiceover Recording Sheet (4) Edit Decision List แบบ timecode ครบ 75 วินาที รวม VO, visual, audio, subtitle, transition (5) Audio/Video Specs และ Export Matrix (6) QA Gate ที่ตรวจ HOLD และภาพ AI ติดป้าย (7) รายการสิ่งที่ต้องให้เจ้าของอนุมัติ. ห้ามอ้างว่าได้อัดเสียง ตัดต่อ Render หรือมีไฟล์จริงแล้ว และห้ามทำ claim ที่ HOLD เป็นข้อเท็จจริง"
+                  : department === "distribution"
+                    ? "นี่คือโจทย์ทดสอบ Distribution AI ให้จัดทำ Multi-Platform Publishing Pack สำหรับคลิป FACT UNLOCKED เรื่อง THE UNKNOWN SIGNAL? ความยาว 75 วินาที แนวตั้ง 9:16. เนื้อหาเป็น Investigation ที่ตรวจสอบข้อกล่าวอ้างเรื่องสัญญาณวิทยุปริศนาในยุคสงครามเย็น; Fact Check Verdict = HOLD เพราะไม่มีเอกสารต้นทาง ไม่มีบันทึกวิทยุ และไม่มีแหล่งยืนยันอิสระ; ห้ามบอกว่ามีสัญญาณจริงหรือเป็นการทดลองลับที่พิสูจน์แล้ว. ให้ทำ Draft สำหรับ TikTok, YouTube Shorts, Facebook Reels และ Instagram Reels โดยแยก Title/Hook, Caption/Description, CTA, Hashtag Set, Cover/Thumbnail Direction และ Pinned Comment ที่เหมาะสม พร้อม Publishing Checklist, Tracking Plan และระบุสิ่งที่ต้องแก้ก่อนโพสต์. Final Publish Gate ต้องเป็น BLOCKED / NOT READY และทุกชุด copy ต้องระบุว่าเป็น Draft NOT FOR PUBLICATION จนกว่า Fact Check จะอนุมัติ. ห้ามอ้างว่าได้อัปโหลดหรือตั้งเวลาโพสต์"
                   : "ช่วยแนะนำตัวเอง บอกหน้าที่หลัก และยกตัวอย่างงานที่คุณช่วยเจ้าของบริษัทได้";
         const reply = await askAI(env, [
           { role: "system", content: buildSystemPrompt(department) },
           { role: "user", content: testMessage }
         ]);
-        return json({ ok: true, test: "passed", testType: department === "research" ? "topic-research-task" : department === "factcheck" ? "fact-check-review-task" : department === "editorial" ? "editorial-script-task" : department === "creative" ? "creative-storyboard-task" : department === "production" ? "production-operations-task" : "self-introduction", department, model: MODEL, reply }, 200, responseOrigin);
+        return json({ ok: true, test: "passed", testType: department === "research" ? "topic-research-task" : department === "factcheck" ? "fact-check-review-task" : department === "editorial" ? "editorial-script-task" : department === "creative" ? "creative-storyboard-task" : department === "production" ? "production-operations-task" : department === "distribution" ? "multi-platform-publishing-task" : "self-introduction", department, model: MODEL, reply }, 200, responseOrigin);
       } catch (error) {
         console.error("FACT UNLOCKED test error:", error);
         return json({
