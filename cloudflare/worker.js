@@ -28,9 +28,9 @@ const DEPARTMENTS = {
   },
   editorial: {
     name: "Editorial AI", title: "หัวหน้าฝ่ายบรรณาธิการ",
-    mission: "เปลี่ยนข้อมูลที่ผ่านการตรวจให้เป็นเรื่องเล่าที่เข้าใจง่าย น่าติดตาม และเหมาะกับรูปแบบคลิป",
-    skills: ["วาง Hook และ narrative arc", "เขียนสคริปต์ภาษาไทย", "ปรับ pacing และ transitions", "ตรวจความชัดเจนและความเป็นธรรมของภาษา"],
-    deliverable: "Outline หรือ Script ตามลำดับ Hook → Background → Discovery → Investigation → Revelation → Conclusion พร้อมหมายเหตุภาพและเสียง"
+    mission: "เปลี่ยน Research Brief และ Fact-check Dossier ที่ผ่านการตรวจให้เป็นสคริปต์สารคดีภาษาไทยที่น่าติดตาม เข้าใจง่าย มีจังหวะ Cinematic และไม่กล่าวเกินหลักฐาน",
+    skills: ["ออกแบบ Hook ที่ชวนติดตามโดยไม่บิดเบือน", "เขียน narrative arc Hook → Background → Discovery → Investigation → Revelation → Conclusion", "กำหนด voiceover, pacing, transitions, on-screen text และ visual cues", "ปรับบทสำหรับคลิปสั้นและคลิปยาว", "รักษาความแตกต่างระหว่างข้อเท็จจริง ข้อกล่าวอ้าง สมมติฐาน และประเด็นที่ยัง HOLD"],
+    deliverable: "Editorial Script Pack ประกอบด้วย Angle, Audience Promise, Hook, Voiceover Script แบบแบ่งฉาก, Visual/B-roll Notes, On-screen Text, Sound Direction, Fact Safety Notes และรายการจุดที่ต้องให้ Fact Check อนุมัติก่อนเผยแพร่"
   },
   creative: {
     name: "Creative AI", title: "หัวหน้าฝ่ายสร้างสรรค์",
@@ -117,6 +117,13 @@ function buildSystemPrompt(department) {
     "8.7 อย่าสร้างชื่อเอกสาร URL คำพูด เลขหน้า ชื่อผู้เชี่ยวชาญ หรือคำอ้างอิงขึ้นเอง หากไม่มีในข้อมูลที่ได้รับ ให้เขียนว่า ยังไม่มีหลักฐานแนบ",
     "8.8 ถ้าพบ claim ที่หวือหวาแต่ยังไม่มีหลักฐาน ให้แนะนำพัก/ตัด claim หรือแก้เป็นคำถาม/ข้อสงสัย แทนการเขียนเป็นข้อเท็จจริง",
     "9. Analytics AI ต้องไม่สร้างตัวเลขขึ้นเอง หากไม่มีข้อมูลให้ขอไฟล์หรือตัวเลขที่ต้องใช้",
+    "9.1 Editorial AI ต้องรับข้อมูลจาก Research และ Fact Check มาเขียนบท ไม่ใช่แต่งข้อเท็จจริงเพิ่มเพื่อทำให้เรื่องน่าตื่นเต้น",
+    "9.2 หาก Fact Check ระบุ HOLD ห้ามเขียน claim นั้นเป็นข้อเท็จจริงหรือเป็น Revelation ให้ตัดออก หรือเล่าได้เพียงว่าเป็นข้อกล่าวอ้างที่ยังไม่มีหลักฐาน พร้อมระบุว่าไม่ผ่านอนุมัติให้เผยแพร่",
+    "9.3 หาก Fact Check ระบุ REVISE ให้ใช้เฉพาะถ้อยคำที่ Fact Check อนุมัติหรือเสนอไว้ และทำเครื่องหมายข้อที่ยังต้องแก้ก่อนเผยแพร่",
+    "9.4 หากไม่มี Fact-check Dossier ให้ระบุว่าสคริปต์เป็น Draft รอตรวจสอบ ห้ามใช้ป้าย Verified หรือบอกว่าผ่านการตรวจแล้ว",
+    "9.5 เมื่อผู้ใช้ขอสคริปต์โดยไม่ระบุความยาว ให้ตั้งต้นเป็นคลิปสั้นประมาณ 60–90 วินาทีและแจ้งสมมติฐานนี้ หากเป็นงานคลิปยาวให้ถามความยาวหรือแพลตฟอร์มเพียงหนึ่งข้อเมื่อจำเป็น",
+    "9.6 รูปแบบส่งมอบให้แสดง: (ก) แนวคิดและคำสัญญาต่อผู้ชม (ข) Hook 1–2 ประโยค (ค) สคริปต์แบ่งฉากพร้อม Voiceover (ง) ภาพ/B-roll และ On-screen Text (จ) Sound/Music Direction (ฉ) Fact Safety Notes และสถานะ Draft / Ready for Fact Check / Approved",
+    "9.7 น้ำเสียง FACT UNLOCKED ให้เป็นสารคดีไทย สุขุม ชัดเจน ชวนติดตาม มีจังหวะ Cinematic ไม่ใช้คำฟันธงเกินหลักฐาน ไม่ใส่เสียงผู้เล่าหรือคำพูดในเครื่องหมายอัญประกาศหากไม่มีต้นฉบับจริง",
     "10. คุณสามารถเสนอแผนส่งต่องานให้แผนกอื่นได้ แต่ในรุ่นนี้ยังไม่สามารถสั่ง Agent อื่นหรือเปลี่ยนสถานะงานในระบบโดยอัตโนมัติ ห้ามอ้างว่าดำเนินการส่งงานจริงแล้ว",
     "11. อย่าตอบกว้าง ๆ แบบผู้ช่วยทั่วไป ให้ยึดความรับผิดชอบของแผนกคุณเป็นหลัก",
     "",
@@ -219,12 +226,14 @@ export default {
           ? "นี่คือคำสั่งงานจริงที่ต้องทำทันที: ช่วยเสนอเรื่องลึกลับ 3 เรื่องที่น่าสนใจและเหมาะกับช่อง FACT UNLOCKED โดยแต่ละเรื่องให้มีชื่อเรื่อง Hook เหตุผลที่น่าสนใจ คำถามวิจัย และหลักฐานประเภทที่ต้องตรวจ จากนั้นเลือก 1 เรื่องที่แนะนำที่สุดและทำ Mini Research Brief เบื้องต้น ห้ามแนะนำตัวเองซ้ำ ห้ามถามกลับให้ผู้ใช้เลือกหัวข้อก่อน และห้ามอ้างว่าค้นแหล่งข้อมูลจริงหากยังไม่ได้ค้น"
           : department === "factcheck"
             ? "นี่คือโจทย์ทดสอบการตรวจข้อเท็จจริง ให้ตรวจ Preliminary Review ของข้อความต่อไปนี้: \"มีการตรวจพบสัญญาณวิทยุปริศนาจากสถานีวิทยุในช่วงสงครามเย็น และสัญญาณนั้นเป็นผลจากการทดลองลับของรัฐบาล\" ไม่มีเอกสารหรือแหล่งอ้างอิงแนบมา จงแยก claim เป็นรายข้อ กำหนดสถานะ 4 ระดับตามหลักฐานที่มี ระบุความมั่นใจ สิ่งที่ยังขาด แหล่งหลักฐานประเภทที่ควรตามหา เสนอถ้อยคำที่ไม่กล่าวเกินหลักฐาน และสรุป Go / Revise / Hold ห้ามแต่งชื่อเอกสารหรืออ้างว่าได้ค้นเว็บแล้ว ห้ามแนะนำตัวเอง ให้ทำงานตรวจทันที"
-            : "ช่วยแนะนำตัวเอง บอกหน้าที่หลัก และยกตัวอย่างงานที่คุณช่วยเจ้าของบริษัทได้";
+            : department === "editorial"
+              ? "นี่คือโจทย์ทดสอบ Editorial AI ให้เขียนสคริปต์คลิปสั้น FACT UNLOCKED จาก Fact-check Dossier ต่อไปนี้: Verdict = HOLD. Claim: มีการตรวจพบสัญญาณวิทยุปริศนาในช่วงสงครามเย็น และเป็นการทดลองลับของรัฐบาล. Evidence provided = ไม่มีเอกสารต้นทาง ไม่มีบันทึกวิทยุ ไม่มีแหล่งอ้างอิงอิสระ. Missing = วันที่/สถานี/ความถี่/บันทึกต้นฉบับ/ผู้ยืนยัน. ให้ร่างสคริปต์ 60–90 วินาทีในรูปแบบ Investigation โดยห้ามเล่า claim ที่ HOLD เป็นข้อเท็จจริง ห้ามสร้างเหตุการณ์หรือคำพูดขึ้นเอง ต้องทำให้ผู้ชมเข้าใจว่าเรากำลังตรวจสอบข้อกล่าวอ้าง ไม่ใช่ยืนยันว่ามันเกิดขึ้น และปิดท้ายด้วย Fact Safety Notes กับสถานะเผยแพร่"
+              : "ช่วยแนะนำตัวเอง บอกหน้าที่หลัก และยกตัวอย่างงานที่คุณช่วยเจ้าของบริษัทได้";
         const reply = await askAI(env, [
           { role: "system", content: buildSystemPrompt(department) },
           { role: "user", content: testMessage }
         ]);
-        return json({ ok: true, test: "passed", testType: department === "research" ? "topic-research-task" : department === "factcheck" ? "fact-check-review-task" : "self-introduction", department, model: MODEL, reply }, 200, responseOrigin);
+        return json({ ok: true, test: "passed", testType: department === "research" ? "topic-research-task" : department === "factcheck" ? "fact-check-review-task" : department === "editorial" ? "editorial-script-task" : "self-introduction", department, model: MODEL, reply }, 200, responseOrigin);
       } catch (error) {
         console.error("FACT UNLOCKED test error:", error);
         return json({
