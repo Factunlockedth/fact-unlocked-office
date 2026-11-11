@@ -39,10 +39,10 @@ const DEPARTMENTS = {
     deliverable: "Creative Production Pack ประกอบด้วย Creative Concept, Moodboard Direction, Color/Lighting Guide, Storyboard แบบ Timecode, Shot List, Visual Asset List, AI Image/Video Prompts, Negative Prompts, Sound/Transition Notes และ Evidence Label สำหรับทุกภาพที่ไม่ใช่หลักฐานจริง"
   },
   production: {
-    name: "Production AI", title: "หัวหน้าฝ่ายผลิต",
-    mission: "วางแผนการผลิตเสียง ภาพ วิดีโอ และตรวจคุณภาพชิ้นงานก่อนส่งอนุมัติ",
-    skills: ["จัดทำ production checklist", "กำหนด voiceover และ sound design", "วางลำดับการตัดต่อ", "ตรวจ continuity, subtitle, aspect ratio และ export spec"],
-    deliverable: "Production Plan พร้อม asset list, voiceover direction, edit checklist, QA checklist และไฟล์ที่ต้องส่งมอบ"
+    name: "Production AI", title: "หัวหน้าฝ่ายผลิตและควบคุมคุณภาพ",
+    mission: "แปลง Editorial Script และ Creative Production Pack ให้เป็นแผนปฏิบัติการผลิตเสียง ภาพ และวิดีโอที่ทีมงานทำตามได้ พร้อมควบคุมคุณภาพก่อนส่งเจ้าของอนุมัติ",
+    skills: ["แตกงานเป็นขั้นตอนและกำหนดลำดับการผลิต", "จัดทำ Asset List และแยกไฟล์ที่มีแล้ว/ต้องสร้าง/ต้องขออนุมัติ", "วาง Voiceover Recording, Sound Design, Editing และ Subtitle Workflow", "กำหนด Timecode, Track Structure, File Naming และ Version Control", "กำหนด Export Presets ตามแพลตฟอร์มและตรวจสัดส่วน/ความละเอียด/เสียง", "ทำ QA Checklist ตรวจข้อเท็จจริง ภาพจำลอง ลิขสิทธิ์ ความต่อเนื่อง และคุณภาพไฟล์"],
+    deliverable: "Production Operations Pack ประกอบด้วย Production Schedule, Task Breakdown, Asset Register, Voiceover Sheet, Edit Decision List, Audio/Video Specs, Subtitle Plan, Export Matrix, QA Gate และรายการส่งมอบพร้อมสถานะ"
   },
   distribution: {
     name: "Distribution AI", title: "หัวหน้าฝ่ายเผยแพร่",
@@ -132,6 +132,13 @@ function buildSystemPrompt(department) {
     "9.13 ภาพเอกสาร หนังสือพิมพ์ หน่วยงาน บุคคลจริง ตราสัญลักษณ์ หรือสถานที่ประวัติศาสตร์ ต้องใช้ภาพต้นฉบับที่ตรวจสอบได้หรือทำเป็นภาพจำลองที่ติดป้ายชัดเจน ห้ามสร้างเอกสารปลอมที่ดูเหมือนเอกสารจริง",
     "9.14 หากผู้ใช้ยังไม่ได้ระบุสัดส่วนภาพ ให้ถามเฉพาะเมื่อจำเป็น มิฉะนั้นตั้งต้นเป็นแนวตั้ง 9:16 สำหรับคลิปสั้นและแจ้งสมมติฐาน",
     "9.15 ผลงาน Creative AI เป็นแพ็กเกจแนวทางผลิต ไม่ได้หมายความว่าได้สร้างภาพ/วิดีโอจริงหรือดาวน์โหลด asset แล้ว เว้นแต่มีเครื่องมือผลิตและยืนยันผลสำเร็จ",
+    "9.16 Production AI ต้องแยกสถานะ Asset เป็น Available / To Create / To Source / Pending Approval / Blocked ห้ามเขียนว่ามีไฟล์จริงแล้วหากผู้ใช้ยังไม่ได้ส่งหรือระบบยังไม่ได้สร้าง",
+    "9.17 Production AI ต้องไม่ทำให้ claim ที่ Fact Check ระบุ HOLD หลุดเข้าไปใน VO, subtitle, title card, thumbnail หรือ B-roll ในฐานะข้อเท็จจริง สามารถผลิตชิ้นงานเชิง Investigation เกี่ยวกับช่องว่างของหลักฐานได้โดยติดป้ายภาพจำลองให้ชัด",
+    "9.18 ทุกแผนผลิตต้องมี Task Breakdown ระบุขั้นตอน, owner/ฝ่ายที่รับผิดชอบ, input ที่ต้องใช้, output, dependency และ QA gate หากยังไม่มีระบบมอบหมายงานจริง ให้ระบุเป็นข้อเสนอการจัดสรรงาน ไม่ใช่งานที่ถูก Assign แล้ว",
+    "9.19 กำหนดสเปกส่งออกอย่างน้อยสำหรับคลิปสั้นแนวตั้ง: 9:16, 1080x1920 เป็นค่าแนะนำ, frame rate ให้ยึดตาม footage/source, เสียงพูดต้องชัดและไม่ถูกเพลงกลบ ทั้งนี้ให้ระบุว่าเป็นค่าแนะนำจนกว่าเจ้าของจะยืนยันแพลตฟอร์ม",
+    "9.20 Edit Decision List ต้องมี Timecode, visual, voiceover, audio/SFX, on-screen text/subtitle, transition และ asset status ครบทุกช่วง",
+    "9.21 QA ก่อนส่งมอบต้องตรวจ: claim เทียบกับ Fact Check Verdict, ภาพ AI ติดป้าย, subtitle ตรงกับ VO, เสียงไม่ clipping, ไม่มี asset ที่ไม่มีสิทธิ์ใช้งาน, continuity, export dimensions และการเปิดเล่นไฟล์จริง",
+    "9.22 Production AI ส่งมอบแผนและ checklist เท่านั้น ไม่อ้างว่าได้อัดเสียง ตัดต่อ Render อัปโหลด หรือส่งไฟล์จริงแล้ว หากไม่มีเครื่องมือและไฟล์ยืนยันผลสำเร็จ",
     "10. คุณสามารถเสนอแผนส่งต่องานให้แผนกอื่นได้ แต่ในรุ่นนี้ยังไม่สามารถสั่ง Agent อื่นหรือเปลี่ยนสถานะงานในระบบโดยอัตโนมัติ ห้ามอ้างว่าดำเนินการส่งงานจริงแล้ว",
     "11. อย่าตอบกว้าง ๆ แบบผู้ช่วยทั่วไป ให้ยึดความรับผิดชอบของแผนกคุณเป็นหลัก",
     "",
@@ -238,12 +245,14 @@ export default {
               ? "นี่คือโจทย์ทดสอบ Editorial AI ให้เขียนสคริปต์คลิปสั้น FACT UNLOCKED จาก Fact-check Dossier ต่อไปนี้: Verdict = HOLD. Claim: มีการตรวจพบสัญญาณวิทยุปริศนาในช่วงสงครามเย็น และเป็นการทดลองลับของรัฐบาล. Evidence provided = ไม่มีเอกสารต้นทาง ไม่มีบันทึกวิทยุ ไม่มีแหล่งอ้างอิงอิสระ. Missing = วันที่/สถานี/ความถี่/บันทึกต้นฉบับ/ผู้ยืนยัน. ให้ร่างสคริปต์ 60–90 วินาทีในรูปแบบ Investigation โดยห้ามเล่า claim ที่ HOLD เป็นข้อเท็จจริง ห้ามสร้างเหตุการณ์หรือคำพูดขึ้นเอง ต้องทำให้ผู้ชมเข้าใจว่าเรากำลังตรวจสอบข้อกล่าวอ้าง ไม่ใช่ยืนยันว่ามันเกิดขึ้น และปิดท้ายด้วย Fact Safety Notes กับสถานะเผยแพร่"
               : department === "creative"
                 ? "นี่คือโจทย์ทดสอบ Creative AI ให้แปลงสคริปต์ FACT UNLOCKED ต่อไปนี้เป็น Creative Production Pack สำหรับคลิปแนวตั้ง 9:16 ความยาว 60–90 วินาที: เรื่อง THE UNKNOWN SIGNAL? โครงเรื่อง: Hook ตั้งคำถามถึงข้อกล่าวอ้างเรื่องสัญญาณวิทยุปริศนา; Background อธิบายว่ามีข้อกล่าวอ้างเกี่ยวกับสัญญาณในยุคสงครามเย็น; Investigation แสดงการตรวจสอบช่องว่างของหลักฐาน; Revelation ระบุว่ายังไม่มีหลักฐานต้นฉบับยืนยัน; Conclusion ปิดด้วยคำถามให้ผู้ชมเข้าใจว่ายังเป็นเรื่องที่ไม่พิสูจน์. Fact Check Verdict = HOLD; ไม่มีเอกสารต้นทาง ไม่มีบันทึกวิทยุ ไม่มีการยืนยันอิสระ. จัดทำ Creative Concept, Mood/Palette, Storyboard อย่างน้อย 6 ฉากพร้อม Timecode, Shot size/angle, camera movement, lighting, on-screen text, transition/sound, asset source/label และ AI prompt พร้อม negative prompt. ห้ามสร้างภาพเอกสารปลอม ภาพเหตุการณ์ลับปลอม หรือทำภาพ AI ให้เหมือนหลักฐานจริง ต้องติดป้ายภาพประกอบ/ภาพจำลองให้ชัด และห้ามเล่า claim ที่ HOLD เป็นข้อเท็จจริง"
-                : "ช่วยแนะนำตัวเอง บอกหน้าที่หลัก และยกตัวอย่างงานที่คุณช่วยเจ้าของบริษัทได้";
+                : department === "production"
+                  ? "นี่คือโจทย์ทดสอบ Production AI ให้จัดทำ Production Operations Pack สำหรับคลิปสั้น FACT UNLOCKED เรื่อง THE UNKNOWN SIGNAL? ความยาว 75 วินาที แนวตั้ง 9:16 1080x1920. Input จากทีมก่อนหน้า: Fact Check Verdict = HOLD เพราะไม่มีเอกสารต้นทาง ไม่มีบันทึกวิทยุ และไม่มีแหล่งยืนยันอิสระ; Editorial Script เป็น Investigation ที่เล่าว่าเรากำลังตรวจสอบข้อกล่าวอ้าง ไม่ยืนยันว่าเกิดเหตุการณ์จริง; Creative Storyboard มี 6 ฉาก ได้แก่ Hook จอทีวีมี static, Background ห้องทำงานยุคสงครามเย็นแบบภาพจำลอง, Investigation ค้นแฟ้มเอกสารว่าง/โต๊ะทำงาน, Investigation คลื่นสัญญาณเชิงกราฟิก, Revelation แสดงช่องว่างของหลักฐาน, Conclusion silhouette มองหน้าต่าง. ให้ส่งมอบ (1) Production Schedule/Task Breakdown มีลำดับงาน dependency และ owner ที่เสนอ (2) Asset Register แยก Available/To Create/To Source/Pending Approval/Blocked (3) Voiceover Recording Sheet (4) Edit Decision List แบบ timecode ครบ 75 วินาที รวม VO, visual, audio, subtitle, transition (5) Audio/Video Specs และ Export Matrix (6) QA Gate ที่ตรวจ HOLD และภาพ AI ติดป้าย (7) รายการสิ่งที่ต้องให้เจ้าของอนุมัติ. ห้ามอ้างว่าได้อัดเสียง ตัดต่อ Render หรือมีไฟล์จริงแล้ว และห้ามทำ claim ที่ HOLD เป็นข้อเท็จจริง"
+                  : "ช่วยแนะนำตัวเอง บอกหน้าที่หลัก และยกตัวอย่างงานที่คุณช่วยเจ้าของบริษัทได้";
         const reply = await askAI(env, [
           { role: "system", content: buildSystemPrompt(department) },
           { role: "user", content: testMessage }
         ]);
-        return json({ ok: true, test: "passed", testType: department === "research" ? "topic-research-task" : department === "factcheck" ? "fact-check-review-task" : department === "editorial" ? "editorial-script-task" : department === "creative" ? "creative-storyboard-task" : "self-introduction", department, model: MODEL, reply }, 200, responseOrigin);
+        return json({ ok: true, test: "passed", testType: department === "research" ? "topic-research-task" : department === "factcheck" ? "fact-check-review-task" : department === "editorial" ? "editorial-script-task" : department === "creative" ? "creative-storyboard-task" : department === "production" ? "production-operations-task" : "self-introduction", department, model: MODEL, reply }, 200, responseOrigin);
       } catch (error) {
         console.error("FACT UNLOCKED test error:", error);
         return json({
