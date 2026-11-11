@@ -304,6 +304,9 @@ function bridgeUpdateStats(){
 function bridgeRender(){
   const root=document.getElementById('bridge-scenes');
   root.innerHTML='';
+  bridgeScenes=bridgeScenes.map(function(existing,index){
+    return Object.assign(bridgeSceneTemplate(index+1),existing);
+  });
   bridgeScenes.forEach(function(scene,index){
     const card=document.createElement('section');
     card.className='bridge-card';card.dataset.index=String(index);
@@ -315,21 +318,24 @@ function bridgeRender(){
       '<div class="bridge-card-body">'+
        '<div class="bridge-field"><label>ชื่อฉาก</label><input data-field="title" value="'+bridgeEscape(scene.title)+'"></div>'+
        '<div class="bridge-field"><label>Timecode</label><input data-field="timecode" value="'+bridgeEscape(scene.timecode)+'" placeholder="00:00–00:08"></div>'+
-       '<div class="bridge-field wide"><label>Meta AI Prompt</label><textarea data-field="prompt" placeholder="ใส่ Prompt ภาษาอังกฤษสำหรับสร้างวิดีโอ">'+bridgeEscape(scene.prompt)+'</textarea></div>'+
-       '<div class="bridge-field wide"><label>Negative Prompt / สิ่งที่ห้ามมี</label><textarea data-field="negative" placeholder="เช่น no text, no watermark, no extra fingers...">'+bridgeEscape(scene.negative)+'</textarea></div>'+
+       '<div class="bridge-field wide"><label>VIDEO PROMPT · ภาพและการเคลื่อนไหว</label><textarea data-field="prompt" placeholder="English video prompt: subject, action, camera, lighting, style...">'+bridgeEscape(scene.prompt)+'</textarea></div>'+
+       '<div class="bridge-field wide"><label>VOICEOVER TEXT · บทพูดภาษาไทยที่ต้องพูดจริง</label><textarea data-field="voiceover" placeholder="ประโยคภาษาไทยที่ต้องการให้ผู้บรรยายพูดในฉากนี้">'+bridgeEscape(scene.voiceover)+'</textarea></div>'+
+       '<div class="bridge-field wide"><label>VOICE DIRECTION · อารมณ์และจังหวะเสียง</label><input data-field="voiceDirection" value="'+bridgeEscape(scene.voiceDirection)+'" placeholder="ทุ้ม สุขุม เว้นจังหวะ เน้นคำใด..."></div>'+
+       '<div class="bridge-field wide"><label>AUDIO DIRECTION · SFX และดนตรีประกอบ</label><input data-field="audioDirection" value="'+bridgeEscape(scene.audioDirection)+'" placeholder="เสียงบรรยากาศ / เอฟเฟกต์ / เพลง..."></div>'+
+       '<div class="bridge-field wide"><label>NEGATIVE PROMPT / สิ่งที่ห้ามมี</label><textarea data-field="negative" placeholder="เช่น no extra voices, no robotic speech, no watermark...">'+bridgeEscape(scene.negative)+'</textarea></div>'+
        '<div class="bridge-field"><label>ป้ายกำกับภาพ</label><input data-field="label" value="'+bridgeEscape(scene.label)+'"></div>'+
        '<div class="bridge-field"><label>สถานะฉาก</label><select data-field="status" class="bridge-status">'+options+'</select></div>'+
-       '<div class="bridge-field wide"><label>Continuity Notes</label><input data-field="continuity" value="'+bridgeEscape(scene.continuity)+'" placeholder="สี แสง ตัวละคร พร็อพ หรือความต่อเนื่อง"></div>'+
+       '<div class="bridge-field wide"><label>Continuity Notes</label><input data-field="continuity" value="'+bridgeEscape(scene.continuity)+'" placeholder="สี แสง ตัวละคร พร็อพ เสียง และความต่อเนื่อง"></div>'+
        '<div class="bridge-field wide"><label>ชื่อไฟล์ / โน้ต Asset ที่สร้างแล้ว</label><input data-field="asset" value="'+bridgeEscape(scene.asset)+'" placeholder="เช่น scene01_take02.mp4 หรือยังไม่ได้แนบไฟล์"></div>'+
       '</div>'+
-      '<div class="bridge-card-foot"><button class="bridge-btn primary" data-action="copy">คัดลอก Prompt ฉากนี้</button><button class="bridge-btn" data-action="copyboth">คัดลอก Prompt + Negative</button></div>';
+      '<div class="bridge-card-foot"><button class="bridge-btn primary" data-action="copy">คัดลอก Prompt ภาพ + เสียง + บทพูด</button><button class="bridge-btn" data-action="copyboth">คัดลอก Unified Prompt พร้อมข้อห้าม</button></div>';
     root.appendChild(card);
   });
   bridgeUpdateStats();
   bridgeSave();
 }
 function bridgeReadField(block,label){
-  const re=new RegExp('(?:^|\\n)\\s*(?:'+label+')\\s*:\\s*([\\s\\S]*?)(?=\\n\\s*(?:SCENE|TITLE|TIMECODE|META_PROMPT|PROMPT|NEGATIVE_PROMPT|NEGATIVE|ASSET_LABEL|LABEL|CONTINUITY)\\s*:|$)','i');
+  const re=new RegExp('(?:^|\\n)\\s*(?:'+label+')\\s*:\\s*([\\s\\S]*?)(?=\\n\\s*(?:SCENE|TITLE|TIMECODE|META_PROMPT|PROMPT|VOICEOVER_TEXT|VOICEOVER|NARRATION|VOICE_DIRECTION|VOICE_STYLE|VOICE_PROFILE|AUDIO_DIRECTION|SOUND_DESIGN|AUDIO|NEGATIVE_PROMPT|NEGATIVE|ASSET_LABEL|LABEL|CONTINUITY)\\s*:|$)','i');
   const m=block.match(re);return m?m[1].trim().replace(/^["']|["']$/g,''):'';
 }
 function bridgeParseText(raw){
@@ -339,13 +345,17 @@ function bridgeParseText(raw){
   }
   if(!blocks.length&&raw.trim())blocks=[raw.trim()];
   return blocks.map(function(block,index){
-    const title=bridgeReadField(block,'TITLE|SCENE TITLE|ชื่อฉาก')||('ฉาก '+String(index+1).padStart(2,'0'));
+    const defaults=bridgeSceneTemplate(index+1);
+    const title=bridgeReadField(block,'TITLE|SCENE TITLE|ชื่อฉาก')||defaults.title;
     const timecode=bridgeReadField(block,'TIMECODE|TIME|เวลา');
     const prompt=bridgeReadField(block,'META_PROMPT|PROMPT|VIDEO PROMPT');
+    const voiceover=bridgeReadField(block,'VOICEOVER_TEXT|VOICEOVER|NARRATION|บทบรรยาย');
+    const voiceDirection=bridgeReadField(block,'VOICE_DIRECTION|VOICE STYLE|VOICE_PROFILE|ทิศทางเสียง')||defaults.voiceDirection;
+    const audioDirection=bridgeReadField(block,'AUDIO_DIRECTION|SOUND_DESIGN|AUDIO|เสียงประกอบ')||defaults.audioDirection;
     const negative=bridgeReadField(block,'NEGATIVE_PROMPT|NEGATIVE|ข้อห้าม');
-    const label=bridgeReadField(block,'ASSET_LABEL|LABEL|ป้ายกำกับ')||'ภาพประกอบ / Artist Impression';
+    const label=bridgeReadField(block,'ASSET_LABEL|LABEL|ป้ายกำกับ')||defaults.label;
     const continuity=bridgeReadField(block,'CONTINUITY|CONTINUITY NOTES|ความต่อเนื่อง');
-    return {title,timecode,prompt:prompt||block.slice(0,1800),negative,label,continuity,asset:'',status:'pending'};
+    return Object.assign(defaults,{title,timecode,prompt:prompt||block.slice(0,1800),voiceover,voiceDirection,audioDirection,negative,label,continuity,asset:'',status:'pending'});
   });
 }
 document.getElementById('bridgeopen').addEventListener('click',function(){
@@ -385,10 +395,33 @@ document.getElementById('bridge-generate').addEventListener('click',async functi
   const project=document.getElementById('bridge-project').value.trim()||'FACT UNLOCKED';
   const format=document.getElementById('bridge-format').value;
   const duration=document.getElementById('bridge-duration').value.trim()||'60–90 วินาที';
-  const request='แปลง Script/Storyboard นี้เป็น Meta AI video prompts สำหรับโปรเจกต์ '+project+'. สัดส่วน '+format+'. ความยาวรวม '+duration+'.\\n\\n'+
-    'ส่งออกเป็น plain text เท่านั้น ห้ามใส่ Markdown code fence และต้องทำตาม format นี้ซ้ำทุกฉากอย่างเคร่งครัด:\\n'+
-    '===SCENE_START===\\nSCENE: 01\\nTITLE: ชื่อฉากภาษาไทย\\nTIMECODE: 00:00-00:08\\nMETA_PROMPT: English video generation prompt with subject, environment, composition, camera framing/movement, lighting, action, style, aspect ratio and duration.\\nNEGATIVE_PROMPT: English negative prompt.\\nASSET_LABEL: ภาพประกอบ / Artist Impression หรือ Evidence Footage เฉพาะเมื่อเป็น footage จริงที่ผู้ใช้แนบมา\\nCONTINUITY: character, prop, lighting and color continuity notes.\\n===SCENE_END===\\n'+
-    'ทำอย่างน้อย 5–8 ฉาก ครอบคลุมความยาวที่ระบุ แบ่งเวลาไม่ซ้อนกัน Prompt ต้องเป็นวิดีโอ ไม่ใช่ภาพนิ่ง และต้องแยกหนึ่งฉากต่อหนึ่ง block. ใช้เฉพาะสิ่งที่อยู่ใน source ห้ามแต่งเหตุการณ์/หลักฐานเพิ่ม หาก Fact Check ยัง HOLD ให้ใช้ภาพนามธรรม/ภาพจำลองที่ติดป้ายชัดเจน ห้ามทำฉาก AI ให้เหมือนภาพข่าวหรือเอกสารหลักฐานจริง.\\n\\nSOURCE:\\n'+source;
+  const voiceProfile=document.getElementById('bridge-voice-profile').value.trim();
+  const request=`Convert the source below into UNIFIED VIDEO + AUDIO prompts for Meta AI.
+PROJECT: ${project}
+FORMAT: ${format}
+TOTAL DURATION: ${duration}
+
+MASTER VOICE IDENTITY — use this exact same narrator identity in every scene:
+${voiceProfile}
+
+Return plain text only. Do not use Markdown code fences. Repeat this exact block format for every scene:
+===SCENE_START===
+SCENE: 01
+TITLE: Thai scene title
+TIMECODE: 00:00-00:08
+META_PROMPT: English video prompt describing subject, environment, composition, camera framing and movement, lighting, visible action, visual style, aspect ratio and duration.
+VOICEOVER_TEXT: Exact Thai sentence(s) that the narrator must speak in this scene. Use the provided script exactly when available. Keep the narration short enough to fit the timecode. Do not invent facts.
+VOICE_DIRECTION: Thai male narrator, same fixed voice identity as master profile. Specify pace, emphasis, pauses and emotion for this scene. Off-screen narration, no visible speaker and no lip-sync.
+AUDIO_DIRECTION: Ambient sound, sound effects and subtle background music with timing. Keep narration in the foreground and music underneath.
+NEGATIVE_PROMPT: Visual and audio exclusions, including no extra voices, no robotic speech, no conflicting dialogue, no fake documents or evidence.
+ASSET_LABEL: ภาพประกอบ / Artist Impression unless verified original footage is supplied.
+CONTINUITY: Visual, sound, room tone, narrator and color continuity notes.
+===SCENE_END===
+
+Create enough scenes to cover the full duration. Each scene MUST contain both a video prompt AND exact Thai narration text, plus voice and sound directions. If the source includes an existing voiceover script, preserve its wording and distribute it across scenes; do not rewrite or add new factual claims. If no narration is supplied, write concise Thai narration consistent with the available source only. Maintain the same Thai male narrator identity (deep, warm, mature, calm, credible Central Thai accent) in every scene. Ask the video generator to render the described Thai off-screen narration and ambient audio together with the video in ONE generation prompt. Never switch narrator or add unrequested dialogue. If the Meta AI generation mode does not support spoken narration from a text prompt, keep the exact voiceover text and direction so they can be generated as audio separately; do not omit them. If Fact Check is HOLD, narrate only the investigation and uncertainty, never state the disputed claim as fact. Use clear line breaks and separate scene blocks.
+
+SOURCE SCRIPT / STORYBOARD:
+${source}`;
   try{
     const response=await fetch(API_BASE+'/chat',{method:'POST',mode:'cors',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({department:'creative',message:request,history:[]})});
     const raw=await response.text();let data;
@@ -419,25 +452,55 @@ document.getElementById('bridge-scenes').addEventListener('change',function(e){
   const index=Number(card.dataset.index),field=e.target.dataset.field;
   if(field&&bridgeScenes[index]){bridgeScenes[index][field]=e.target.value;bridgeUpdateStats();bridgeSave()}
 });
+function bridgeBuildUnifiedPrompt(scene){
+  const voiceProfile=document.getElementById('bridge-voice-profile').value.trim();
+  return `PROJECT: ${document.getElementById('bridge-project').value}
+SCENE: ${scene.title}
+TIMECODE: ${scene.timecode}
+FORMAT: ${document.getElementById('bridge-format').value}
+
+VIDEO PROMPT:
+${scene.prompt}
+
+MASTER VOICE IDENTITY — SAME NARRATOR IN EVERY SCENE:
+${voiceProfile}
+
+EXACT THAI VOICEOVER — speak these words verbatim as off-screen narration:
+${scene.voiceover||'[ยังไม่ได้กำหนดบทบรรยายภาษาไทย]'}
+
+VOICE DELIVERY:
+${scene.voiceDirection}
+
+AUDIO / SOUND DESIGN:
+${scene.audioDirection}
+
+AVOID / NEGATIVE PROMPT:
+${scene.negative}
+
+VISUAL DISCLOSURE LABEL:
+${scene.label}
+
+CONTINUITY:
+${scene.continuity}
+
+IMPORTANT: Generate video and audio together from this single prompt where the current Meta AI mode supports it. Keep the exact Thai narration and same narrator identity. Do not add dialogue or present an AI illustration as historical evidence.`;
+}
 document.getElementById('bridge-scenes').addEventListener('click',function(e){
   const button=e.target.closest('button[data-action]');if(!button)return;
   const card=button.closest('.bridge-card');if(!card)return;
   const index=Number(card.dataset.index),scene=bridgeScenes[index];if(!scene)return;
   if(button.dataset.action==='remove'){
     bridgeScenes.splice(index,1);bridgeRender();bridgeStatus('ลบฉากแล้ว');
-  }else if(button.dataset.action==='copy'){
-    bridgeCopy(scene.prompt);
-  }else if(button.dataset.action==='copyboth'){
-    bridgeCopy('PROMPT:\\n'+scene.prompt+'\\n\\nAVOID / NEGATIVE PROMPT:\\n'+scene.negative+'\\n\\nVISUAL LABEL: '+scene.label);
+  }else if(button.dataset.action==='copy'||button.dataset.action==='copyboth'){
+    bridgeCopy(bridgeBuildUnifiedPrompt(scene));
   }
 });
 document.getElementById('bridge-copyall').addEventListener('click',function(){
   if(!bridgeScenes.length){bridgeStatus('ยังไม่มี Prompt ให้คัดลอก');return}
-  const project=document.getElementById('bridge-project').value;
-  const text=bridgeScenes.map(function(x,i){
-    return 'SCENE '+String(i+1).padStart(2,'0')+' — '+x.title+' ('+x.timecode+')\nPROMPT:\n'+x.prompt+'\nAVOID / NEGATIVE PROMPT:\n'+x.negative+'\nVISUAL LABEL: '+x.label+'\nCONTINUITY: '+x.continuity;
-  }).join('\n\n------------------------------\n\n');
-  bridgeCopy('PROJECT: '+project+'\nFORMAT: '+document.getElementById('bridge-format').value+'\n\n'+text);
+  const text=bridgeScenes.map(function(scene,index){
+    return '==============================\nUNIFIED VIDEO + VOICE PROMPT — SCENE '+String(index+1).padStart(2,'0')+'\n'+bridgeBuildUnifiedPrompt(scene);
+  }).join('\n\n');
+  bridgeCopy(text);
 });
 document.getElementById('bridge-openmeta').addEventListener('click',function(){
   window.open('https://www.meta.ai/','_blank','noopener');
