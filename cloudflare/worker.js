@@ -192,7 +192,7 @@ async function askAI(env, messages) {
 
   const result = await env.AI.run(MODEL, {
     messages,
-    max_completion_tokens: 1400,
+    max_completion_tokens: 2200,
     temperature: 0.35,
     chat_template_kwargs: {
       enable_thinking: false
@@ -298,7 +298,7 @@ export default {
         }, 400, responseOrigin);
       }
       if (!message) return json({ ok: false, error: "กรุณาพิมพ์ข้อความ" }, 400, responseOrigin);
-      if (message.length > 5000) return json({ ok: false, error: "ข้อความยาวเกิน 5,000 ตัวอักษร" }, 400, responseOrigin);
+      if (message.length > 16000) return json({ ok: false, error: "ข้อความยาวเกิน 16,000 ตัวอักษร กรุณาแบ่ง Storyboard เป็นชุดสั้นลง" }, 400, responseOrigin);
 
       const history = Array.isArray(body.history)
         ? body.history.slice(-8).map(item => ({
