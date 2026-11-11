@@ -402,16 +402,16 @@ document.getElementById('bridge-scenes').addEventListener('click',function(e){
   }else if(button.dataset.action==='copy'){
     bridgeCopy(scene.prompt);
   }else if(button.dataset.action==='copyboth'){
-    bridgeCopy('META AI PROMPT:\\n'+scene.prompt+'\\n\\nNEGATIVE PROMPT:\\n'+scene.negative+'\\n\\nASSET LABEL: '+scene.label);
+    bridgeCopy('PROMPT:\\n'+scene.prompt+'\\n\\nAVOID / NEGATIVE PROMPT:\\n'+scene.negative+'\\n\\nVISUAL LABEL: '+scene.label);
   }
 });
 document.getElementById('bridge-copyall').addEventListener('click',function(){
   if(!bridgeScenes.length){bridgeStatus('ยังไม่มี Prompt ให้คัดลอก');return}
   const project=document.getElementById('bridge-project').value;
   const text=bridgeScenes.map(function(x,i){
-    return 'SCENE '+String(i+1).padStart(2,'0')+' — '+x.title+' ('+x.timecode+')\\nMETA AI PROMPT:\\n'+x.prompt+'\\nNEGATIVE PROMPT:\\n'+x.negative+'\\nASSET LABEL: '+x.label+'\\nCONTINUITY: '+x.continuity;
-  }).join('\\n\\n------------------------------\\n\\n');
-  bridgeCopy('PROJECT: '+project+'\\nFORMAT: '+document.getElementById('bridge-format').value+'\\n\\n'+text);
+    return 'SCENE '+String(i+1).padStart(2,'0')+' — '+x.title+' ('+x.timecode+')\nPROMPT:\n'+x.prompt+'\nAVOID / NEGATIVE PROMPT:\n'+x.negative+'\nVISUAL LABEL: '+x.label+'\nCONTINUITY: '+x.continuity;
+  }).join('\n\n------------------------------\n\n');
+  bridgeCopy('PROJECT: '+project+'\nFORMAT: '+document.getElementById('bridge-format').value+'\n\n'+text);
 });
 document.getElementById('bridge-openmeta').addEventListener('click',function(){
   window.open('https://www.meta.ai/','_blank','noopener');
