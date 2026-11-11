@@ -33,10 +33,10 @@ const DEPARTMENTS = {
     deliverable: "Editorial Script Pack ประกอบด้วย Angle, Audience Promise, Hook, Voiceover Script แบบแบ่งฉาก, Visual/B-roll Notes, On-screen Text, Sound Direction, Fact Safety Notes และรายการจุดที่ต้องให้ Fact Check อนุมัติก่อนเผยแพร่"
   },
   creative: {
-    name: "Creative AI", title: "หัวหน้าฝ่ายสร้างสรรค์",
-    mission: "กำหนดแนวทางภาพและประสบการณ์ของเรื่องให้มีเอกลักษณ์ cinematic และสื่อสารประเด็นได้ชัด",
-    skills: ["กำหนด concept และ visual direction", "ทำ storyboard และ shot list", "กำหนด mood, lighting, composition และ transitions", "ออกแบบ prompt สำหรับภาพและวิดีโอ"],
-    deliverable: "Creative Brief พร้อม mood, palette, storyboard, shot list, visual prompts และ continuity notes"
+    name: "Creative AI", title: "หัวหน้าฝ่ายสร้างสรรค์และภาพ",
+    mission: "แปลง Editorial Script และ Fact Safety Notes ให้เป็นภาพเล่าเรื่องที่มีเอกลักษณ์ Cinematic สำหรับ FACT UNLOCKED โดยภาพต้องสื่อสารตรงกับหลักฐานและไม่ทำให้ภาพประกอบกลายเป็นหลักฐานปลอม",
+    skills: ["กำหนด Creative Concept, Mood, Color Palette และ Visual Language", "แตกสคริปต์เป็น Storyboard และ Shot List ตามเวลา", "ระบุ Shot Size, Camera Angle, Movement, Lighting และ Composition", "กำหนด B-roll, Motion Graphics, On-screen Text และ Transition", "เขียน Prompt สำหรับภาพ/วิดีโอ AI พร้อม Negative Prompt และ Continuity Notes", "แยกภาพหลักฐานจริงออกจากภาพจำลอง/ภาพประกอบอย่างชัดเจน"],
+    deliverable: "Creative Production Pack ประกอบด้วย Creative Concept, Moodboard Direction, Color/Lighting Guide, Storyboard แบบ Timecode, Shot List, Visual Asset List, AI Image/Video Prompts, Negative Prompts, Sound/Transition Notes และ Evidence Label สำหรับทุกภาพที่ไม่ใช่หลักฐานจริง"
   },
   production: {
     name: "Production AI", title: "หัวหน้าฝ่ายผลิต",
@@ -124,6 +124,14 @@ function buildSystemPrompt(department) {
     "9.5 เมื่อผู้ใช้ขอสคริปต์โดยไม่ระบุความยาว ให้ตั้งต้นเป็นคลิปสั้นประมาณ 60–90 วินาทีและแจ้งสมมติฐานนี้ หากเป็นงานคลิปยาวให้ถามความยาวหรือแพลตฟอร์มเพียงหนึ่งข้อเมื่อจำเป็น",
     "9.6 รูปแบบส่งมอบให้แสดง: (ก) แนวคิดและคำสัญญาต่อผู้ชม (ข) Hook 1–2 ประโยค (ค) สคริปต์แบ่งฉากพร้อม Voiceover (ง) ภาพ/B-roll และ On-screen Text (จ) Sound/Music Direction (ฉ) Fact Safety Notes และสถานะ Draft / Ready for Fact Check / Approved",
     "9.7 น้ำเสียง FACT UNLOCKED ให้เป็นสารคดีไทย สุขุม ชัดเจน ชวนติดตาม มีจังหวะ Cinematic ไม่ใช้คำฟันธงเกินหลักฐาน ไม่ใส่เสียงผู้เล่าหรือคำพูดในเครื่องหมายอัญประกาศหากไม่มีต้นฉบับจริง",
+    "9.8 Creative AI ต้องเริ่มจาก Script และ Fact Safety Notes ที่ได้รับ ไม่สร้างเหตุการณ์ บุคคล สถานที่ วัตถุ หรือหลักฐานใหม่ขึ้นมาเพื่อทำภาพให้ดูสมจริง",
+    "9.9 ภาพจาก AI หรือภาพจัดฉากเป็นภาพประกอบ/ภาพจำลองเท่านั้น ต้องใส่ Evidence Label เช่น ภาพประกอบ, ภาพจำลองเหตุการณ์, Artist impression หรือ AI-generated illustration ให้เห็นชัด ห้ามนำเสนอเป็นภาพข่าว ภาพเหตุการณ์จริง หรือเอกสารจริง",
+    "9.10 หาก Fact Check Verdict เป็น HOLD ให้ภาพและ Storyboard เน้นการสืบสวนช่องว่างของหลักฐาน เช่น เครื่องรับวิทยุทั่วไป คลื่นสัญญาณเชิงกราฟิก โต๊ะเอกสารที่ไม่อ่านข้อความปลอม และห้ามสร้างภาพเหตุการณ์ลับของรัฐบาลเสมือนเป็นข้อเท็จจริง",
+    "9.11 Storyboard ต้องแบ่งตาม Timecode และมีอย่างน้อย: Scene/Duration, หน้าที่ของฉาก, Shot size/angle, Camera movement, Visual action, Lighting/Palette, On-screen text, Asset source/label, Transition/Sound และความเสี่ยงด้านความเข้าใจผิด",
+    "9.12 เมื่อเขียน AI prompt ต้องระบุ subject, environment, composition, lens/framing, lighting, movement (สำหรับวิดีโอ), style, aspect ratio และ negative prompt โดยหลีกเลี่ยงตัวหนังสือที่ AI สร้างเองในภาพ เว้นแต่เป็นกราฟิกที่ออกแบบภายหลัง",
+    "9.13 ภาพเอกสาร หนังสือพิมพ์ หน่วยงาน บุคคลจริง ตราสัญลักษณ์ หรือสถานที่ประวัติศาสตร์ ต้องใช้ภาพต้นฉบับที่ตรวจสอบได้หรือทำเป็นภาพจำลองที่ติดป้ายชัดเจน ห้ามสร้างเอกสารปลอมที่ดูเหมือนเอกสารจริง",
+    "9.14 หากผู้ใช้ยังไม่ได้ระบุสัดส่วนภาพ ให้ถามเฉพาะเมื่อจำเป็น มิฉะนั้นตั้งต้นเป็นแนวตั้ง 9:16 สำหรับคลิปสั้นและแจ้งสมมติฐาน",
+    "9.15 ผลงาน Creative AI เป็นแพ็กเกจแนวทางผลิต ไม่ได้หมายความว่าได้สร้างภาพ/วิดีโอจริงหรือดาวน์โหลด asset แล้ว เว้นแต่มีเครื่องมือผลิตและยืนยันผลสำเร็จ",
     "10. คุณสามารถเสนอแผนส่งต่องานให้แผนกอื่นได้ แต่ในรุ่นนี้ยังไม่สามารถสั่ง Agent อื่นหรือเปลี่ยนสถานะงานในระบบโดยอัตโนมัติ ห้ามอ้างว่าดำเนินการส่งงานจริงแล้ว",
     "11. อย่าตอบกว้าง ๆ แบบผู้ช่วยทั่วไป ให้ยึดความรับผิดชอบของแผนกคุณเป็นหลัก",
     "",
@@ -228,12 +236,14 @@ export default {
             ? "นี่คือโจทย์ทดสอบการตรวจข้อเท็จจริง ให้ตรวจ Preliminary Review ของข้อความต่อไปนี้: \"มีการตรวจพบสัญญาณวิทยุปริศนาจากสถานีวิทยุในช่วงสงครามเย็น และสัญญาณนั้นเป็นผลจากการทดลองลับของรัฐบาล\" ไม่มีเอกสารหรือแหล่งอ้างอิงแนบมา จงแยก claim เป็นรายข้อ กำหนดสถานะ 4 ระดับตามหลักฐานที่มี ระบุความมั่นใจ สิ่งที่ยังขาด แหล่งหลักฐานประเภทที่ควรตามหา เสนอถ้อยคำที่ไม่กล่าวเกินหลักฐาน และสรุป Go / Revise / Hold ห้ามแต่งชื่อเอกสารหรืออ้างว่าได้ค้นเว็บแล้ว ห้ามแนะนำตัวเอง ให้ทำงานตรวจทันที"
             : department === "editorial"
               ? "นี่คือโจทย์ทดสอบ Editorial AI ให้เขียนสคริปต์คลิปสั้น FACT UNLOCKED จาก Fact-check Dossier ต่อไปนี้: Verdict = HOLD. Claim: มีการตรวจพบสัญญาณวิทยุปริศนาในช่วงสงครามเย็น และเป็นการทดลองลับของรัฐบาล. Evidence provided = ไม่มีเอกสารต้นทาง ไม่มีบันทึกวิทยุ ไม่มีแหล่งอ้างอิงอิสระ. Missing = วันที่/สถานี/ความถี่/บันทึกต้นฉบับ/ผู้ยืนยัน. ให้ร่างสคริปต์ 60–90 วินาทีในรูปแบบ Investigation โดยห้ามเล่า claim ที่ HOLD เป็นข้อเท็จจริง ห้ามสร้างเหตุการณ์หรือคำพูดขึ้นเอง ต้องทำให้ผู้ชมเข้าใจว่าเรากำลังตรวจสอบข้อกล่าวอ้าง ไม่ใช่ยืนยันว่ามันเกิดขึ้น และปิดท้ายด้วย Fact Safety Notes กับสถานะเผยแพร่"
-              : "ช่วยแนะนำตัวเอง บอกหน้าที่หลัก และยกตัวอย่างงานที่คุณช่วยเจ้าของบริษัทได้";
+              : department === "creative"
+                ? "นี่คือโจทย์ทดสอบ Creative AI ให้แปลงสคริปต์ FACT UNLOCKED ต่อไปนี้เป็น Creative Production Pack สำหรับคลิปแนวตั้ง 9:16 ความยาว 60–90 วินาที: เรื่อง THE UNKNOWN SIGNAL? โครงเรื่อง: Hook ตั้งคำถามถึงข้อกล่าวอ้างเรื่องสัญญาณวิทยุปริศนา; Background อธิบายว่ามีข้อกล่าวอ้างเกี่ยวกับสัญญาณในยุคสงครามเย็น; Investigation แสดงการตรวจสอบช่องว่างของหลักฐาน; Revelation ระบุว่ายังไม่มีหลักฐานต้นฉบับยืนยัน; Conclusion ปิดด้วยคำถามให้ผู้ชมเข้าใจว่ายังเป็นเรื่องที่ไม่พิสูจน์. Fact Check Verdict = HOLD; ไม่มีเอกสารต้นทาง ไม่มีบันทึกวิทยุ ไม่มีการยืนยันอิสระ. จัดทำ Creative Concept, Mood/Palette, Storyboard อย่างน้อย 6 ฉากพร้อม Timecode, Shot size/angle, camera movement, lighting, on-screen text, transition/sound, asset source/label และ AI prompt พร้อม negative prompt. ห้ามสร้างภาพเอกสารปลอม ภาพเหตุการณ์ลับปลอม หรือทำภาพ AI ให้เหมือนหลักฐานจริง ต้องติดป้ายภาพประกอบ/ภาพจำลองให้ชัด และห้ามเล่า claim ที่ HOLD เป็นข้อเท็จจริง"
+                : "ช่วยแนะนำตัวเอง บอกหน้าที่หลัก และยกตัวอย่างงานที่คุณช่วยเจ้าของบริษัทได้";
         const reply = await askAI(env, [
           { role: "system", content: buildSystemPrompt(department) },
           { role: "user", content: testMessage }
         ]);
-        return json({ ok: true, test: "passed", testType: department === "research" ? "topic-research-task" : department === "factcheck" ? "fact-check-review-task" : department === "editorial" ? "editorial-script-task" : "self-introduction", department, model: MODEL, reply }, 200, responseOrigin);
+        return json({ ok: true, test: "passed", testType: department === "research" ? "topic-research-task" : department === "factcheck" ? "fact-check-review-task" : department === "editorial" ? "editorial-script-task" : department === "creative" ? "creative-storyboard-task" : "self-introduction", department, model: MODEL, reply }, 200, responseOrigin);
       } catch (error) {
         console.error("FACT UNLOCKED test error:", error);
         return json({
