@@ -276,7 +276,8 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
     <div style="font-size:10px;color:#b8c6d8;text-align:right;margin-top:4px">Master Voice Profile · ใช้เป็นมาตรฐานเดียวกันทั้งโปรเจกต์</div>
    </div>
    <div class="bridge-actions">
-    <button class="bridge-btn primary" id="bridge-generate">สร้าง Prompt แยกฉากด้วย Creative AI</button>
+    <button class="bridge-btn primary" id="bridge-generate">สร้าง Unified Video + Voice Prompt ใหม่</button>
+    <button class="bridge-btn" id="bridge-add-voice">เติมเสียงบรรยายให้ฉากเดิม</button>
     <button class="bridge-btn" id="bridge-parse">แยกฉากจากข้อความที่วาง</button>
     <button class="bridge-btn" id="bridge-add">＋ เพิ่มฉากเอง</button>
    </div>
@@ -902,6 +903,86 @@ ${source}`;
     bridgeStatus('Creative AI สร้าง Prompt แล้ว '+bridgeScenes.length+' ฉาก · ตรวจและแก้ไขแต่ละฉากก่อนนำไปใช้');
   }catch(error){console.error(error);bridgeStatus('สร้าง Prompt ไม่สำเร็จ: '+String(error.message||error))}
   finally{button.disabled=false;button.textContent='สร้าง Prompt แยกฉากด้วย Creative AI'}
+});
+document.getElementById('bridge-add-voice').addEventListener('click',async function(){
+  if(!bridgeScenes.length){bridgeStatus('ยังไม่มีฉากเดิม · สร้าง Prompt จาก Storyboard ก่อน');return}
+  const source=document.getElementById('bridge-source').value.trim();
+  if(!source){bridgeStatus('กรุณาวาง Storyboard หรือบทต้นฉบับ เพื่อให้เขียนเสียงบรรยายตรงกับเนื้อหา');return}
+  const button=this;
+  button.disabled=true;
+  button.textContent='กำลังเติมเสียง...';
+  bridgeStatus('Creative AI กำลังเขียนบทพูดและเสียงประกอบ โดยคง Prompt ภาพเดิมไว้');
+  const project=document.getElementById('bridge-project').value.trim()||'FACT UNLOCKED';
+  const voiceProfile=document.getElementById('bridge-voice-profile').value.trim();
+  const sceneContext=bridgeScenes.map(function(scene,index){
+    return 'SCENE '+String(index+1).padStart(2,'0')+
+      '\nTITLE: '+scene.title+
+      '\nTIMECODE: '+scene.timecode+
+      '\nVISUAL PROMPT: '+String(scene.prompt||'').slice(0,900)+
+      '\nASSET LABEL: '+scene.label;
+  }).join('\n\n');
+  const request=`Create ONLY Thai narration and audio directions for the EXISTING scenes below. Do not rewrite, replace or modify their visual prompts, scene titles, timecodes, asset labels, statuses or saved file notes.
+PROJECT: ${project}
+MASTER VOICE IDENTITY — same narrator in every scene:
+${voiceProfile}
+
+Return plain text only. One block for each existing scene, preserving the exact scene number, title and timecode:
+===SCENE_START===
+SCENE: 01
+TITLE: keep exact title
+TIMECODE: keep exact timecode
+VOICEOVER_TEXT: exact concise Thai words for the male narrator to speak in this scene. Use the supplied source script exactly if it contains narration. Otherwise write grounded narration based only on the source; do not invent facts.
+VOICE_DIRECTION: performance direction for the same Thai male narrator, specifying pace, emphasis, pause and emotion.
+AUDIO_DIRECTION: ambient sound, SFX and subtle music timing. Keep narration clear and foregrounded.
+===SCENE_END===
+
+Requirements:
+- Write narration for every supplied scene and fit the exact timecode.
+- Keep one consistent deep, warm, mature, calm, credible Thai male documentary voice with clear Central Thai pronunciation.
+- Voice must be off-screen narration, not dialogue from a visible person.
+- Use the source text as factual boundary. If Fact Check is HOLD or the story is unverified, only narrate the investigation and uncertainty. Never state disputed claims as facts.
+- No new characters, events, dates, locations, quotations, documents or evidence.
+- Do not add a second narrator, extra dialogue or lip-sync.
+- Keep scene numbering, title and timecode unchanged.
+- This is an audio-only update to existing scene cards; the visuals and already generated clips remain unchanged.
+
+SOURCE SCRIPT / STORYBOARD:
+${source}
+
+EXISTING SCENE VISUAL CONTEXT:
+${sceneContext}`;
+  try{
+    const response=await fetch(API_BASE+'/chat',{
+      method:'POST',mode:'cors',cache:'no-store',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({department:'editorial',message:request,history:[]})
+    });
+    const raw=await response.text();
+    let data;
+    try{data=JSON.parse(raw)}catch(e){throw new Error('API ส่งข้อมูลที่อ่านไม่ได้ (HTTP '+response.status+')')}
+    if(!response.ok||!data.ok)throw new Error(data.detail||data.error||data.message||('HTTP '+response.status));
+    const reply=String(data.reply||'');
+    const audioScenes=bridgeParseText(reply);
+    if(audioScenes.length!==bridgeScenes.length)throw new Error('จำนวนฉากเสียงที่ตอบกลับไม่ตรงกับฉากเดิม ('+audioScenes.length+'/'+bridgeScenes.length+') กรุณาลองอีกครั้ง');
+    const missing=audioScenes.findIndex(scene=>!scene.voiceover||!scene.voiceover.trim());
+    if(missing>=0)throw new Error('ฉาก '+(missing+1)+' ยังไม่มีบทพูดภาษาไทย จึงยังไม่บันทึกการเปลี่ยนแปลง');
+    bridgeScenes=bridgeScenes.map(function(existing,index){
+      const audio=audioScenes[index];
+      return Object.assign({},existing,{
+        voiceover:audio.voiceover,
+        voiceDirection:audio.voiceDirection||existing.voiceDirection,
+        audioDirection:audio.audioDirection||existing.audioDirection
+      });
+    });
+    bridgeRender();
+    bridgeStatus('เติมเสียงบรรยายครบ '+bridgeScenes.length+' ฉากแล้ว · Prompt ภาพ สถานะ QC และบันทึกไฟล์เดิมยังคงอยู่');
+  }catch(error){
+    console.error(error);
+    bridgeStatus('เติมเสียงบรรยายไม่สำเร็จ: '+String(error.message||error));
+  }finally{
+    button.disabled=false;
+    button.textContent='เติมเสียงบรรยายให้ฉากเดิม';
+  }
 });
 document.getElementById('bridge-scenes').addEventListener('input',function(e){
   const card=e.target.closest('.bridge-card');if(!card)return;
