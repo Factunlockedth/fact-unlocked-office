@@ -398,6 +398,34 @@ function seatedSprite(x,y,shirt,hair){
  px(-8,-19,16,3,'#263449');ctx.restore();
 }
 function findPath(sx,sy,tx,ty){sx=Math.max(0,Math.min(W-1,sx));sy=Math.max(0,Math.min(H-1,sy));tx=Math.max(0,Math.min(W-1,tx));ty=Math.max(0,Math.min(H-1,ty));const q=[[sx,sy]],prev=new Map([[sx+','+sy,null]]);let end=null;while(q.length){const [x,y]=q.shift();if(x===tx&&y===ty){end=x+','+y;break}for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,k=nx+','+ny;if(nx>=0&&ny>=0&&nx<W&&ny<H&&!prev.has(k)){prev.set(k,x+','+y);q.push([nx,ny])}}}if(!end)return[];const path=[];let k=end;while(k&&k!==sx+','+sy){const [x,y]=k.split(',').map(Number);path.unshift([x,y]);k=prev.get(k)}return path}
+function drawMascots(){
+  // Two tiny Pomeranian-style office mascots, echoing the reference HQ illustration.
+  function dog(x,y,body,shadow,collar,name,tailPhase){
+    const p=iso(x,y),wag=Math.round(Math.sin(tailPhase)*2);
+    ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));
+    diamond(0,2,27,12,'#191e29aa',null);
+    // fluffy tail and body
+    px(8,-15+wag,7,7,shadow);px(12,-18+wag,5,5,body);px(6,-19,17,13,body);
+    px(-2,-18,13,12,body);px(-9,-14,8,8,body);
+    // four short paws
+    px(-7,-7,4,6,shadow);px(-1,-7,4,6,shadow);px(7,-7,4,6,shadow);
+    // round head, fluffy cheeks, ears, face
+    px(-8,-29,16,14,body);px(-11,-25,5,8,body);px(6,-25,5,8,body);
+    px(-8,-33,5,7,shadow);px(4,-33,5,7,shadow);
+    px(-5,-25,3,3,'#29232a');px(3,-25,3,3,'#29232a');
+    px(-1,-20,3,3,'#4c3330');px(-3,-17,7,2,'#fff4df');
+    px(-6,-10,13,2,collar);px(1,-11,3,3,'#e8c46e');
+    // fluffy forehead tufts
+    px(-2,-36,5,5,body);px(-8,-32,3,4,body);px(5,-32,3,4,body);
+    ctx.restore();
+    const w=Math.max(48,name.length*5+12);
+    ctx.fillStyle='#0e1b2c';ctx.fillRect(p.x-w/2,p.y-48,w,11);
+    ctx.strokeStyle='#d0ae6b';ctx.lineWidth=1;ctx.strokeRect(p.x-w/2,p.y-48,w,11);
+    ctx.fillStyle='#f6e3b8';ctx.font='bold 6px system-ui';ctx.textAlign='center';ctx.fillText(name,p.x,p.y-40);
+  }
+  dog(5.1,9.75,'#f4ead7','#d3c2a5','#d8ae58','TUAYFOO',performance.now()/230);
+  dog(6.35,9.7,'#d9a36d','#a86d46','#5eb7c1','UDONG',performance.now()/190+1);
+}
 function drawNPCs(){npcState.forEach(n=>{
   const p=iso(n.x,n.y);seatedSprite(n.x,n.y,n.data.color,n.data.hair);
   const label=n.data.name.toUpperCase(),w=Math.max(72,Math.min(100,label.length*5.1));
@@ -408,7 +436,7 @@ function drawNPCs(){npcState.forEach(n=>{
 })}
 function moveCEO(tx,ty){if(tx<0||ty<0||tx>=W||ty>=H)return;const path=findPath(Math.round(ceoState.x),Math.round(ceoState.y),tx,ty);if(path.length){ceoState.path=path;ceoState.wait=210}}
 function drawCEO(t){if(!ceoState.path.length){ceoState.wait--;if(ceoState.wait<=0){const stops=[[6,6],[4,4],[7,5],[4,8],[7,9],[10,8],[8,2],[3,2]];const dest=stops[ceoRouteIndex++%stops.length];ceoState.path=findPath(Math.round(ceoState.x),Math.round(ceoState.y),dest[0],dest[1]);ceoState.wait=210}}if(ceoState.path.length){const [tx,ty]=ceoState.path[0],dx=tx-ceoState.x,dy=ty-ceoState.y,d=Math.hypot(dx,dy);if(d<.04){ceoState.x=tx;ceoState.y=ty;ceoState.path.shift()}else{ceoState.x+=dx/d*.045;ceoState.y+=dy/d*.045}}sprite(ceoState.x,ceoState.y,ceoState.data.color,ceoState.data.hair,ceoState.path.length>0,t/45+ceoState.phase,1.12);const p=iso(ceoState.x,ceoState.y);diamond(p.x,p.y-48,17,9,'#f3c85f','#8b672b');ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillStyle='#17243b';ctx.fillRect(p.x-28,p.y-63,56,13);ctx.fillStyle='#ffe3a1';ctx.fillText('CEO AI',p.x,p.y-54)}
-function draw(t=0){clear();ctx.save();ctx.translate(stage.clientWidth/2-CW/2,stage.clientHeight/2-CH/2);ctx.scale(scale,scale);ctx.translate(camX,camY);drawFloor();drawFurniture();[[2,2],[6,2],[9,5],[3,8],[10,8]].forEach(([x,y])=>{let lp=iso(x,y);let g=ctx.createRadialGradient(lp.x,lp.y-8,2,lp.x,lp.y-8,32);g.addColorStop(0,'#f7d98a30');g.addColorStop(1,'#f7d98a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(lp.x,lp.y-8,32,0,Math.PI*2);ctx.fill()});drawNPCs(t);drawCEO(t);let sign=iso(6,0);ctx.fillStyle='#f2cf7e';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED · AI CONTENT HQ',sign.x,sign.y-68);ctx.restore();requestAnimationFrame(draw)}
+function draw(t=0){clear();ctx.save();ctx.translate(stage.clientWidth/2-CW/2,stage.clientHeight/2-CH/2);ctx.scale(scale,scale);ctx.translate(camX,camY);drawFloor();drawFurniture();drawMascots();[[2,2],[6,2],[9,5],[3,8],[10,8]].forEach(([x,y])=>{let lp=iso(x,y);let g=ctx.createRadialGradient(lp.x,lp.y-8,2,lp.x,lp.y-8,32);g.addColorStop(0,'#f7d98a30');g.addColorStop(1,'#f7d98a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(lp.x,lp.y-8,32,0,Math.PI*2);ctx.fill()});drawNPCs(t);drawCEO(t);let sign=iso(6,0);ctx.fillStyle='#f2cf7e';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED · AI CONTENT HQ',sign.x,sign.y-68);ctx.restore();requestAnimationFrame(draw)}
 
 function openPanel(s){selected=s;document.getElementById('ptitle').textContent=s.name;document.getElementById('pdesc').textContent=s.role+' — '+s.desc;let items=document.getElementById('pitems');items.innerHTML='';['ตรวจสถานะงาน','ดูภารกิจประจำแผนก','ส่งข้อความถึง '+s.name].forEach((v,i)=>{let d=document.createElement('div');d.className='item';d.innerHTML='<span>'+v+'</span><span class="tag">'+(i===0?'พร้อมใช้งาน':'พร้อมใช้งาน')+'</span>';items.appendChild(d)});document.getElementById('paction').textContent='เริ่มสนทนา';document.getElementById('paction').onclick=()=>openChat(s);document.getElementById('panelbg').style.display='flex'}
 function openChat(s){selected=s;document.getElementById('panelbg').style.display='none';document.getElementById('chatname').textContent=s.name;const log=document.getElementById('chatlog');log.innerHTML='';addBubble('ai','สวัสดีครับ ผมคือ '+s.name+' ('+s.role+')\nเชื่อมต่อ AI Backend แล้ว พิมพ์คำสั่งเพื่อเริ่มสนทนาได้เลยครับ');document.getElementById('chatstate').textContent='';document.getElementById('chatbg').style.display='flex';document.getElementById('chatinput').focus()}
