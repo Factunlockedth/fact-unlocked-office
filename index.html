@@ -194,7 +194,7 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
 
 
 /* Architectural reference scene */
-#stage{background:radial-gradient(ellipse at 50% 40%,#263b5c 0%,#0b1728 66%,#060d18 100%)}
+#stage{background:#74888c}
 #stage:before{display:none}
 #game{z-index:1}
 @media(max-width:700px){
@@ -316,7 +316,7 @@ const staffAtlas=new Image();let staffAtlasReady=false,hoveredStaffId=null;
 staffAtlas.onload=()=>{staffAtlasReady=true};
 staffAtlas.onerror=()=>console.warn('Staff sprite atlas unavailable; using fallback avatars');
 staffAtlas.src='./assets/fact-hq-pixel-staff-v3.png?v=20261112a';
-const CW=1200,CH=675,TW=52,TH=26,OX=600,OY=330;
+const CW=640,CH=467,TW=30,TH=15,OX=320,OY=234;
 let dpr=1,scale=1,camX=0,camY=0,selected=null,drag=null;
 const W=13,H=11;
 const floor=Array.from({length:H},()=>Array(W).fill(1));
@@ -345,7 +345,20 @@ officeArt.onerror=()=>{
  }
  toast('โหลดภาพสำนักงานไม่สำเร็จ · กำลังใช้ฉากสำนักงานสำรอง');
 };
-officeArt.src='assets/fact-unlocked-hq.webp?v=20261112-restored';
+async function loadReferenceOfficeArt(){
+ try{
+  const response=await fetch('assets/hq-reference-640-q30.webp.b64',{cache:'force-cache'});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const encoded=(await response.text()).trim();
+  if(encoded.length!==27200||!/^[A-Za-z0-9+/]+={0,2}$/.test(encoded))throw new Error('ข้อมูลภาพไม่ผ่านการตรวจสอบ');
+  officeArt.src='data:image/webp;base64,'+encoded;
+ }catch(error){
+  console.error('HQ master artwork load failed:',error);
+  officeArtFallbackAttempted=true;
+  officeArt.src='assets/fact-unlocked-hq.webp?v=original-fallback';
+ }
+}
+loadReferenceOfficeArt();
 function iso(x,y,z=0){return {x:(x-y)*TW/2+OX+camX,y:(x+y)*TH/2+OY+camY-z}}
 function resize(){
  let r=stage.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
@@ -608,21 +621,21 @@ function drawFurniture(){
 }
 // Fixed interactive employee seats positioned over desks in the reference office artwork.
 const officeSeats={
- // Seat positions are aligned to the replacement HQ artwork (1200 × 675 scene coordinates).
- production:{x:1080,y:416},
- research:{x:658,y:354},
- fact:{x:858,y:442},
- editorial:{x:728,y:526},
- strategy:{x:520,y:548},
- creative:{x:820,y:575},
- distribution:{x:1122,y:466},
- analytics:{x:1000,y:588}
+ // Staff anchors mapped to the original two-storey isometric reference (640 × 467).
+ production:{x:548,y:266},
+ research:{x:333,y:244},
+ fact:{x:443,y:310},
+ editorial:{x:350,y:400},
+ strategy:{x:220,y:356},
+ creative:{x:392,y:410},
+ distribution:{x:580,y:226},
+ analytics:{x:500,y:338}
 };
 const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
 const ceoData=staff.find(data=>data.id==='ceo');
-const ceoState={data:ceoData,x:850,y:184,targetX:850,targetY:184,wait:90,phase:0};
+const ceoState={data:ceoData,x:510,y:153,targetX:510,targetY:153,wait:90,phase:0};
 let ceoRouteIndex=0;
 function sprite(x,y,shirt,hair,walking,phase,size=1){const p=iso(x,y);const bob=walking?Math.round(Math.sin(phase)*2):0;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);diamond(0,1,18,8,'#1a2638aa',null);px(-6,-8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');px(2,-24+bob,3,3,'#f3d17d');ctx.restore()}
 function seatedSprite(x,y,shirt,hair){
@@ -712,13 +725,13 @@ function drawNPCs(){
  });
 }
 function moveCEO(tx,ty){
- ceoState.targetX=Math.max(80,Math.min(1145,tx));ceoState.targetY=Math.max(150,Math.min(620,ty));ceoState.wait=0;
+ ceoState.targetX=Math.max(30,Math.min(610,tx));ceoState.targetY=Math.max(40,Math.min(440,ty));ceoState.wait=0;
 }
 function drawCEO(t){
  if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
   ceoState.wait--;
   if(ceoState.wait<=0){
-   const stops=[[850,184],[985,270],[895,365],[760,430],[820,565],[540,535],[300,425],[1090,495]];
+   const stops=[[510,153],[550,210],[500,255],[580,225],[500,338],[443,310],[350,400],[220,356],[392,410]];
    const dest=stops[ceoRouteIndex++%stops.length];ceoState.targetX=dest[0];ceoState.targetY=dest[1];ceoState.wait=230;
   }
  }
@@ -730,9 +743,8 @@ function drawCEO(t){
  ctx.fillStyle='#ffe3a1';ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillText('CEO AI',ceoState.x,ceoState.y-54);ctx.restore();
 }
 function officeView(){
- const portrait=stage.clientHeight>stage.clientWidth*1.15;
- const regularFit=Math.min((stage.clientWidth-18)/CW,(stage.clientHeight-18)/CH);
- const fit=portrait?Math.min((stage.clientHeight-26)/CH,1.12):regularFit;
+ // Contain the complete reference artwork without stretching on desktop or iPhone.
+ const fit=Math.min((stage.clientWidth-18)/CW,(stage.clientHeight-18)/CH);
  const view=fit*scale,ox=(stage.clientWidth-CW*view)/2,oy=(stage.clientHeight-CH*view)/2;
  return {fit,view,ox,oy};
 }
