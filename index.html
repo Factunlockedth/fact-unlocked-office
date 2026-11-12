@@ -621,15 +621,15 @@ function drawFurniture(){
 }
 // Fixed interactive employee seats positioned over desks in the reference office artwork.
 const officeWorkstations=[
- // Dedicated workstation anchors in the right-side AI office zone.
- {id:'strategy',x:420,y:240},
- {id:'research',x:460,y:230},
- {id:'fact',x:420,y:288},
- {id:'editorial',x:460,y:278},
- {id:'creative',x:560,y:258},
- {id:'production',x:600,y:248},
- {id:'distribution',x:560,y:306},
- {id:'analytics',x:600,y:296}
+ // Dedicated, staggered workstation rows aligned to the isometric office floor.
+ {id:'strategy',x:430,y:252},
+ {id:'research',x:470,y:242},
+ {id:'fact',x:510,y:232},
+ {id:'editorial',x:550,y:222},
+ {id:'creative',x:450,y:292},
+ {id:'production',x:490,y:282},
+ {id:'distribution',x:530,y:272},
+ {id:'analytics',x:570,y:262}
 ];
 const officeSeats=Object.fromEntries(officeWorkstations.map(s=>[s.id,{x:s.x,y:s.y}]));
 const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
@@ -760,56 +760,49 @@ function drawNPCs(t=0){
  });
 }
 function drawWorkstationBacks(){
- officeWorkstations.forEach((s,i)=>{
+ officeWorkstations.forEach(s=>{
   const x=s.x,y=s.y;
   ctx.save();
-  // Chair base and back, kept in the same graphite / muted steel palette.
-  ctx.globalAlpha=.96;
-  diamond(x,y+2,13,6,'#1b252e','#111923');
-  px(x-5,y-13,10,10,'#354553');
-  px(x-4,y-12,8,7,'#526273');
-  px(x-7,y-8,3,7,'#2a3a48');
-  px(x+4,y-8,3,7,'#2a3a48');
+  // Compact chair tucked directly behind each desk.
+  diamond(x,y+1,11,5,'#1b252e','#111923');
+  px(x-4,y-12,8,8,'#354553');
+  px(x-3,y-11,6,6,'#526273');
+  px(x-6,y-7,2,6,'#2a3a48');
+  px(x+4,y-7,2,6,'#2a3a48');
   ctx.restore();
  });
-}
-function drawWorkstationDesks(){
+}function drawWorkstationDesks(){
  officeWorkstations.forEach((s,i)=>{
   const x=s.x,y=s.y;
   ctx.save();
-  // Compact desk legs.
-  px(x-12,y-7,3,8,'#30383e');
-  px(x+9,y-7,3,8,'#30383e');
-  // Dark timber / charcoal desk fascia in isometric perspective.
+  // Short desk legs in dark metal.
+  px(x-10,y-6,2,7,'#30383e');
+  px(x+8,y-6,2,7,'#30383e');
+  // Narrow charcoal desk fascia and matching stone-grey desktop.
   poly([
-   {x:x-15,y:y-18},{x:x,y:y-25},{x:x+15,y:y-18},
-   {x:x+15,y:y-12},{x:x,y:y-5},{x:x-15,y:y-12}
+   {x:x-12,y:y-16},{x:x,y:y-22},{x:x+12,y:y-16},
+   {x:x+12,y:y-11},{x:x,y:y-5},{x:x-12,y:y-11}
   ],'#41484c','#222b31');
   poly([
-   {x:x-15,y:y-18},{x:x,y:y-11},{x:x,y:y-5},{x:x-15,y:y-12}
+   {x:x-12,y:y-16},{x:x,y:y-10},{x:x,y:y-5},{x:x-12,y:y-11}
   ],'#343c43','#222b31');
   poly([
-   {x:x,y:y-11},{x:x+15,y:y-18},{x:x+15,y:y-12},{x:x,y:y-5}
+   {x:x,y:y-10},{x:x+12,y:y-16},{x:x+12,y:y-11},{x:x,y:y-5}
   ],'#2d363e','#20282e');
-  // Desktop surface.
-  diamond(x,y-18,29,14,'#85877f','#30383e');
-  diamond(x,y-18,25,11,'#a4a398','#66665f');
-  // Small monitor, stand and keyboard.
-  px(x-5,y-28,10,7,'#222c36');
-  px(x-4,y-27,8,5,'#4b7784');
-  px(x-3,y-26,6,3,'#78a3a5');
-  px(x-1,y-21,2,3,'#3b454b');
-  px(x-4,y-19,8,2,'#30383f');
-  px(x+4,y-17,6,2,'#d0c6ad');
-  // Tiny colored status light for each department.
+  diamond(x,y-16,24,11,'#85877f','#30383e');
+  diamond(x,y-16,21,9,'#a4a398','#66665f');
+  // Small monitor, stand, keyboard and one department-coloured status light.
+  px(x-4,y-25,8,6,'#222c36');
+  px(x-3,y-24,6,4,'#4b7784');
+  px(x-2,y-23,4,2,'#78a3a5');
+  px(x-1,y-19,2,3,'#3b454b');
+  px(x-3,y-17,6,1,'#30383f');
+  px(x+3,y-15,5,2,'#d0c6ad');
   const swatches=['#d5a342','#4eaaa5','#c09448','#b97e9f','#a66abd','#4d8dbc','#4a9aa0','#82a55e'];
-  px(x-11,y-17,2,2,swatches[i%swatches.length]);
+  px(x-9,y-15,2,2,swatches[i%swatches.length]);
   ctx.restore();
  });
-}function moveCEO(tx,ty){
- ceoState.targetX=Math.max(30,Math.min(610,tx));ceoState.targetY=Math.max(40,Math.min(440,ty));ceoState.wait=0;
-}
-function drawCEO(t){
+}function drawCEO(t){
  if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
   ceoState.wait--;
   if(ceoState.wait<=0){
