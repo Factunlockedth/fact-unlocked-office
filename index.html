@@ -332,7 +332,7 @@ const officeArt=new Image();
 let officeArtReady=false;
 officeArt.onload=()=>{officeArtReady=true;draw()};
 officeArt.onerror=()=>{officeArtReady=false;toast('โหลดภาพสำนักงานไม่สำเร็จ กำลังใช้ฉากสำรอง')};
-officeArt.src='assets/fact-unlocked-hq.webp?v=ed44e708';
+officeArt.src='assets/fact-unlocked-hq.webp?v=dd75ec3b';
 function iso(x,y,z=0){return {x:(x-y)*TW/2+OX+camX,y:(x+y)*TH/2+OY+camY-z}}
 function resize(){
  let r=stage.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
