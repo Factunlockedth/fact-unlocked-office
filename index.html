@@ -620,17 +620,18 @@ function drawFurniture(){
   glassRail([0,H-1],[W-1,H-1]);glassRail([W-1,0],[W-1,H-1]);
 }
 // Fixed interactive employee seats positioned over desks in the reference office artwork.
-const officeSeats={
- // Staff anchors mapped to the original two-storey isometric reference (640 × 467).
- production:{x:548,y:266},
- research:{x:333,y:244},
- fact:{x:443,y:310},
- editorial:{x:350,y:400},
- strategy:{x:220,y:356},
- creative:{x:392,y:410},
- distribution:{x:580,y:226},
- analytics:{x:500,y:338}
-};
+const officeWorkstations=[
+ // Dedicated workstation anchors in the right-side AI office zone.
+ {id:'strategy',x:420,y:240},
+ {id:'research',x:460,y:230},
+ {id:'fact',x:420,y:288},
+ {id:'editorial',x:460,y:278},
+ {id:'creative',x:560,y:258},
+ {id:'production',x:600,y:248},
+ {id:'distribution',x:560,y:306},
+ {id:'analytics',x:600,y:296}
+];
+const officeSeats=Object.fromEntries(officeWorkstations.map(s=>[s.id,{x:s.x,y:s.y}]));
 const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
@@ -682,28 +683,25 @@ function drawMascots(){
 }
 const staffSpriteIndex={strategy:0,research:1,fact:2,editorial:3,creative:4,production:5,distribution:6,analytics:7};
 function drawSeatedWorker(x,y,shirt,hair,index=0,time=0){
- // A soft contact shadow anchors each seated colleague to the office floor.
- const breath=Math.sin(time*2.1+index*.73)*.42;
+ // A seated posture: the workstation surface will hide the lower half of the sprite.
+ const breath=Math.sin(time*1.65+index*.73)*.28;
  ctx.save();
- ctx.globalAlpha=.24;
+ ctx.globalAlpha=.22;
  ctx.fillStyle='#17202a';
- ctx.beginPath();ctx.ellipse(x,y+1,8.2,2.35,0,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.ellipse(x,y+1,7.2,2,0,0,Math.PI*2);ctx.fill();
  ctx.restore();
 
  if(staffAtlasReady){
   const sx=(index%4)*40,sy=Math.floor(index/4)*48;
-  // Slightly smaller than the atlas cell so the employees match the furniture scale.
-  // Smooth downsampling softens the pixel edges without changing the artwork.
   ctx.save();
   ctx.imageSmoothingEnabled=true;
   ctx.globalAlpha=.98;
-  ctx.drawImage(staffAtlas,sx,sy,40,48,x-17,y-40+breath,34,41);
+  ctx.drawImage(staffAtlas,sx,sy,40,48,x-15,y-36+breath,30,37);
   ctx.restore();
   return;
  }
 
- // Proportional fallback avatar, with the same grounded size as the main atlas.
- ctx.save();ctx.translate(x,y+breath);ctx.scale(.84,.84);
+ ctx.save();ctx.translate(x,y+breath);ctx.scale(.76,.76);
  ctx.fillStyle='#182739';ctx.fillRect(-10,-27,20,25);
  ctx.fillStyle=shirt;ctx.fillRect(-8,-31,16,20);
  ctx.fillStyle='#edc5a0';ctx.fillRect(-6,-47,12,13);
@@ -728,23 +726,24 @@ function drawSeatedWorker(x,y,shirt,hair,index=0,time=0){
  }
 }function drawStaffNameplate(label,x,topY,accent,active=false){
  ctx.save();
- ctx.font='600 5.8px system-ui,sans-serif';
- const width=Math.max(38,Math.min(72,ctx.measureText(label).width+12));
- const left=Math.round(x-width/2),top=Math.round(topY),height=10;
- ctx.shadowColor='rgba(12,20,30,.28)';
- ctx.shadowBlur=active?3:1;
- ctx.fillStyle='rgba(20,32,46,.91)';
- ctx.strokeStyle=active?'#e6c77e':'rgba(168,143,101,.78)';
- ctx.lineWidth=.8;
+ ctx.font='600 4.8px system-ui,sans-serif';
+ const shortLabel=label.replace(/ AI$/,'');
+ const width=Math.max(34,Math.min(46,ctx.measureText(shortLabel).width+9));
+ const left=Math.round(x-width/2),top=Math.round(topY),height=8;
+ ctx.shadowColor='rgba(12,20,30,.22)';
+ ctx.shadowBlur=active?2:0;
+ ctx.fillStyle='rgba(24,34,44,.94)';
+ ctx.strokeStyle=active?'#e6c77e':'rgba(168,143,101,.70)';
+ ctx.lineWidth=.7;
  ctx.fillRect(left,top,width,height);
  ctx.strokeRect(left,top,width,height);
  ctx.shadowBlur=0;
  ctx.fillStyle=accent;
- ctx.fillRect(left+4,top+3.5,3,3);
+ ctx.fillRect(left+3,top+2.5,2.5,2.5);
  ctx.fillStyle='#eee3cb';
  ctx.textAlign='center';
  ctx.textBaseline='middle';
- ctx.fillText(label,x+2,top+5.1,width-13);
+ ctx.fillText(shortLabel,x+1.2,top+4.1,width-10);
  ctx.restore();
 }
 function drawNPCs(t=0){
@@ -754,10 +753,58 @@ function drawNPCs(t=0){
   drawStaffNameplate(
    n.data.name.toUpperCase(),
    n.x,
-   n.y-52,
+   n.y-45,
    n.data.color,
    hoveredStaffId===n.data.id
   );
+ });
+}
+function drawWorkstationBacks(){
+ officeWorkstations.forEach((s,i)=>{
+  const x=s.x,y=s.y;
+  ctx.save();
+  // Chair base and back, kept in the same graphite / muted steel palette.
+  ctx.globalAlpha=.96;
+  diamond(x,y+2,13,6,'#1b252e','#111923');
+  px(x-5,y-13,10,10,'#354553');
+  px(x-4,y-12,8,7,'#526273');
+  px(x-7,y-8,3,7,'#2a3a48');
+  px(x+4,y-8,3,7,'#2a3a48');
+  ctx.restore();
+ });
+}
+function drawWorkstationDesks(){
+ officeWorkstations.forEach((s,i)=>{
+  const x=s.x,y=s.y;
+  ctx.save();
+  // Compact desk legs.
+  px(x-12,y-7,3,8,'#30383e');
+  px(x+9,y-7,3,8,'#30383e');
+  // Dark timber / charcoal desk fascia in isometric perspective.
+  poly([
+   {x:x-15,y:y-18},{x:x,y:y-25},{x:x+15,y:y-18},
+   {x:x+15,y:y-12},{x:x,y:y-5},{x:x-15,y:y-12}
+  ],'#41484c','#222b31');
+  poly([
+   {x:x-15,y:y-18},{x:x,y:y-11},{x:x,y:y-5},{x:x-15,y:y-12}
+  ],'#343c43','#222b31');
+  poly([
+   {x:x,y:y-11},{x:x+15,y:y-18},{x:x+15,y:y-12},{x:x,y:y-5}
+  ],'#2d363e','#20282e');
+  // Desktop surface.
+  diamond(x,y-18,29,14,'#85877f','#30383e');
+  diamond(x,y-18,25,11,'#a4a398','#66665f');
+  // Small monitor, stand and keyboard.
+  px(x-5,y-28,10,7,'#222c36');
+  px(x-4,y-27,8,5,'#4b7784');
+  px(x-3,y-26,6,3,'#78a3a5');
+  px(x-1,y-21,2,3,'#3b454b');
+  px(x-4,y-19,8,2,'#30383f');
+  px(x+4,y-17,6,2,'#d0c6ad');
+  // Tiny colored status light for each department.
+  const swatches=['#d5a342','#4eaaa5','#c09448','#b97e9f','#a66abd','#4d8dbc','#4a9aa0','#82a55e'];
+  px(x-11,y-17,2,2,swatches[i%swatches.length]);
+  ctx.restore();
  });
 }function moveCEO(tx,ty){
  ceoState.targetX=Math.max(30,Math.min(610,tx));ceoState.targetY=Math.max(40,Math.min(440,ty));ceoState.wait=0;
@@ -810,7 +857,9 @@ function draw(t=0){
  ctx.save();
  ctx.translate(v.ox,v.oy);ctx.scale(v.view,v.view);ctx.translate(camX,camY);
  drawOfficeBackground();
+ drawWorkstationBacks();
  drawNPCs(t);
+ drawWorkstationDesks();
  drawCEO(t);
  ctx.restore();
  requestAnimationFrame(draw);
@@ -1244,7 +1293,7 @@ canvas.addEventListener('pointermove',e=>{
  const r=canvas.getBoundingClientRect(),v=officeView();
  const sx=(e.clientX-r.left)*stage.clientWidth/r.width,sy=(e.clientY-r.top)*stage.clientHeight/r.height;
  const xx=(sx-v.ox)/v.view-camX,yy=(sy-v.oy)/v.view-camY;
- const found=npcState.find(n=>Math.abs(xx-n.x)<27&&Math.abs(yy-(n.y-23))<30);
+ const found=npcState.find(n=>Math.abs(xx-n.x)<20&&Math.abs(yy-(n.y-24))<27);
  hoveredStaffId=found?found.data.id:null;
 });
 canvas.addEventListener('pointerdown',onDown);
@@ -1253,7 +1302,7 @@ canvas.addEventListener('pointerup',e=>{
  const v=officeView(),dx=e.clientX-drag.x,dy=e.clientY-drag.y;
  if(Math.hypot(dx,dy)>8){camX+=dx/v.view;camY+=dy/v.view;drag=null;draw();return}
  const xx=(drag.sx-v.ox)/v.view-camX,yy=(drag.sy-v.oy)/v.view-camY;
- const found=npcState.find(n=>Math.abs(xx-n.x)<31&&Math.abs(yy-(n.y-28))<36);
+ const found=npcState.find(n=>Math.abs(xx-n.x)<21&&Math.abs(yy-(n.y-23))<29);
  if(found)openChat(found.data);
  else if(Math.abs(xx-ceoState.x)<28&&Math.abs(yy-(ceoState.y-25))<35)openChat(ceoData);
  else moveCEO(xx,yy);
