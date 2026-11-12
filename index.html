@@ -97,10 +97,164 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
  #hint{background:#111f34f5}
 }
 
+
+/* Reference-matched game HUD */
+#app{background:#050b18}
+#topbar{height:70px;padding:5px 10px;gap:12px;display:flex;align-items:center;background:linear-gradient(180deg,#0b1426,#111d32);border-bottom:2px solid #a7813e;box-shadow:0 4px 18px #000b}
+.identity{display:flex;align-items:center;gap:9px;min-width:195px}
+.avatar-chip{width:45px;height:45px;border:2px solid #d8b76b;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#617b96,#1a2b43 68%);color:#ffe4a1;font-weight:1000;font-size:14px;box-shadow:0 0 12px #d5b15a55}
+.levelbox{width:160px;flex:none;line-height:1.2}.level-line{display:flex;align-items:center;gap:6px;font-size:10px;color:#e5eaf1}.level-line b{color:#f5ce76;font-size:14px}.exp-track{height:8px;background:#26374c;border:1px solid #516985;border-radius:9px;margin:5px 0 2px;overflow:hidden}.exp-track i{display:block;width:58%;height:100%;background:linear-gradient(90deg,#e0a83e,#ffe17b);box-shadow:0 0 8px #f7c85a}.levelbox small{font-size:8px;color:#b7c6d8}
+#mainnav{display:flex;align-items:stretch;gap:3px;height:100%;flex:1;min-width:0;justify-content:center}
+.navtab{min-width:65px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;border-left:1px solid #293d58;border-right:1px solid #101a2c;background:transparent;color:#c8d5e5;padding:3px 7px}
+.navtab b{font-size:20px;line-height:1;color:#c9d7e7}.navtab small{font-size:9px;white-space:nowrap}.navtab.active{background:linear-gradient(180deg,#624b24,#19263a);color:#ffe39a;border-bottom:3px solid #efbe50;box-shadow:inset 0 0 14px #c28e3540}.navtab.active b{color:#ffd36e}
+.resourcebox{display:flex;align-items:center;gap:5px;flex:none}.resourcebox span{padding:6px 7px;border:1px solid #4a607d;border-radius:13px;background:#101c30;color:#e6eef8;font-size:9px;white-space:nowrap}
+#topbar .brand{font-size:12px;letter-spacing:.08em}#topbar .brand small{font-size:8px}
+#topbar .topright{align-items:center;gap:5px}#topbar .topright button{font-size:9px;white-space:nowrap}
+#stage{background:radial-gradient(ellipse at 50% 45%,#132949 0%,#081427 64%,#030812 100%);isolation:isolate}
+#stage:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(1px 1px at 7% 18%,#d8d9e9 80%,transparent),radial-gradient(1px 1px at 18% 74%,#b7c7dc 80%,transparent),radial-gradient(2px 2px at 84% 13%,#f4d58a 70%,transparent),radial-gradient(1px 1px at 92% 66%,#a6c6df 80%,transparent),radial-gradient(1px 1px at 45% 8%,#e5cf9a 80%,transparent),radial-gradient(1px 1px at 61% 83%,#c6d5e4 80%,transparent);background-size:260px 190px;opacity:.65}
+#game{position:absolute;inset:0;z-index:1}
+#left-rail{position:absolute;z-index:3;left:10px;top:12px;bottom:94px;width:61px;display:flex;flex-direction:column;gap:6px;justify-content:center}
+#left-rail button{height:57px;flex:none;border:1px solid #657c9a;border-radius:9px;background:linear-gradient(145deg,#192c47,#081527);color:#e3edf7;box-shadow:0 3px 9px #0009,inset 0 0 0 1px #ffffff0b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+#left-rail button b{font-size:20px;color:#f4ca68;line-height:1}#left-rail button small{font-size:8px;color:#e5edf5}
+#left-rail button:active{border-color:#f5d27b;transform:translateY(1px)}
+.hud-card{position:absolute;z-index:3;background:linear-gradient(145deg,#0c1b31f2,#071221f5);border:1px solid #607895;border-radius:10px;box-shadow:0 6px 22px #000b,inset 0 0 0 1px #ffffff0b;color:#e8edf4}
+#mission-panel{right:12px;top:14px;width:218px;padding:10px 11px}
+.hud-title{display:flex;align-items:center;justify-content:space-between;gap:5px;color:#f5d37f;font-weight:900;font-size:12px;border-bottom:1px solid #4b617a;padding-bottom:7px;margin-bottom:5px}
+.hud-title span{font-size:7px;color:#92abc4;letter-spacing:.08em}
+.mission-row{display:flex;align-items:center;gap:7px;font-size:9px;padding:5px 0;color:#c7d2df}
+.mission-row i{width:15px;height:15px;border:1px solid #9ab0c7;border-radius:4px;display:grid;place-items:center;flex:none;font-style:normal;font-size:8px;color:#d8e4f1}
+.mission-row.done i{background:#159b60;border-color:#39d18e;color:#fff;font-weight:900}
+.mission-progress{border-top:1px solid #435a73;margin-top:4px;padding-top:7px}.mission-progress div{display:flex;justify-content:space-between;font-size:8px;color:#d2ddec;margin-bottom:5px}.mission-progress strong{color:#f4d27a}
+.mission-progress>span{height:7px;display:block;border-radius:10px;background:#263c56;overflow:hidden}.mission-progress>span i{display:block;height:100%;width:50%;background:linear-gradient(90deg,#d99b32,#ffe17a)}
+#activity-panel{left:12px;bottom:84px;width:282px;padding:9px 11px}
+.activity-row{display:flex;align-items:center;gap:7px;border-bottom:1px solid #ffffff12;padding:5px 0;font-size:8px;color:#bdcada}
+.activity-row:last-child{border:0}.activity-row i{width:7px;height:7px;border-radius:50%;background:#42d77e;box-shadow:0 0 6px #31c96c;flex:none}.activity-row b{color:#f1d48e}
+#minimap-panel{right:12px;bottom:84px;width:170px;padding:9px}
+.mini-map{height:86px;position:relative;overflow:hidden;border-radius:6px;background:radial-gradient(ellipse,#25496a,#0c1b2e);border:1px solid #415e7c}
+.mini-map:before{content:"";position:absolute;inset:12px 20px;background:linear-gradient(135deg,#9c9a87,#706f68);clip-path:polygon(50% 0,100% 25%,50% 100%,0 75%);border:1px solid #c59e58;opacity:.9}
+.mini-room{position:absolute;background:#203b58;border:1px solid #e5bd6d;transform:skewY(-25deg) rotate(0deg);width:30px;height:18px;z-index:1}
+.room-a{left:38px;top:20px}.room-b{left:72px;top:29px}.room-c{left:43px;top:43px}.room-d{left:82px;top:49px}.room-e{left:105px;top:27px}.room-f{left:20px;top:35px}
+.mini-pin{position:absolute;left:82px;top:36px;width:11px;height:11px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#ffc84f;box-shadow:0 0 10px #ffc84f;z-index:2}
+#bottom-toolbar{position:absolute;z-index:3;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:5px;border:1px solid #667e99;border-radius:10px;background:#081526ed;box-shadow:0 5px 18px #000a;white-space:nowrap}
+#bottom-toolbar>button{border:1px solid #6a7d95;border-radius:7px;background:#142640;color:#e9edf3;font-size:9px;padding:8px 11px}
+#bottom-toolbar>button b{color:#f1c765;margin-right:4px;font-size:13px}
+#bottom-toolbar>button.selected{border-color:#e7b84d;color:#ffe39b;box-shadow:0 0 10px #e8b84d65}
+#controls{position:static;display:flex;align-items:center;gap:4px;margin-left:3px}
+#controls button{border:1px solid #7186a0;background:#12243a;color:#f7dd9b;border-radius:7px;padding:6px 9px;font-size:12px}
+#zoomlevel{font-size:9px;color:#e4eaf1;min-width:32px;text-align:center}
+#hint{z-index:3;bottom:17px;left:12px;transform:none;font-size:8px;padding:7px 10px;background:#09172adf;color:#d6e2ee;border:1px solid #536f8d;box-shadow:0 3px 9px #0008}
+#toast{z-index:10}
+#hudbg{position:absolute;inset:0;z-index:7;background:#020814c9;display:none;align-items:center;justify-content:center;padding:14px}
+#hudbox{width:min(450px,95%);max-height:78%;overflow:auto;background:linear-gradient(145deg,#1a304c,#091728);border:1px solid #d3ae65;border-radius:14px;box-shadow:0 16px 48px #000c}
+#hudhead{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#10223a;border-bottom:1px solid #4d627c}
+#hudhead strong{color:#f2d17c;font-size:14px}#hudclose{border:1px solid #667c96;background:#203854;color:white;border-radius:7px;padding:6px 9px}
+#hudcontent{padding:13px;color:#d8e3ef;font-size:12px;line-height:1.6}
+.hud-action{width:100%;text-align:left;padding:9px 10px;margin:4px 0;border:1px solid #536b86;border-radius:8px;background:#12263e;color:#e8edf6;font-size:11px}
+.hud-action b{color:#f2cf79}.hud-muted{font-size:10px;color:#9fb1c6}
+@media(max-width:1050px){
+ #levelbox{display:none}
+ .levelbox{display:none}
+ .navtab{min-width:48px;padding:2px 4px}.navtab b{font-size:17px}.navtab small{font-size:7px}
+ .resourcebox span{font-size:8px;padding:5px}
+}
+@media(max-width:700px){
+ #topbar{height:58px;padding:4px 6px;gap:5px}
+ .identity{min-width:0;gap:6px}.avatar-chip{width:34px;height:34px;font-size:11px}
+ #topbar .brand{font-size:9px;letter-spacing:.04em}#topbar .brand small{font-size:6px}
+ #mainnav{gap:0}.navtab{min-width:34px;padding:2px 1px}.navtab b{font-size:15px}.navtab small{font-size:6px}
+ .resourcebox{display:none}
+ #topbar .topright{gap:3px}#topbar .topright button{font-size:7px;padding:5px 6px}
+ #status{font-size:7px;padding:0 2px}
+ #left-rail{left:5px;top:8px;bottom:78px;width:39px;gap:4px}
+ #left-rail button{height:42px;border-radius:6px;padding:1px}
+ #left-rail button b{font-size:15px}#left-rail button small{font-size:6px}
+ #mission-panel{right:5px;top:8px;width:145px;padding:6px}
+ .hud-title{font-size:8px;padding-bottom:4px;margin-bottom:3px}
+ .hud-title span{font-size:5px}
+ .mission-row{font-size:6px;gap:4px;padding:3px 0}
+ .mission-row i{width:11px;height:11px;font-size:6px}
+ .mission-progress div{font-size:6px}
+ #activity-panel,#minimap-panel{display:none}
+ #bottom-toolbar{bottom:10px;gap:3px;padding:3px}
+ #bottom-toolbar>button{font-size:7px;padding:6px 7px}
+ #bottom-toolbar>button b{font-size:10px;margin-right:2px}
+ #controls{gap:2px;margin-left:1px}
+ #controls button{font-size:10px;padding:5px 6px}
+ #zoomlevel{font-size:7px;min-width:23px}
+ #hint{font-size:7px;bottom:60px;left:50%;transform:translateX(-50%);max-width:80%;text-align:center;white-space:normal}
+}
+@media(max-width:390px){
+ #mainnav .navtab:nth-child(4),#mainnav .navtab:nth-child(6){display:none}
+ #topbar .topright #status{display:none}
+ #left-rail{width:34px}
+ #left-rail button small{display:none}
+ #mission-panel{width:132px}
+ #bottom-toolbar>button:nth-child(2){display:none}
+}
+
 </style></head><body><div id="app">
-<header><div class="brand"><div class="logo"><span>FU</span></div><div>FACT UNLOCKED<small>AI CONTENT HQ · HABBO STYLE</small></div></div><div class="topright"><span id="status">ทีมงาน 9 คน</span><button id="bridgeopen">Meta AI Bridge</button><button id="meeting">CEO ตรวจงาน</button></div></header>
-<div id="stage"><canvas id="game"></canvas><div id="hint">แตะพนักงานหรือโต๊ะเพื่อเปิดแชต · CEO เดินตรวจงาน</div><div id="controls"><button id="zoomout">－</button><button id="zoomin">＋</button><button id="center">⌖</button></div><div id="toast"></div>
-<div id="panelbg"><div id="panel"><button id="close">ปิด ✕</button><h2 id="ptitle">พนักงาน</h2><p id="pdesc"></p><div id="pitems"></div><button id="paction" style="width:100%;margin-top:12px;background:linear-gradient(90deg,#e9c66c,#b28339);color:#172238;border:0;border-radius:8px;padding:11px;font-weight:800">เริ่มสนทนา</button></div></div>
+<header id="topbar">
+ <div class="identity">
+  <div class="avatar-chip">FU</div>
+  <div class="brand">FACT UNLOCKED<small>AI CONTENT HQ</small></div>
+ </div>
+ <div class="levelbox"><div class="level-line"><b>Lv.12</b><span>Content Director</span></div><div class="exp-track"><i></i></div><small>EXP 6,450 / 11,000</small></div>
+ <nav id="mainnav">
+  <button class="navtab active" data-view="home"><b>⌂</b><small>สำนักงานใหญ่</small></button>
+  <button class="navtab" data-view="projects"><b>▤</b><small>โปรเจกต์</small></button>
+  <button class="navtab" data-view="team"><b>♟</b><small>ทีม AI</small></button>
+  <button class="navtab" data-view="knowledge"><b>▣</b><small>คลังความรู้</small></button>
+  <button class="navtab" data-view="reports"><b>▥</b><small>รายงาน</small></button>
+  <button class="navtab" data-view="settings"><b>⚙</b><small>ตั้งค่า</small></button>
+ </nav>
+ <div class="resourcebox"><span>⚡ 120/120</span><span>◉ 3,560</span><span>💎 240</span></div>
+ <div class="topright"><span id="status">AI 9</span><button id="bridgeopen">META AI</button></div>
+</header>
+<div id="stage">
+ <canvas id="game"></canvas>
+ <aside id="left-rail">
+  <button data-rail="missions"><b>▣</b><small>ภารกิจ</small></button>
+  <button data-rail="projects"><b>▤</b><small>โปรเจกต์</small></button>
+  <button data-rail="planning"><b>◎</b><small>แผนงาน</small></button>
+  <button data-rail="analytics"><b>▥</b><small>สถิติ</small></button>
+  <button data-rail="team"><b>♟</b><small>ทีมงาน</small></button>
+  <button data-rail="knowledge"><b>▣</b><small>คลังความรู้</small></button>
+  <button data-rail="roadmap"><b>★</b><small>รางวัล</small></button>
+  <button data-rail="tools"><b>▰</b><small>เครื่องมือ</small></button>
+ </aside>
+ <section id="mission-panel" class="hud-card">
+  <div class="hud-title">ภารกิจประจำวัน <span>WORKFLOW</span></div>
+  <div class="mission-row done"><i>✓</i><span>กำหนดหัวข้อและเป้าหมาย</span></div>
+  <div class="mission-row done"><i>✓</i><span>ค้นคว้าข้อมูลต้นทาง</span></div>
+  <div class="mission-row done"><i>✓</i><span>ตรวจสอบข้อเท็จจริง</span></div>
+  <div class="mission-row"><i>4</i><span>เขียนสคริปต์สารคดี</span></div>
+  <div class="mission-row"><i>5</i><span>ผลิตภาพและวิดีโอ</span></div>
+  <div class="mission-row"><i>6</i><span>เตรียมเผยแพร่</span></div>
+  <div class="mission-progress"><div><b>ตัวอย่างขั้นตอนการผลิต</b><strong>3/6</strong></div><span><i></i></span></div>
+ </section>
+ <section id="activity-panel" class="hud-card">
+  <div class="hud-title">AI TEAM ACTIVITY <span>8 แผนก</span></div>
+  <div class="activity-row"><i></i><span><b>Research AI</b> พร้อมรับคำสั่งวิจัย</span></div>
+  <div class="activity-row"><i></i><span><b>Fact Check AI</b> พร้อมตรวจสอบข้อมูล</span></div>
+  <div class="activity-row"><i></i><span><b>Creative AI</b> พร้อมสร้าง Storyboard</span></div>
+ </section>
+ <section id="minimap-panel" class="hud-card">
+  <div class="hud-title">แผนผังสำนักงาน <span>HQ MAP</span></div>
+  <div class="mini-map">
+   <div class="mini-room room-a"></div><div class="mini-room room-b"></div><div class="mini-room room-c"></div>
+   <div class="mini-room room-d"></div><div class="mini-room room-e"></div><div class="mini-room room-f"></div>
+   <div class="mini-pin"></div>
+  </div>
+ </section>
+ <div id="bottom-toolbar">
+  <button id="overview" class="selected"><b>▦</b> มุมมองภาพรวม</button>
+  <button id="explore"><b>♙</b> สำรวจสำนักงาน</button>
+  <div id="controls"><button id="zoomout">－</button><span id="zoomlevel">100%</span><button id="zoomin">＋</button><button id="center">⌖</button></div>
+ </div>
+ <div id="hint">แตะพนักงานหรือโต๊ะเพื่อสนทนา · CEO เป็นคนเดียวที่เดินตรวจงาน</div>
+ <div id="toast"></div>
+ <div id="hudbg"><div id="hudbox"><div id="hudhead"><strong id="hudtitle">FACT UNLOCKED</strong><button id="hudclose">ปิด ✕</button></div><div id="hudcontent"></div></div></div>
+ <div id="panelbg"><div id="panel"><button id="close">ปิด ✕</button><h2 id="ptitle">พนักงาน</h2><p id="pdesc"></p><div id="pitems"></div><button id="paction" style="width:100%;margin-top:12px;background:linear-gradient(90deg,#e9c66c,#b28339);color:#172238;border:0;border-radius:8px;padding:11px;font-weight:800">เริ่มสนทนา</button></div></div>
 </div><div id="chatbg"><div id="chatbox"><div id="chathead"><div><strong id="chatname">AI Department</strong><div class="chatmeta">เชื่อมต่อ FACT UNLOCKED AI Backend</div></div><button id="chatclose">ปิด ✕</button></div><div id="chatlog"></div><div id="chatstate" role="status"></div><div id="chatform"><input id="chatinput" type="text" placeholder="พิมพ์คำสั่งถึงแผนกนี้..." autocomplete="off"><button id="chatsend" type="button">ส่ง</button></div></div></div>
 <div id="bridgebg" aria-label="Meta AI Production Bridge">
  <div id="bridgebox">
