@@ -193,9 +193,22 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
 }
 
 
-/* Architectural reference scene */
-#stage{background:#74888c}
-#stage:before{display:none}
+/* Architectural reference scene — deep twilight backdrop */
+#stage{
+ background:
+  radial-gradient(ellipse at 50% 48%,rgba(87,139,151,.20) 0%,rgba(22,48,68,.16) 34%,transparent 66%),
+  radial-gradient(ellipse at 50% 100%,#203b50 0%,#0d1a2c 60%,#050b18 100%);
+}
+#stage:before{
+ display:block;z-index:0;opacity:.42;pointer-events:none;
+ background-image:
+  radial-gradient(2px 2px at 8% 17%,#f4d58a 75%,transparent),
+  radial-gradient(1px 1px at 19% 70%,#c3e1e2 75%,transparent),
+  radial-gradient(1px 1px at 82% 20%,#a9c8dc 75%,transparent),
+  radial-gradient(2px 2px at 91% 73%,#f4d58a 75%,transparent),
+  radial-gradient(1px 1px at 53% 11%,#d6e4e7 75%,transparent);
+ background-size:310px 240px,270px 220px,330px 250px,370px 280px,290px 210px;
+}
 #game{z-index:1}
 @media(max-width:700px){
  #mission-panel,#activity-panel,#minimap-panel{display:none}
@@ -411,12 +424,18 @@ function hqDeskMonitors(x,y,z=0,accent='#64b9c6',dual=false){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
  const n=dual?2:1;
  for(let i=0;i<n;i++){
-  const mx=(i-(n-1)/2)*22;
-  px(mx-8,-54,16,16,'#1b2834');px(mx-6,-52,12,12,'#477b88');
-  px(mx-5,-50,10,2,accent);px(mx-5,-46,7,2,'#d7d6c7');
-  px(mx-2,-40,4,8,'#6c7370');px(mx-8,-33,16,2,'#303a40');
-  px(mx-8,-54,16,1,'#e5c98f');
+  const mx=(i-(n-1)/2)*24;
+  // Soft screen glow and a thicker graphite bezel make each workstation readable at game scale.
+  glow(mx,-45,22,accent,.13);
+  px(mx-10,-59,20,22,'#182633');px(mx-8,-57,16,18,'#355a69');
+  px(mx-7,-55,14,3,accent);px(mx-7,-50,10,2,'#e3e0d1');
+  px(mx-7,-46,12,2,'#8eb7bd');px(mx-7,-42,7,2,'#d7d6c7');
+  px(mx-2,-37,4,7,'#747c7b');px(mx-10,-31,20,2,'#303a40');
+  px(mx-10,-59,20,1,'#f0d59a');
  }
+ // Keyboard and mouse, visible from the isometric front angle.
+ px(-10,-12,19,3,'#303e49');px(-9,-11,16,1,'#d4c9ad');
+ px(15,-17,4,4,'#e7dec9');
  ctx.restore();
 }
 function drawWorkstationFronts(){
@@ -768,8 +787,19 @@ function drawFurniture(){
  }
  hqPillar(6,6,0,88);hqPillar(10,6,0,88);hqPillar(15,6,0,88);
  hqBookshelf(7,1,z);hqBookshelf(8,1,z);hqBookshelf(14,2,z);
- hqSofa(10,3,z,1.05);hqSofa(12,4,z,.85);
- hqCoffeeTable(10.8,3.6,z);hqCodeDisplay(13,1,z);
+ // Executive suite: a dedicated CEO desk, dual display and chair beside the lounge.
+ hqChair(8.1,4.35,z,'#596f82');
+ hqDeskFront(8.1,3.35,z,'#d5a342');
+ hqDeskMonitors(8.1,3.35,z,'#e0b75f',true);
+ hqSofa(10.5,3.05,z,1.0);hqSofa(12.6,4.15,z,.82);
+ hqCoffeeTable(11.3,4.0,z);hqCodeDisplay(13,1,z);
+ // A discreet brass title plaque anchors the executive zone.
+ const ex=iso(8.1,.15,z);
+ ctx.save();ctx.translate(ex.x,ex.y);
+ px(-39,-86,78,19,'#172b3b');px(-37,-84,74,15,'#314b58');
+ ctx.strokeStyle='#d6b779';ctx.strokeRect(-39,-86,78,19);
+ ctx.fillStyle='#f0d8a2';ctx.font='bold 6px monospace';ctx.textAlign='center';
+ ctx.fillText('CEO  /  STRATEGY',0,-75);ctx.restore();
  // Executive art plinth.
  const statue=iso(13,4,z);
  ctx.save();ctx.translate(statue.x,statue.y);
@@ -799,6 +829,17 @@ function drawFurniture(){
         {x:p.x+21,y:p.y+6-rise},{x:p.x,y:p.y+17-rise}],
        '#495454','#303a3c');
  }
+ // Eight individual work islands: subtle department mats separate teams without cluttering the floor.
+ const workMatColors=['#36566b','#3d5b55','#665842','#51465f','#39556a','#4d5965','#355a60','#526347'];
+ officeWorkstations.forEach((s,i)=>{
+  const p=iso(s.x+.82,s.y+.62);
+  diamond(p.x,p.y+3,82,45,'#1a2631','#9b8058');
+  diamond(p.x,p.y,75,39,workMatColors[i],'#bd9f6b');
+  ctx.save();ctx.globalAlpha=.38;ctx.strokeStyle='#e0c58d';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(p.x-29,p.y);ctx.lineTo(p.x,p.y-15);ctx.lineTo(p.x+29,p.y);ctx.lineTo(p.x,p.y+15);ctx.closePath();ctx.stroke();
+  ctx.restore();
+ });
+ equipment(4.2,3.1,'camera');
  // Ground-floor workstations are drawn after the mezzanine so they stay on the correct level.
  officeWorkstations.forEach((s,i)=>hqChair(s.seatX,s.seatY,0,['#536d7a','#526a75','#586b79','#536b79'][i%4]));
  officeWorkstations.forEach(s=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual));
@@ -1035,17 +1076,56 @@ function moveCEO(tx,ty){
  ceoState.wait=0;
 }
 function officeView(){
- // Contain the complete reference artwork without stretching on desktop or iPhone.
- const fit=Math.min((stage.clientWidth-18)/CW,(stage.clientHeight-18)/CH);
- const view=fit*scale,ox=(stage.clientWidth-CW*view)/2,oy=(stage.clientHeight-CH*view)/2;
+ // Fit the actual illustrated building, not the unused transparent canvas margins.
+ // This enlarges the two-storey HQ while keeping all corners, pillars and floor trim visible.
+ const frame={x:72,y:-72,w:774,h:638};
+ const fit=Math.min((stage.clientWidth-20)/frame.w,(stage.clientHeight-18)/frame.h);
+ const view=fit*scale;
+ const ox=(stage.clientWidth-frame.w*view)/2-frame.x*view;
+ const oy=(stage.clientHeight-frame.h*view)/2-frame.y*view;
  return {fit,view,ox,oy};
+}
+function drawOfficePendant(x,y,z=136,tone='#e9c77a'){
+ const p=iso(x,y,z);
+ ctx.save();
+ ctx.strokeStyle='#637783';ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(p.x,p.y-45);ctx.lineTo(p.x,p.y-13);ctx.stroke();
+ glow(p.x,p.y-8,34,tone,.17);
+ poly([{x:p.x-13,y:p.y-13},{x:p.x,y:p.y-20},{x:p.x+13,y:p.y-13},{x:p.x+9,y:p.y-5},{x:p.x-9,y:p.y-5}], '#354653','#c6a66b');
+ px(p.x-5,p.y-8,10,3,tone);
+ ctx.restore();
+}
+function drawOfficeAtmosphere(){
+ // Exposed timber-and-brass beams make the open ceiling read as a real building.
+ const beamA=iso(0,0,148),beamB=iso(W-1,0,148);
+ ctx.save();ctx.lineCap='square';
+ ctx.strokeStyle='#283b48';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(beamA.x,beamA.y);ctx.lineTo(beamB.x,beamB.y);ctx.stroke();
+ ctx.strokeStyle='#d0ae72';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(beamA.x,beamA.y-4);ctx.lineTo(beamB.x,beamB.y-4);ctx.stroke();
+ const sideA=iso(0,0,148),sideB=iso(0,H-1,148);
+ ctx.strokeStyle='#344d59';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(sideA.x,sideA.y);ctx.lineTo(sideB.x,sideB.y);ctx.stroke();
+ ctx.strokeStyle='#bfa16a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sideA.x+3,sideA.y-3);ctx.lineTo(sideB.x+3,sideB.y-3);ctx.stroke();
+ ctx.restore();
+ // Warm light pools above the studio, library and central circulation spine.
+ [[2,0],[7,0],[12,0],[0,5]].forEach(([x,y],i)=>drawOfficePendant(x,y,132,i===2?'#f0d18d':'#d6c18a'));
+ [[3,2,'#71bdc7'],[6,4,'#8cb9ad'],[9,4,'#d0b16f'],[12,8,'#7fae9d'],[8,11,'#d7b477']].forEach(([x,y,c])=>{
+  const p=iso(x,y);glow(p.x,p.y-30,54,c,.055);
+ });
+ // A slim luminous handrail reinforces the mezzanine edge.
+ const a=iso(6,6,88),b=iso(15,6,88);
+ ctx.save();ctx.globalAlpha=.32;ctx.strokeStyle='#9ed4d1';ctx.lineWidth=5;
+ ctx.beginPath();ctx.moveTo(a.x,a.y-27);ctx.lineTo(b.x,b.y-27);ctx.stroke();
+ ctx.restore();
 }
 function drawOfficeBackground(){
  const g=ctx.createLinearGradient(0,-80,0,CH+100);
- g.addColorStop(0,'#101b31');g.addColorStop(.55,'#172641');g.addColorStop(1,'#0c1729');
+ g.addColorStop(0,'#101b31');g.addColorStop(.48,'#1a2c3d');g.addColorStop(1,'#0c1729');
  ctx.fillStyle=g;ctx.fillRect(0,0,CW,CH);
+ // Ambient bounce light brings out the timber, glass and brass materials.
+ glow(OX+22,OY+280,390,'#c98f54',.085);
+ glow(OX+150,OY+95,300,'#5cabb1',.075);
  drawFloor();
  drawFurniture();
+ drawOfficeAtmosphere();
  drawMascots();
 }
 function draw(t=performance.now()){
@@ -1527,7 +1607,7 @@ const viewContent={
 document.querySelectorAll('#mainnav [data-view]').forEach(btn=>btn.addEventListener('click',()=>{
  document.querySelectorAll('#mainnav [data-view]').forEach(x=>x.classList.toggle('active',x===btn));
  const view=btn.dataset.view;
- if(view==='home'){closeHud();camX=camY=0;scale=Math.min(1,Math.max(.62,(stage.clientWidth-20)/CW));document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw();return}
+ if(view==='home'){closeHud();camX=camY=0;scale=1;document.getElementById('zoomlevel').textContent='100%';draw();return}
  const c=viewContent[view];if(c)openHud(c[0],c[1]);
  if(view==='projects'){const b=document.getElementById('open-bridge');if(b)b.onclick=()=>{closeHud();document.getElementById('bridgebg').style.display='flex'}}
 }));
