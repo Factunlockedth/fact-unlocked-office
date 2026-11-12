@@ -958,87 +958,113 @@ function drawOfficeBackground(){
  drawFloor();
  drawFurniture();
  drawMascots();
-}/* ===== PIXEL OFFICE PATCH — วางก่อนบรรทัด function draw(t=0){ ===== */
+/* ===== PIXEL OFFICE v2 — วางก่อนบรรทัด function draw(t=0){ (ลบแพตช์ v1 ออกก่อน) ===== */
 document.getElementById('stage').style.background='radial-gradient(ellipse at 50% 40%,#16295a 0%,#0a1230 70%,#050a1c 100%)';
 
-function pxWall(ax,ay,bx,by,h,base,n,wins,shade){
+// ---- 1) จัดผังโต๊ะใหม่ให้เหมือนรูป: [x, y, จอคู่, โต๊ะประชุมรวม] ----
+(function(){
+ const L={strategy:[4,4,0,0],research:[3,8,1,0],fact:[7,5,0,0],editorial:[10,5,1,0],
+          creative:[6,9,1,0],production:[9,9,1,0],distribution:[12,9,0,1],analytics:[14,9,0,1]};
+ staff.find(s=>s.id==='research').color='#2f9e55';   // เสื้อฮู้ดเขียว
+ officeWorkstations.forEach(s=>{
+  const [x,y,d,t]=L[s.id];
+  Object.assign(s,{x,y,dual:!!d,table:!!t,seatX:x+1,seatY:y+1});
+  const seat=worldPoint(x+1,y+1);s.agentX=seat.x;s.agentY=seat.y-5;
+  const n=npcState.find(n=>n.data.id===s.id);n.x=s.agentX;n.y=s.agentY;
+ });
+ const c=worldPoint(8,7);ceoState.x=ceoState.targetX=c.x;ceoState.y=ceoState.targetY=c.y;
+})();
+
+// ---- 2) ผนัง: ซ้าย=อิฐ, ขวา=น้ำเงินมีหน้าต่าง ----
+function pxWall(ax,ay,bx,by,h,base,n,wins,line){
  for(let i=0;i<n;i++){
   const t0=i/n,t1=(i+1)/n;
   const p=iso(ax+(bx-ax)*t0,ay+(by-ay)*t0),q=iso(ax+(bx-ax)*t1,ay+(by-ay)*t1);
   poly([p,q,{x:q.x,y:q.y-h},{x:p.x,y:p.y-h}],base,'#0b1226');
   if(wins.includes(i)){
-   // night window with mullions
-   poly([{x:p.x+4,y:p.y-30},{x:q.x-4,y:q.y-30},{x:q.x-4,y:q.y-h+14},{x:p.x+4,y:p.y-h+14}],'#1d4b7d','#d3b06a');
-   ctx.save();ctx.globalAlpha=.35;poly([{x:p.x+6,y:p.y-34},{x:(p.x+q.x)/2,y:(p.y+q.y)/2-34},{x:(p.x+q.x)/2,y:(p.y+q.y)/2-h+18},{x:p.x+6,y:p.y-h+18}],'#8fd0ff',null);ctx.restore();
-   ctx.strokeStyle='#d3b06a';ctx.lineWidth=1.5;ctx.beginPath();
-   ctx.moveTo((p.x+q.x)/2,(p.y+q.y)/2-30);ctx.lineTo((p.x+q.x)/2,(p.y+q.y)/2-h+14);ctx.stroke();
+   poly([{x:p.x+4,y:p.y-34},{x:q.x-4,y:q.y-34},{x:q.x-4,y:q.y-h+14},{x:p.x+4,y:p.y-h+14}],'#1d4b7d','#d3b06a');
+   const mx=(p.x+q.x)/2,my=(p.y+q.y)/2;
+   ctx.strokeStyle='#d3b06a';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(mx,my-34);ctx.lineTo(mx,my-h+14);ctx.stroke();
+   px(mx-5,my-h+22,3,3,'#cfe6ff');px(mx+6,my-h+30,2,2,'#cfe6ff');
   }else{
-   // pixel brick rows
-   ctx.save();ctx.strokeStyle=shade;ctx.globalAlpha=.55;ctx.lineWidth=1;
-   for(let r=1;r<9;r++){const o=r*13;ctx.beginPath();ctx.moveTo(p.x,p.y-o);ctx.lineTo(q.x,q.y-o);ctx.stroke()}
-   ctx.restore();
+   ctx.save();ctx.strokeStyle=line;ctx.globalAlpha=.6;ctx.lineWidth=1;
+   for(let r=1;r<10;r++){ctx.beginPath();ctx.moveTo(p.x,p.y-r*12);ctx.lineTo(q.x,q.y-r*12);ctx.stroke()}ctx.restore();
   }
-  // baseboard
-  poly([p,q,{x:q.x,y:q.y-7},{x:p.x,y:p.y-7}],'#2a3558',null);
+  poly([p,q,{x:q.x,y:q.y-7},{x:p.x,y:p.y-7}],'#2a2a3a',null);
  }
  const a=iso(ax,ay),b=iso(bx,by);
  ctx.strokeStyle='#d3b06a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y-h);ctx.lineTo(b.x,b.y-h);ctx.stroke();
 }
+function noteBoard(x,y){
+ const b=iso(x,y);ctx.save();ctx.translate(b.x,b.y);
+ px(-22,-70,44,48,'#5a4633');px(-19,-67,38,42,'#d9c8a0');
+ px(-15,-62,10,8,'#f3d66b');px(-2,-63,12,9,'#9ed0b8');px(-14,-50,9,8,'#f08a7a');px(0,-50,14,8,'#f3d66b');
+ px(-14,-38,28,2,'#6b5a45');ctx.restore();
+}
+function checkBoard(x,y){
+ const b=iso(x,y);ctx.save();ctx.translate(b.x,b.y);
+ px(-24,-4,3,16,'#4c5560');px(21,-4,3,16,'#4c5560');
+ px(-26,-62,52,60,'#5a4633');px(-23,-59,46,54,'#e9e2cf');
+ for(let i=0;i<4;i++){px(-19,-52+i*12,6,6,'#2f9e55');px(-10,-50+i*12,24,2,'#7d8794')}
+ px(-19,-6,10,2,'#c55');ctx.restore();
+}
 
+// ---- 3) ของตกแต่งทั้งหมด ----
 function drawFurniture(){
- // Back walls: left-back (y=0) and right-back (x=0)
- pxWall(0,0,W,0,130,'#3a4a78',16,[2,3,9,10,13],'#2a375f');
- pxWall(0,0,0,H,130,'#26325a',14,[3,4,8,9],'#1b2548');
-
- // Bookshelves along the walls
- [[2,.5],[3.4,.5],[5.2,.5]].forEach(([x,y])=>hqBookshelf(x,y));
- [[.5,2],[.5,5.5],[.5,6.9]].forEach(([x,y])=>hqBookshelf(x,y));
- hqBookshelf(.5,11.5);
-
- // Code monitor on the back wall (top-right, like the reference)
- hqCodeDisplay(11,.4,0);
-
- // Server racks at the right end of the back wall
- [[14,.7],[15,1.6]].forEach(([x,y])=>equipment(x,y,'server'));
-
- // Bulletin / checklist board on the left wall
- const b=iso(.4,9);ctx.save();ctx.translate(b.x,b.y);
- px(-20,-62,40,46,'#5a4633');px(-17,-59,34,40,'#d9c8a0');
- px(-13,-54,10,8,'#f3d66b');px(0,-55,12,9,'#9ed0b8');
- px(-13,-42,26,2,'#6b5a45');px(-13,-36,18,2,'#6b5a45');px(-13,-30,22,2,'#6b5a45');ctx.restore();
-
- // Plants
- [[1,1],[1,13],[15,5],[15,12],[7,6]].forEach(([x,y],i)=>hqPlant(x,y,0,i%2===0));
-
- // Rug under the central work area
- rug(8,6,150,76,'#3a4a8a');
-
- // Chairs and monitors for each workstation (desk fronts are drawn later)
- officeWorkstations.forEach((s,i)=>hqChair(s.seatX,s.seatY,0,['#5a4a8a','#3f6aa0','#4a8a8a','#8a5a7a'][i%4]));
- officeWorkstations.forEach(s=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual));
- officeWorkstations.forEach(s=>{
-  // desks sit on the floor behind chairs
-  hqDesk(s.x,s.y,0,s.accent,s.dual);
+ pxWall(0,0,0,H,140,'#8a4f3a',14,[],'#5e3427');      // ผนังซ้าย อิฐ
+ pxWall(0,0,W,0,140,'#23305c',16,[2,3,6,7],'#1a2447');// ผนังขวา น้ำเงิน
+ // ชั้นหนังสือ
+ [[.5,2.4],[.5,3.7],[.5,6.2]].forEach(([x,y])=>hqBookshelf(x,y));
+ [[9.6,.5],[10.9,.5]].forEach(([x,y])=>hqBookshelf(x,y));
+ noteBoard(.4,5);
+ // ตู้เซิร์ฟเวอร์มุมขวา
+ equipment(14,.7,'server');equipment(15,1.2,'server');
+ // จอโค้ดลอยด้านบนขวา
+ hqCodeDisplay(13,-3,70);
+ // พรมกลางห้อง
+ rug(8,7,170,86,'#34498c');
+ // ต้นไม้
+ [[1.2,1.2],[1.2,10],[6,3],[14.5,6],[2,13]].forEach(([x,y],i)=>hqPlant(x,y,0,i!==2));
+ // โต๊ะ + เก้าอี้
+ officeWorkstations.forEach((s,i)=>{
+  hqChair(s.seatX,s.seatY,0,['#5a4a8a','#3f6aa0','#4a8a8a','#8a5a7a'][i%4]);
+  if(s.table){hqDeskFront(s.x,s.y,0,s.accent);const p=iso(s.x,s.y);px(p.x-12,p.y-24,14,9,'#f3efe2');px(p.x+4,p.y-20,10,7,'#e5d9b8')}
+  else hqDesk(s.x,s.y,0,s.accent,s.dual);
  });
- officeWorkstations.forEach((s,i)=>hqChair(s.seatX,s.seatY,0,['#5a4a8a','#3f6aa0','#4a8a8a','#8a5a7a'][i%4]));
+ // เรืองแสงม่วงที่โต๊ะ Editorial
+ const e=iso(10,5);glow(e.x,e.y-40,55,'#9b5cff',.35);
+ checkBoard(11,11.8);
+ // ชั้นหนังสือด้านหน้า (ตัดห้อง)
+ [[1.5,12.8],[6,13.3],[7.3,13.3],[10,13.3],[11.3,13.3]].forEach(([x,y])=>hqBookshelf(x,y));
 }
 
 function drawOfficeBackground(){
- // Dark navy game backdrop
- const g=ctx.createLinearGradient(0,-100,0,CH+100);
- g.addColorStop(0,'#0a1230');g.addColorStop(1,'#111d44');
+ const g=ctx.createLinearGradient(0,-100,0,CH+100);g.addColorStop(0,'#0a1230');g.addColorStop(1,'#111d44');
  ctx.fillStyle=g;ctx.fillRect(-500,-500,CW+1000,CH+1000);
- // tiny pixel stars
- for(let i=0;i<40;i++){px((i*137)%CW,(i*71)%110,2,2,i%3?'#4a5c94':'#8fa6e0')}
- // Neon pixel title
+ for(let i=0;i<40;i++)px((i*137)%CW,(i*71)%110,2,2,i%3?'#4a5c94':'#8fa6e0');
  ctx.save();ctx.font='900 46px "Courier New",monospace';ctx.textAlign='center';
  ctx.shadowColor='#2fe6cf';ctx.shadowBlur=18;ctx.fillStyle='#8ff7e8';ctx.fillText('AI AGENTS',OX,62);
  ctx.shadowBlur=0;ctx.strokeStyle='#17806f';ctx.lineWidth=2;ctx.strokeText('AI AGENTS',OX,62);ctx.restore();
- drawFloor();
- drawFurniture();
- drawMascots();
+ drawFloor();drawFurniture();drawMascots();
 }
-/* ===== END PATCH ===== */
+
+// ---- 4) CEO เดินบนพื้นชั้นเดียว (ไม่มีชั้นลอยแล้ว) ----
+function drawCEO(t){
+ if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
+  ceoState.wait--;
+  if(ceoState.wait<=0){
+   const stops=[worldPoint(8,7),worldPoint(5,6.5),worldPoint(8,3),worldPoint(11,7.5),worldPoint(11,11),worldPoint(7,12),worldPoint(2,7)];
+   const d=stops[ceoRouteIndex++%stops.length];ceoState.targetX=d.x;ceoState.targetY=d.y;ceoState.wait=230;
+  }
+ }
+ const dt=ceoState.lastFrame===null?1/60:Math.min(.05,Math.max(.001,(t-ceoState.lastFrame)/1000));
+ ceoState.lastFrame=t;
+ const dx=ceoState.targetX-ceoState.x,dy=ceoState.targetY-ceoState.y;
+ if(Math.hypot(dx,dy)>.35){const b=1-Math.exp(-4.8*dt);ceoState.x+=dx*b;ceoState.y+=dy*b}
+ drawWalkingCEO(ceoState.x,ceoState.y,t/260);
+ drawStaffNameplate('CEO AI',ceoState.x,ceoState.y-50,'#d5a342',false);
+}
+/* ===== END v2 ===== */
 function draw(t=0){
  const v=officeView();
  ctx.setTransform(dpr,0,0,dpr,0,0);
