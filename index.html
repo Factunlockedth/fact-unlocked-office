@@ -625,7 +625,7 @@ function hqWallSegment(a,b,height,base,accent,brick=false){
  ],base,'#172537');
  // Fine masonry courses or quiet blue wall panels.
  ctx.save();
- ctx.strokeStyle=accent;ctx.globalAlpha=brick?.58:.34;ctx.lineWidth=1;
+ ctx.strokeStyle=accent;ctx.globalAlpha=brick ? 0.58 : 0.34;ctx.lineWidth=1;
  for(let row=1;row<height/12;row++){
   const yA=a.y-row*12,yB=b.y-row*12;
   ctx.beginPath();ctx.moveTo(a.x,yA);ctx.lineTo(b.x,yB);ctx.stroke();
