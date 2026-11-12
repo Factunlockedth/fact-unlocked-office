@@ -962,7 +962,7 @@ function drawOfficeBackground(){
 document.getElementById('stage').style.background='radial-gradient(ellipse at 50% 40%,#16295a 0%,#0a1230 70%,#050a1c 100%)';
 
 // ---- 1) จัดผังโต๊ะใหม่ให้เหมือนรูป: [x, y, จอคู่, โต๊ะประชุมรวม] ----
-(function(){
+(function(){try{
  const L={strategy:[4,4,0,0],research:[3,8,1,0],fact:[7,5,0,0],editorial:[10,5,1,0],
           creative:[6,9,1,0],production:[9,9,1,0],distribution:[12,9,0,1],analytics:[14,9,0,1]};
  staff.find(s=>s.id==='research').color='#2f9e55';   // เสื้อฮู้ดเขียว
@@ -973,7 +973,7 @@ document.getElementById('stage').style.background='radial-gradient(ellipse at 50
   const n=npcState.find(n=>n.data.id===s.id);n.x=s.agentX;n.y=s.agentY;
  });
  const c=worldPoint(8,7);ceoState.x=ceoState.targetX=c.x;ceoState.y=ceoState.targetY=c.y;
-})();
+}catch(e){window.__patchErr='layout: '+e.message}})();
 
 // ---- 2) ผนัง: ซ้าย=อิฐ, ขวา=น้ำเงินมีหน้าต่าง ----
 function pxWall(ax,ay,bx,by,h,base,n,wins,line){
@@ -1045,7 +1045,10 @@ function drawOfficeBackground(){
  ctx.save();ctx.font='900 46px "Courier New",monospace';ctx.textAlign='center';
  ctx.shadowColor='#2fe6cf';ctx.shadowBlur=18;ctx.fillStyle='#8ff7e8';ctx.fillText('AI AGENTS',OX,62);
  ctx.shadowBlur=0;ctx.strokeStyle='#17806f';ctx.lineWidth=2;ctx.strokeText('AI AGENTS',OX,62);ctx.restore();
- drawFloor();drawFurniture();drawMascots();
+ try{drawFloor();drawFurniture();drawMascots();}catch(e){
+  ctx.save();ctx.fillStyle='#ff6b6b';ctx.font='bold 16px system-ui';ctx.textAlign='left';
+  ctx.fillText('ERROR: '+e.message,20,120);ctx.restore();}
+ if(window.__patchErr){ctx.save();ctx.fillStyle='#ff6b6b';ctx.font='bold 16px system-ui';ctx.fillText(window.__patchErr,20,150);ctx.restore()}
 }
 
 // ---- 4) CEO เดินบนพื้นชั้นเดียว (ไม่มีชั้นลอยแล้ว) ----
