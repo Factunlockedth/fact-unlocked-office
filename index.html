@@ -323,7 +323,7 @@ function resize(){
  if(!window.officeScaleInit){scale=Math.min(1,Math.max(.42,(r.width-20)/CW));window.officeScaleInit=true}
  draw()
 }
-function clear(){ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight);ctx.fillStyle='#101a2d';ctx.fillRect(0,0,stage.clientWidth,stage.clientHeight)}
+function clear(){ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight)}
 function poly(pts,c,stroke='#26384e'){ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=c;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke()}}
 function diamond(x,y,w,h,c,stroke){poly([{x,y:y-h/2},{x:x+w/2,y},{x,y:y+h/2},{x:x-w/2,y}],c,stroke)}
 function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
@@ -472,6 +472,37 @@ function wallScreen(x,y,title,color='#4b8cbb'){
   px(p.x-20,p.y-37,35,2,'#e6d6aa');px(p.x-20,p.y-32,22,2,color);
   ctx.fillStyle='#d8bf85';ctx.font='bold 7px system-ui';ctx.textAlign='center';ctx.fillText(title,p.x,p.y-58);
 }
+function raisedPlatform(x,y,w,h,lift=12,top='#253c56'){
+ const p1=iso(x,y),p2=iso(x+w,y),p3=iso(x+w,y+h),p4=iso(x,y+h);
+ poly([{x:p4.x,y:p4.y-lift},{x:p3.x,y:p3.y-lift},{x:p3.x,y:p3.y+10},{x:p4.x,y:p4.y+10}],'#29394a','#101b29');
+ poly([{x:p2.x,y:p2.y-lift},{x:p3.x,y:p3.y-lift},{x:p3.x,y:p3.y+10},{x:p2.x,y:p2.y+10}],'#1c2d40','#101b29');
+ poly([{x:p1.x,y:p1.y-lift},{x:p2.x,y:p2.y-lift},{x:p3.x,y:p3.y-lift},{x:p4.x,y:p4.y-lift}],top,'#c2a063');
+ ctx.save();ctx.globalAlpha=.55;ctx.strokeStyle='#e2c888';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p1.x,p1.y-lift);ctx.lineTo(p3.x,p3.y-lift);ctx.stroke();ctx.restore();
+}
+function staircase(x,y,count=4,dir='y'){
+ for(let i=count-1;i>=0;i--){
+  const xx=x+(dir==='x'?i:0),yy=y+(dir==='y'?i:0),p=iso(xx,yy),rise=(count-i)*5;
+  diamond(p.x,p.y-rise,46,23,'#52677a','#18283b');
+  poly([{x:p.x-23,y:p.y-rise},{x:p.x,y:p.y+11-rise},{x:p.x,y:p.y+16-rise},{x:p.x-23,y:p.y+5-rise}],'#35475a','#172638');
+  poly([{x:p.x,y:p.y+11-rise},{x:p.x+23,y:p.y-rise},{x:p.x+23,y:p.y+5-rise},{x:p.x,y:p.y+16-rise}],'#293c50','#172638');
+  ctx.strokeStyle='#d6b56f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.x-20,p.y-rise);ctx.lineTo(p.x,p.y+10-rise);ctx.lineTo(p.x+20,p.y-rise);ctx.stroke();
+ }
+ const a=iso(x,y),b=iso(x+(dir==='x'?count-1:0),y+(dir==='y'?count-1:0));
+ ctx.strokeStyle='#d6b66c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x-15,a.y-25);ctx.lineTo(b.x-15,b.y-25-count*4);ctx.stroke();
+}
+function drawOutsideLandmarks(){
+ const blocks=[
+  {x:65,y:98,w:55,h:52,c:'#14263c',lit:'#d2ad65'},
+  {x:148,y:118,w:38,h:34,c:'#1a2b42',lit:'#6fa9bf'},
+  {x:804,y:105,w:48,h:47,c:'#14263c',lit:'#d2ad65'},
+  {x:878,y:124,w:42,h:32,c:'#1a2b42',lit:'#6fa9bf'}
+ ];
+ blocks.forEach(b=>{
+  px(b.x,b.y,b.w,b.h,b.c);px(b.x+5,b.y+5,b.w-10,3,'#6d849a');
+  for(let yy=b.y+12;yy<b.y+b.h-5;yy+=11)for(let xx=b.x+7;xx<b.x+b.w-6;xx+=11)px(xx,yy,4,5,(xx+yy)%3?b.lit:'#38556c');
+  poly([{x:b.x-5,y:b.y},{x:b.x+b.w/2,y:b.y-14},{x:b.x+b.w+5,y:b.y}],'#263c55','#9a8152');
+ });
+}
 function drawFurniture(){
   // Colored office bays and a clear circulation spine.
   rug(2,5,111,58,'#344b64');rug(6,5,114,60,'#273e57');
@@ -528,6 +559,11 @@ function drawFurniture(){
   plaque(3,8,'CREATIVE','STORYBOARD','#c59ade');
   plaque(7,8,'DISTRIBUTION','PUBLISHING','#6dc6cb');
   plaque(10,7,'ANALYTICS','PERFORMANCE','#a7c88c');
+  // Slightly raised executive overlook and short stairways to upper office levels.
+  raisedPlatform(9,0,3,2,10,'#334d65');
+  staircase(11,2,3,'y');
+  raisedPlatform(0,0,2,2,8,'#263d54');
+  staircase(1,2,2,'x');
   // CEO glass office and monumental brand wall.
   const ce=iso(9,1);
   poly([{x:ce.x-32,y:ce.y+1},{x:ce.x,y:ce.y-17},{x:ce.x+32,y:ce.y+1},{x:ce.x+32,y:ce.y-42},{x:ce.x,y:ce.y-60},{x:ce.x-32,y:ce.y-42}],'#4c799044','#8ab8c6');
@@ -596,7 +632,7 @@ function drawNPCs(){npcState.forEach(n=>{
 })}
 function moveCEO(tx,ty){if(tx<0||ty<0||tx>=W||ty>=H)return;const path=findPath(Math.round(ceoState.x),Math.round(ceoState.y),tx,ty);if(path.length){ceoState.path=path;ceoState.wait=210}}
 function drawCEO(t){if(!ceoState.path.length){ceoState.wait--;if(ceoState.wait<=0){const stops=[[6,6],[4,4],[7,5],[4,8],[7,9],[10,8],[8,2],[3,2]];const dest=stops[ceoRouteIndex++%stops.length];ceoState.path=findPath(Math.round(ceoState.x),Math.round(ceoState.y),dest[0],dest[1]);ceoState.wait=210}}if(ceoState.path.length){const [tx,ty]=ceoState.path[0],dx=tx-ceoState.x,dy=ty-ceoState.y,d=Math.hypot(dx,dy);if(d<.04){ceoState.x=tx;ceoState.y=ty;ceoState.path.shift()}else{ceoState.x+=dx/d*.045;ceoState.y+=dy/d*.045}}sprite(ceoState.x,ceoState.y,ceoState.data.color,ceoState.data.hair,ceoState.path.length>0,t/45+ceoState.phase,1.12);const p=iso(ceoState.x,ceoState.y);diamond(p.x,p.y-48,17,9,'#f3c85f','#8b672b');ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillStyle='#17243b';ctx.fillRect(p.x-28,p.y-63,56,13);ctx.fillStyle='#ffe3a1';ctx.fillText('CEO AI',p.x,p.y-54)}
-function draw(t=0){clear();ctx.save();const fitX=(stage.clientWidth-CW*scale)/2,fitY=(stage.clientHeight-CH*scale)/2;ctx.translate(fitX,fitY);ctx.scale(scale,scale);ctx.translate(camX,camY);drawFloor();drawFurniture();drawMascots();[[2,2],[6,2],[9,5],[3,8],[10,8]].forEach(([x,y])=>{let lp=iso(x,y);let g=ctx.createRadialGradient(lp.x,lp.y-8,2,lp.x,lp.y-8,32);g.addColorStop(0,'#f7d98a30');g.addColorStop(1,'#f7d98a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(lp.x,lp.y-8,32,0,Math.PI*2);ctx.fill()});drawNPCs(t);drawCEO(t);let sign=iso(6,0);ctx.fillStyle='#f2cf7e';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED · AI CONTENT HQ',sign.x,sign.y-68);ctx.restore();requestAnimationFrame(draw)}
+function draw(t=0){clear();ctx.save();drawOutsideLandmarks();const fitX=(stage.clientWidth-CW*scale)/2,fitY=(stage.clientHeight-CH*scale)/2;ctx.translate(fitX,fitY);ctx.scale(scale,scale);ctx.translate(camX,camY);drawFloor();drawFurniture();drawMascots();[[2,2],[6,2],[9,5],[3,8],[10,8]].forEach(([x,y])=>{let lp=iso(x,y);let g=ctx.createRadialGradient(lp.x,lp.y-8,2,lp.x,lp.y-8,32);g.addColorStop(0,'#f7d98a30');g.addColorStop(1,'#f7d98a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(lp.x,lp.y-8,32,0,Math.PI*2);ctx.fill()});drawNPCs(t);drawCEO(t);let sign=iso(6,0);ctx.fillStyle='#f2cf7e';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED · AI CONTENT HQ',sign.x,sign.y-68);ctx.restore();requestAnimationFrame(draw)}
 
 function openPanel(s){selected=s;document.getElementById('ptitle').textContent=s.name;document.getElementById('pdesc').textContent=s.role+' — '+s.desc;let items=document.getElementById('pitems');items.innerHTML='';['ตรวจสถานะงาน','ดูภารกิจประจำแผนก','ส่งข้อความถึง '+s.name].forEach((v,i)=>{let d=document.createElement('div');d.className='item';d.innerHTML='<span>'+v+'</span><span class="tag">'+(i===0?'พร้อมใช้งาน':'พร้อมใช้งาน')+'</span>';items.appendChild(d)});document.getElementById('paction').textContent='เริ่มสนทนา';document.getElementById('paction').onclick=()=>openChat(s);document.getElementById('panelbg').style.display='flex'}
 function openChat(s){selected=s;document.getElementById('panelbg').style.display='none';document.getElementById('chatname').textContent=s.name;const log=document.getElementById('chatlog');log.innerHTML='';addBubble('ai','สวัสดีครับ ผมคือ '+s.name+' ('+s.role+')\nเชื่อมต่อ AI Backend แล้ว พิมพ์คำสั่งเพื่อเริ่มสนทนาได้เลยครับ');document.getElementById('chatstate').textContent='';document.getElementById('chatbg').style.display='flex';document.getElementById('chatinput').focus()}
@@ -991,7 +1027,7 @@ document.getElementById('explore').onclick=()=>{
 };
 
 document.getElementById('close').onclick=()=>document.getElementById('panelbg').style.display='none';document.getElementById('panelbg').addEventListener('click',e=>{if(e.target.id==='panelbg')e.currentTarget.style.display='none'});
-document.getElementById('zoomin').onclick=()=>scale=Math.min(1.35,scale+.1);document.getElementById('zoomout').onclick=()=>scale=Math.max(.42,scale-.1);document.getElementById('center').onclick=()=>{camX=camY=0;scale=1};
+document.getElementById('zoomin').onclick=()=>{scale=Math.min(1.35,scale+.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('zoomout').onclick=()=>{scale=Math.max(.42,scale-.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('center').onclick=()=>{camX=camY=0;scale=Math.min(1,Math.max(.42,(stage.clientWidth-20)/CW));document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};
 document.getElementById('meeting').onclick=()=>{const n=npcState[ceoRouteIndex%npcState.length];ceoRouteIndex++;moveCEO(n.x,Math.min(H-1,n.y+1));toast('CEO กำลังเดินไปตรวจงานที่ '+n.data.name)};
 window.addEventListener('resize',resize);resize();
 })();
