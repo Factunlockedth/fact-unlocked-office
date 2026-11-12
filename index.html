@@ -334,9 +334,9 @@ const staff=[
 ]; 
 const officeArt=new Image();
 let officeArtReady=false;
-officeArt.onload=()=>{officeArtReady=true;draw()};
+officeArt.onload=()=>{officeArtReady=true};
 officeArt.onerror=()=>{officeArtReady=false;toast('โหลดภาพสำนักงานไม่สำเร็จ กำลังใช้ฉากสำรอง')};
-officeArt.src='assets/fact-unlocked-hq.webp?v=dd75ec3b';
+officeArt.src='assets/fact-unlocked-hq-v2.webp?v=20261112';
 function iso(x,y,z=0){return {x:(x-y)*TW/2+OX+camX,y:(x+y)*TH/2+OY+camY-z}}
 function resize(){
  let r=stage.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
@@ -599,20 +599,21 @@ function drawFurniture(){
 }
 // Fixed interactive employee seats positioned over desks in the reference office artwork.
 const officeSeats={
- production:{x:265,y:260},
- research:{x:275,y:405},
- fact:{x:505,y:405},
- editorial:{x:735,y:405},
- strategy:{x:250,y:575},
- creative:{x:470,y:585},
- distribution:{x:690,y:585},
- analytics:{x:925,y:565}
+ // Seat positions are aligned to the replacement HQ artwork (1200 × 675 scene coordinates).
+ production:{x:1080,y:416},
+ research:{x:658,y:354},
+ fact:{x:858,y:442},
+ editorial:{x:728,y:526},
+ strategy:{x:520,y:548},
+ creative:{x:820,y:575},
+ distribution:{x:1122,y:466},
+ analytics:{x:1000,y:588}
 };
 const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
 const ceoData=staff.find(data=>data.id==='ceo');
-const ceoState={data:ceoData,x:1040,y:575,targetX:1040,targetY:575,wait:90,phase:0};
+const ceoState={data:ceoData,x:850,y:184,targetX:850,targetY:184,wait:90,phase:0};
 let ceoRouteIndex=0;
 function sprite(x,y,shirt,hair,walking,phase,size=1){const p=iso(x,y);const bob=walking?Math.round(Math.sin(phase)*2):0;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);diamond(0,1,18,8,'#1a2638aa',null);px(-6,-8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');px(2,-24+bob,3,3,'#f3d17d');ctx.restore()}
 function seatedSprite(x,y,shirt,hair){
@@ -689,23 +690,26 @@ function drawNPCs(){
  npcState.forEach(n=>{
   const index=staffSpriteIndex[n.data.id]??0;
   drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair,index);
-  if(hoveredStaffId===n.data.id){
-   const label=n.data.name.toUpperCase(),w=Math.max(60,Math.min(94,label.length*4.7+12));
-   ctx.save();ctx.fillStyle='#101b2d';ctx.strokeStyle='#d1ad68';ctx.lineWidth=1;
-   ctx.fillRect(n.x-w/2,n.y-62,w,15);ctx.strokeRect(n.x-w/2,n.y-62,w,15);
-   ctx.fillStyle='#f7e4b0';ctx.font='bold 7px system-ui';ctx.textAlign='center';ctx.fillText(label,n.x,n.y-52);
-   ctx.restore();
-  }
+  const label=n.data.name.toUpperCase();
+  const w=Math.max(58,Math.min(102,label.length*4.35+14));
+  ctx.save();
+  ctx.shadowColor='#d5b46d';ctx.shadowBlur=hoveredStaffId===n.data.id?8:2;
+  ctx.fillStyle='#0b1728';ctx.strokeStyle=hoveredStaffId===n.data.id?'#ffe19a':'#c7a45f';ctx.lineWidth=1;
+  ctx.fillRect(n.x-w/2,n.y-64,w,15);ctx.strokeRect(n.x-w/2,n.y-64,w,15);
+  ctx.fillStyle=n.data.color;ctx.fillRect(n.x-w/2+4,n.y-59,4,5);
+  ctx.fillStyle='#f7e4b0';ctx.font='bold 7px system-ui';ctx.textAlign='center';
+  ctx.fillText(label,n.x+2,n.y-54);
+  ctx.restore();
  });
 }
 function moveCEO(tx,ty){
- ceoState.targetX=Math.max(850,Math.min(1135,tx));ceoState.targetY=Math.max(470,Math.min(625,ty));ceoState.wait=0;
+ ceoState.targetX=Math.max(80,Math.min(1145,tx));ceoState.targetY=Math.max(150,Math.min(620,ty));ceoState.wait=0;
 }
 function drawCEO(t){
  if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
   ceoState.wait--;
   if(ceoState.wait<=0){
-   const stops=[[1040,575],[1100,535],[1000,490],[900,565],[970,615],[1130,600]];
+   const stops=[[850,184],[985,270],[895,365],[760,430],[820,565],[540,535],[300,425],[1090,495]];
    const dest=stops[ceoRouteIndex++%stops.length];ceoState.targetX=dest[0];ceoState.targetY=dest[1];ceoState.wait=230;
   }
  }
@@ -723,14 +727,25 @@ function officeView(){
  const view=fit*scale,ox=(stage.clientWidth-CW*view)/2,oy=(stage.clientHeight-CH*view)/2;
  return {fit,view,ox,oy};
 }
+function drawOfficeBackground(){
+ if(officeArtReady){
+  ctx.save();
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(officeArt,0,0,CW,CH);
+  ctx.restore();
+ }else{
+  // Keep the original procedural scene available as a safe fallback.
+  drawFloor();
+  drawFurniture();
+ }
+}
 function draw(t=0){
  const v=officeView();
  ctx.setTransform(dpr,0,0,dpr,0,0);
  ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight);
  ctx.save();
  ctx.translate(v.ox,v.oy);ctx.scale(v.view,v.view);ctx.translate(camX,camY);
- drawFloor();
- drawFurniture();
+ drawOfficeBackground();
  drawNPCs();
  drawCEO(t);
  ctx.restore();
