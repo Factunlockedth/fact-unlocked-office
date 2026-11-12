@@ -416,6 +416,39 @@ function hqDesk(x,y,z=0,accent='#64b9c6',dual=false){
  px(25,-8,3,3,accent);
  ctx.restore();
 }
+function hqDeskFront(x,y,z=0,accent='#64b9c6'){
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ ctx.globalAlpha=.2;ctx.fillStyle='#17232c';ctx.beginPath();ctx.ellipse(0,11,36,14,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ // Legs and dark apron form the near side of the desk, drawn in front of the agent.
+ px(-25,-6,5,25,'#3b4548');px(20,-6,5,25,'#3b4548');
+ px(-24,3,3,13,'#9c744c');px(20,3,3,13,'#806040');
+ poly([{x:-27,y:-7},{x:-2,y:6},{x:-2,y:17},{x:-27,y:4}],'#59412f','#30383b');
+ poly([{x:-2,y:6},{x:27,y:-7},{x:27,y:4},{x:-2,y:17}],'#48392f','#252e32');
+ diamond(0,-9,67,35,'#594536','#2d2925');
+ diamond(0,-12,64,32,'#b18a59','#e0c58c');
+ diamond(0,-13,54,24,'#5c554c','#8b775c');
+ // Keyboard / hands zone on the near side.
+ px(-8,-10,17,3,'#273744');px(-7,-9,14,1,'#c7c9bc');
+ px(17,-18,7,6,'#eee1c9');px(18,-20,4,2,'#ffffff');
+ px(-22,-19,3,9,'#8f744d');px(-26,-22,9,3,'#e5c37b');
+ px(25,-8,3,3,accent);
+ ctx.restore();
+}
+function hqDeskMonitors(x,y,z=0,accent='#64b9c6',dual=false){
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ const n=dual?2:1;
+ for(let i=0;i<n;i++){
+  const mx=(i-(n-1)/2)*22;
+  px(mx-8,-54,16,16,'#1b2834');px(mx-6,-52,12,12,'#477b88');
+  px(mx-5,-50,10,2,accent);px(mx-5,-46,7,2,'#d7d6c7');
+  px(mx-2,-40,4,8,'#6c7370');px(mx-8,-33,16,2,'#303a40');
+  px(mx-8,-54,16,1,'#e5c98f');
+ }
+ ctx.restore();
+}
+function drawWorkstationFronts(){
+ officeWorkstations.forEach(s=>hqDeskFront(s.x,s.y,0,s.accent));
+}
 function hqChair(x,y,z=0,color='#526674'){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
  ctx.globalAlpha=.2;ctx.fillStyle='#17232c';ctx.beginPath();ctx.ellipse(0,2,12,5,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
@@ -680,7 +713,7 @@ function drawFurniture(){
  // Eight dedicated desks in two isometric rows, with chairs tucked behind each workstation.
  // The blue carpet anchors this open-plan working zone like the PIXEL AGENTS reference.
  officeWorkstations.forEach((s,i)=>hqChair(s.seatX,s.seatY,0,['#536d7a','#526a75','#586b79','#536b79'][i%4]));
- officeWorkstations.forEach(s=>hqDesk(s.x,s.y,0,s.accent,s.dual));
+ officeWorkstations.forEach(s=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual));
  // A small meeting nook at the edge of the work carpet.
  const meeting=iso(2.7,11.6);ctx.save();ctx.translate(meeting.x,meeting.y);
  diamond(0,7,45,23,'#554536','#b08b59');diamond(0,4,41,20,'#b99b70','#e0c98d');
@@ -709,8 +742,12 @@ const officeWorkstations=[
  {id:'production',x:8,y:11,accent:'#3f80bd',dual:true},
  {id:'distribution',x:11,y:11,accent:'#408f9b',dual:false},
  {id:'analytics',x:14,y:11,accent:'#7a9c57',dual:false}
-].map(s=>({...s,seatX:s.x+1,seatY:s.y+1,...worldPoint(s.x+1,s.y+1),screenY:worldPoint(s.x+1,s.y+1).y-5}));
-const officeSeats=Object.fromEntries(officeWorkstations.map(s=>[s.id,{x:s.x,y:s.screenY}]));
+].map(s=>{
+ const desk=worldPoint(s.x,s.y);
+ const seat=worldPoint(s.seatX??s.x+1,s.seatY??s.y+1);
+ return {...s,seatX:s.x+1,seatY:s.y+1,deskX:desk.x,deskY:desk.y,x:seat.x,y:seat.y-5};
+});
+const officeSeats=Object.fromEntries(officeWorkstations.map(s=>[s.id,{x:s.x,y:s.y}]));
 const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
@@ -879,7 +916,7 @@ function drawNPCs(t=0){
  [...npcState].sort((a,b)=>a.y-b.y).forEach(n=>{
   const index=staffSpriteIndex[n.data.id]??0;
   drawDeskAgent(n.x,n.y,n.data.color,n.data.hair,index,t/1000);
-  drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-64,n.data.color,hoveredStaffId===n.data.id);
+  drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-78,n.data.color,hoveredStaffId===n.data.id);
  });
 }
 function drawCEO(t){
@@ -930,6 +967,7 @@ function draw(t=0){
  ctx.translate(v.ox,v.oy);ctx.scale(v.view,v.view);ctx.translate(camX,camY);
  drawOfficeBackground();
  drawNPCs(t);
+ drawWorkstationFronts();
  drawCEO(t);
  ctx.restore();
  requestAnimationFrame(draw);
