@@ -8,7 +8,7 @@ header{height:54px;flex:none;display:flex;align-items:center;justify-content:spa
 .topright{display:flex;gap:6px}.topright button{font-size:10px;padding:7px 9px;border-radius:8px;border:1px solid #596b86;background:#1b2b46;color:#fff}
 #status{font-size:10px;color:#f3d38c;padding:0 8px;white-space:nowrap}
 #stage{position:relative;flex:1;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
-canvas{width:100%;height:100%;display:block;image-rendering:auto;touch-action:none}
+canvas{width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none}
 #hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:#0b172be8;border:1px solid #9f8149;border-radius:18px;padding:7px 12px;font-size:10px;white-space:nowrap;pointer-events:none}
 #controls{position:absolute;right:10px;bottom:10px;display:flex;gap:6px}#controls button{border:1px solid #b28b4a;background:#152641eF;color:#f6e4b8;border-radius:8px;padding:8px 10px;font-size:10px}
 #toast{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#1b2d49;border:1px solid #d0a75c;border-radius:9px;padding:8px 12px;font-size:11px;display:none;z-index:4}
@@ -312,6 +312,10 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
 (()=>{
 const API_BASE='https://fact-unlocked-ai-api.songvit-sre.workers.dev';
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),stage=document.getElementById('stage');
+const staffAtlas=new Image();let staffAtlasReady=false,hoveredStaffId=null;
+staffAtlas.onload=()=>{staffAtlasReady=true;draw()};
+staffAtlas.onerror=()=>console.warn('Staff sprite atlas unavailable; using fallback avatars');
+staffAtlas.src='./assets/fact-hq-pixel-staff-v3.png?v=20261112a';
 const CW=1200,CH=675,TW=52,TH=26,OX=600,OY=330;
 let dpr=1,scale=1,camX=0,camY=0,selected=null,drag=null;
 const W=13,H=11;
@@ -338,6 +342,7 @@ function resize(){
  let r=stage.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
  canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);
  ctx.setTransform(dpr,0,0,dpr,0,0);
+ ctx.imageSmoothingEnabled=false;
  draw()
 }
 function clear(){ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight)}
@@ -652,35 +657,47 @@ function drawMascots(){
   dog(5.1,9.75,'#f4ead7','#d3c2a5','#d8ae58','TUAYFOO',performance.now()/230);
   dog(6.35,9.7,'#d9a36d','#a86d46','#5eb7c1','UDONG',performance.now()/190+1);
 }
-function drawSeatedWorker(x,y,shirt,hair){
+const staffSpriteIndex={strategy:0,research:1,fact:2,editorial:3,creative:4,production:5,distribution:6,analytics:7};
+function drawSeatedWorker(x,y,shirt,hair,index=0){
+ if(staffAtlasReady){
+  const sx=(index%4)*40,sy=Math.floor(index/4)*48;
+  ctx.drawImage(staffAtlas,sx,sy,40,48,Math.round(x-20),Math.round(y-44),40,48);
+  return;
+ }
+ // Safe fallback with a compact pixel silhouette if the sprite atlas cannot load.
  ctx.save();ctx.translate(Math.round(x),Math.round(y));
- // Chair and small seated pixel avatar, aligned to the existing desk in the artwork.
- ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(0,1,17,6,0,0,Math.PI*2);ctx.fill();
- px(-9,-28,18,19,'#283a4d');px(-7,-26,14,14,'#50667b');px(-10,-21,2,9,'#d1ad69');px(8,-21,2,9,'#d1ad69');
- px(-5,-46,10,10,'#edc5a0');px(-7,-48,14,5,hair);px(-8,-45,3,7,hair);px(5,-45,3,6,hair);
- px(-3,-42,2,2,'#273044');px(3,-42,2,2,'#273044');
- px(-8,-36,16,13,shirt);px(-10,-34,4,9,shirt);px(6,-34,4,9,shirt);
- px(-10,-27,5,4,'#edc5a0');px(5,-27,5,4,'#edc5a0');
- px(-2,-34,4,8,'#e1c276');px(-8,-20,16,3,'#202e40');
+ ctx.fillStyle='#182739';ctx.fillRect(-10,-27,20,25);
+ ctx.fillStyle=shirt;ctx.fillRect(-8,-31,16,20);
+ ctx.fillStyle='#edc5a0';ctx.fillRect(-6,-47,12,13);
+ ctx.fillStyle=hair;ctx.fillRect(-8,-49,16,5);
  ctx.restore();
 }
 function drawWalkingCEO(x,y,phase){
- ctx.save();ctx.translate(Math.round(x),Math.round(y));
- const bob=Math.round(Math.sin(phase)*2);
- ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(0,1,16,6,0,0,Math.PI*2);ctx.fill();
- px(-7,-12+bob,5,12,'#24384c');px(2,-12-bob,5,12,'#24384c');
- px(-8,-29+bob,16,17,'#d5a342');px(-10,-27+bob,3,11,'#d5a342');px(7,-27+bob,3,11,'#d5a342');
- px(-5,-43+bob,10,12,'#edc5a0');px(-7,-46+bob,14,6,'#302631');px(-8,-42+bob,3,6,'#302631');px(5,-42+bob,3,6,'#302631');
- px(-3,-38+bob,2,2,'#273044');px(3,-38+bob,2,2,'#273044');px(-2,-29+bob,4,8,'#ead28e');
- ctx.restore();
+ const bob=Math.round(Math.sin(phase)*1.5);
+ if(staffAtlasReady){
+  ctx.drawImage(staffAtlas,0,96,40,48,Math.round(x-20),Math.round(y-44+bob),40,48);
+ }else{
+  ctx.save();ctx.translate(Math.round(x),Math.round(y));
+  ctx.fillStyle='#263d58';ctx.fillRect(-8,-12+bob,6,13);ctx.fillRect(3,-12-bob,6,13);
+  ctx.fillStyle='#d5a342';ctx.fillRect(-8,-29+bob,16,17);
+  ctx.fillStyle='#edc5a0';ctx.fillRect(-5,-43+bob,10,12);
+  ctx.fillStyle='#302631';ctx.fillRect(-7,-46+bob,14,6);
+  ctx.restore();
+ }
 }
-function drawNPCs(){npcState.forEach(n=>{
- drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair);
- const label=n.data.name.toUpperCase(),w=Math.max(66,Math.min(90,label.length*4.6));
- ctx.save();ctx.shadowColor=n.data.color;ctx.shadowBlur=6;ctx.fillStyle='#101b2d';ctx.fillRect(n.x-w/2,n.y-69,w,17);
- ctx.strokeStyle='#d1ad68';ctx.lineWidth=1;ctx.strokeRect(n.x-w/2,n.y-69,w,17);ctx.shadowBlur=0;
- ctx.fillStyle='#f7e4b0';ctx.font='bold 7px system-ui';ctx.textAlign='center';ctx.fillText(label,n.x,n.y-58);ctx.restore();
-})}
+function drawNPCs(){
+ npcState.forEach(n=>{
+  const index=staffSpriteIndex[n.data.id]??0;
+  drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair,index);
+  if(hoveredStaffId===n.data.id){
+   const label=n.data.name.toUpperCase(),w=Math.max(60,Math.min(94,label.length*4.7+12));
+   ctx.save();ctx.fillStyle='#101b2d';ctx.strokeStyle='#d1ad68';ctx.lineWidth=1;
+   ctx.fillRect(n.x-w/2,n.y-62,w,15);ctx.strokeRect(n.x-w/2,n.y-62,w,15);
+   ctx.fillStyle='#f7e4b0';ctx.font='bold 7px system-ui';ctx.textAlign='center';ctx.fillText(label,n.x,n.y-52);
+   ctx.restore();
+  }
+ });
+}
 function moveCEO(tx,ty){
  ceoState.targetX=Math.max(850,Math.min(1135,tx));ceoState.targetY=Math.max(470,Math.min(625,ty));ceoState.wait=0;
 }
@@ -1143,6 +1160,14 @@ bridgeLoad();
 
 function toast(s){let e=document.getElementById('toast');e.textContent=s;e.style.display='block';clearTimeout(window.to);window.to=setTimeout(()=>e.style.display='none',2300)}
 function onDown(e){let r=canvas.getBoundingClientRect();let sx=(e.clientX-r.left)*stage.clientWidth/r.width,sy=(e.clientY-r.top)*stage.clientHeight/r.height;drag={x:e.clientX,y:e.clientY,sx,sy};canvas.setPointerCapture(e.pointerId)}
+canvas.addEventListener('pointermove',e=>{
+ if(e.pointerType!=='mouse'||drag)return;
+ const r=canvas.getBoundingClientRect(),v=officeView();
+ const sx=(e.clientX-r.left)*stage.clientWidth/r.width,sy=(e.clientY-r.top)*stage.clientHeight/r.height;
+ const xx=(sx-v.ox)/v.view-camX,yy=(sy-v.oy)/v.view-camY;
+ const found=npcState.find(n=>Math.abs(xx-n.x)<27&&Math.abs(yy-(n.y-23))<30);
+ hoveredStaffId=found?found.data.id:null;
+});
 canvas.addEventListener('pointerdown',onDown);
 canvas.addEventListener('pointerup',e=>{
  if(!drag)return;
