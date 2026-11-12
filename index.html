@@ -313,7 +313,7 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
 const API_BASE='https://fact-unlocked-ai-api.songvit-sre.workers.dev';
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),stage=document.getElementById('stage');
 const staffAtlas=new Image();let staffAtlasReady=false,hoveredStaffId=null;
-staffAtlas.onload=()=>{staffAtlasReady=true;draw()};
+staffAtlas.onload=()=>{staffAtlasReady=true};
 staffAtlas.onerror=()=>console.warn('Staff sprite atlas unavailable; using fallback avatars');
 staffAtlas.src='./assets/fact-hq-pixel-staff-v3.png?v=20261112a';
 const CW=1200,CH=675,TW=52,TH=26,OX=600,OY=330;
