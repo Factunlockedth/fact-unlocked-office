@@ -650,7 +650,7 @@ const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
 }));
 const ceoData=staff.find(data=>data.id==='ceo');
 const ceoStart=worldPoint(11,2,88);
-const ceoState={data:ceoData,x:ceoStart.x,y:ceoStart.y,targetX:ceoStart.x,targetY:ceoStart.y,wait:90,phase:0};
+const ceoState={data:ceoData,x:ceoStart.x,y:ceoStart.y,targetX:ceoStart.x,targetY:ceoStart.y,wait:90,phase:0,lastFrame:null};
 let ceoRouteIndex=0;
 function sprite(x,y,shirt,hair,walking,phase,size=1){const p=iso(x,y);const bob=walking?Math.round(Math.sin(phase)*2):0;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);diamond(0,1,18,8,'#1a2638aa',null);px(-6,-8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');px(2,-24+bob,3,3,'#f3d17d');ctx.restore()}
 function seatedSprite(x,y,shirt,hair){
@@ -728,23 +728,43 @@ function drawSeatedWorker(x,y,shirt,hair,index=0,time=0){
  ctx.fillStyle=hair;ctx.fillRect(-8,-49,16,5);
  ctx.restore();
 }function drawWalkingCEO(x,y,phase){
- const bob=Math.sin(phase*1.4)*.45;
- if(staffAtlasReady){
-  // The last atlas row contains the CEO's four-step walk cycle.
-  const frame=Math.floor(phase)%4;
-  ctx.save();
-  ctx.imageSmoothingEnabled=true;
-  ctx.drawImage(staffAtlas,frame*40,96,40,48,x-17,y-40+bob,34,41);
-  ctx.restore();
- }else{
-  ctx.save();ctx.translate(x,y+bob);ctx.scale(.84,.84);
-  ctx.fillStyle='#263d58';ctx.fillRect(-8,-12,6,13);ctx.fillRect(3,-12,6,13);
-  ctx.fillStyle='#d5a342';ctx.fillRect(-8,-29,16,17);
-  ctx.fillStyle='#edc5a0';ctx.fillRect(-5,-43,10,12);
-  ctx.fillStyle='#302631';ctx.fillRect(-7,-46,14,6);
-  ctx.restore();
- }
-}function drawStaffNameplate(label,x,topY,accent,active=false){
+ // Draw the CEO directly with stable pixel geometry rather than swapping atlas frames.
+ // A tiny torso bob keeps the character alive without transparent-frame flicker.
+ const bob=Math.sin(phase*.55)*.35;
+ const by=Math.round(bob*10)/10;
+ ctx.save();
+ ctx.translate(Math.round(x),Math.round(y+by));
+ // Soft contact shadow remains fixed under the character.
+ ctx.globalAlpha=.22;ctx.fillStyle='#17202a';
+ ctx.beginPath();ctx.ellipse(0,1,9.5,2.8,0,0,Math.PI*2);ctx.fill();
+ ctx.globalAlpha=1;
+ // Shoes and legs.
+ px(-7,-4,6,4,'#263646');px(2,-4,6,4,'#263646');
+ px(-6,-12,5,9,'#35485b');px(2,-12,5,9,'#35485b');
+ // CEO's jacket and shoulders.
+ px(-8,-27,16,16,'#d5a342');
+ px(-10,-25,3,11,'#bc8e37');px(7,-25,3,11,'#bc8e37');
+ px(-7,-28,14,3,'#e7c16d');
+ px(-2,-25,4,13,'#394a5a');
+ px(-1,-24,2,8,'#e6d5b1');
+ // Arms held naturally at the sides.
+ px(-11,-24,3,10,'#d5a342');px(8,-24,3,10,'#d5a342');
+ px(-11,-15,3,4,'#edc5a0');px(8,-15,3,4,'#edc5a0');
+ // Neck and face.
+ px(-3,-31,6,5,'#dba987');
+ px(-6,-43,12,13,'#edc5a0');
+ // Hair silhouette, side locks and fringe.
+ px(-7,-46,14,5,'#302631');
+ px(-8,-42,3,7,'#302631');px(5,-42,3,7,'#302631');
+ px(-5,-42,10,2,'#44313a');
+ // Eyes, nose, and collar detail are drawn every frame, never toggled.
+ px(-3,-37,2,2,'#273044');px(2,-37,2,2,'#273044');
+ px(-1,-33,3,1,'#b77d68');
+ px(-3,-29,6,2,'#f1dfbd');
+ px(-1,-27,2,5,'#b88a47');
+ ctx.restore();
+}
+function drawStaffNameplate(label,x,topY,accent,active=false){
  ctx.save();ctx.font='600 6.4px system-ui,sans-serif';
  const shortLabel=label.replace(/ AI$/,'');
  const width=Math.max(42,Math.min(74,ctx.measureText(shortLabel).width+14));
@@ -784,10 +804,19 @@ function drawCEO(t){
    ceoState.targetX=dest.x;ceoState.targetY=dest.y;ceoState.wait=230;
   }
  }
+ const dt=ceoState.lastFrame===null?1/60:Math.min(.05,Math.max(.001,(t-ceoState.lastFrame)/1000));
+ ceoState.lastFrame=t;
  const dx=ceoState.targetX-ceoState.x,dy=ceoState.targetY-ceoState.y,d=Math.hypot(dx,dy);
- if(d>1.2){const speed=Math.min(1.05,Math.max(.14,d*.04));ceoState.x+=dx/d*speed;ceoState.y+=dy/d*speed}
- ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#17202a';ctx.beginPath();ctx.ellipse(ceoState.x,ceoState.y+1,10,3,0,0,Math.PI*2);ctx.fill();ctx.restore();
- drawWalkingCEO(ceoState.x,ceoState.y,t/150);drawStaffNameplate('CEO AI',ceoState.x,ceoState.y-50,'#d5a342',false);
+ if(d>.35){
+  // Frame-rate-independent easing prevents small jerks at the end of each walk.
+  const blend=1-Math.exp(-4.8*dt);
+  ceoState.x+=dx*blend;ceoState.y+=dy*blend;
+  if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<.45){
+   ceoState.x=ceoState.targetX;ceoState.y=ceoState.targetY;
+  }
+ }
+ drawWalkingCEO(ceoState.x,ceoState.y,t/260);
+ drawStaffNameplate('CEO AI',ceoState.x,ceoState.y-50,'#d5a342',false);
 }
 function moveCEO(tx,ty){
  ceoState.targetX=Math.max(125,Math.min(820,tx));
