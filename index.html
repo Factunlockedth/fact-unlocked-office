@@ -324,7 +324,7 @@ const furniture=[];
 const staff=[
 {id:'ceo',name:'CEO AI',role:'ผู้บริหารและวางกลยุทธ์',x:8,y:2,color:'#d5a342',hair:'#302631',desc:'รับเป้าหมายจากคุณ วางแผนงาน จัดลำดับความสำคัญ และประสานงานทุกแผนก'},
 {id:'strategy',name:'Strategy AI',role:'กลยุทธ์และวางแผน',x:2,y:7,color:'#507ab8',hair:'#332631',desc:'วางทิศทางช่อง กำหนดกลุ่มผู้ชม และจัดทำปฏิทินคอนเทนต์'},
-{id:'research',name:'Research AI',role:'วิจัยข้อมูล',x:2,y:4,color:'#3c9d9c',hair:'#3b2b25',desc:'ค้นคว้าข้อมูลต้นทาง รวบรวมหลักฐาน และจัดทำ Research Brief'},
+{id:'research',name:'Research AI',role:'วิจัยข้อมูล',x:2,y:4,color:'#2f9e55',hair:'#3b2b25',desc:'ค้นคว้าข้อมูลต้นทาง รวบรวมหลักฐาน และจัดทำ Research Brief'},
 {id:'fact',name:'Fact Check AI',role:'ตรวจสอบข้อเท็จจริง',x:5,y:4,color:'#b88c39',hair:'#372a2d',desc:'ตรวจสอบคำกล่าวอ้าง เทียบแหล่งข้อมูล และแจ้งจุดเสี่ยง'},
 {id:'editorial',name:'Editorial AI',role:'เขียนบทและเรียบเรียง',x:8,y:4,color:'#ad6d9a',hair:'#38263c',desc:'เขียน Hook สคริปต์ และเรียบเรียงเรื่องราวทั้งคลิปสั้นและคลิปยาว'},
 {id:'creative',name:'Creative AI',role:'ออกแบบและ Storyboard',x:3,y:9,color:'#a65cbd',hair:'#312a38',desc:'ออกแบบ Moodboard, Storyboard และแนวทางภาพ Cinematic'},
@@ -388,34 +388,7 @@ function drawFloor(){
  ctx.save();ctx.strokeStyle='#d0ae6b';ctx.lineWidth=2;
  ctx.beginPath();ctx.moveTo(fa.x,fa.y+8);ctx.lineTo(fb.x,fb.y+8);ctx.lineTo(rb.x,rb.y+8);ctx.stroke();ctx.restore();
 }
-function hqDesk(x,y,z=0,accent='#64b9c6',dual=false){
- const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
- ctx.globalAlpha=.2;ctx.fillStyle='#17232c';ctx.beginPath();ctx.ellipse(0,11,36,14,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
- // Four square timber legs and dark steel brackets.
- px(-25,-6,5,25,'#3b4548');px(20,-6,5,25,'#3b4548');
- px(-24,3,3,13,'#9c744c');px(20,3,3,13,'#806040');
- // Front apron and walnut desktop.
- poly([{x:-27,y:-7},{x:-2,y:6},{x:-2,y:17},{x:-27,y:4}],'#59412f','#30383b');
- poly([{x:-2,y:6},{x:27,y:-7},{x:27,y:4},{x:-2,y:17}],'#48392f','#252e32');
- diamond(0,-9,67,35,'#594536','#2d2925');
- diamond(0,-12,64,32,'#b18a59','#e0c58c');
- diamond(0,-13,54,24,'#5c554c','#8b775c');
- // Monitor(s) sit at the back of the desk, high enough to leave the seated agent visible.
- const n=dual?2:1;
- for(let i=0;i<n;i++){
-  const mx=(i-(n-1)/2)*22;
-  px(mx-8,-54,16,16,'#1b2834');px(mx-6,-52,12,12,'#477b88');
-  px(mx-5,-50,10,2,accent);px(mx-5,-46,7,2,'#d7d6c7');
-  px(mx-2,-40,4,8,'#6c7370');px(mx-8,-33,16,2,'#303a40');
-  px(mx-8,-54,16,1,'#e5c98f');
- }
- // Keyboard, notebook, mug and a tiny status LED.
- px(-8,-10,17,3,'#273744');px(-7,-9,14,1,'#c7c9bc');
- px(17,-18,7,6,'#eee1c9');px(18,-20,4,2,'#ffffff');
- px(-22,-19,3,9,'#8f744d');px(-26,-22,9,3,'#e5c37b');
- px(25,-8,3,3,accent);
- ctx.restore();
-}
+
 function hqDeskFront(x,y,z=0,accent='#64b9c6'){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
  ctx.globalAlpha=.2;ctx.fillStyle='#17232c';ctx.beginPath();ctx.ellipse(0,11,36,14,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
@@ -645,97 +618,212 @@ function drawOutsideLandmarks(){
   poly([{x:b.x-5,y:b.y},{x:b.x+b.w/2,y:b.y-14},{x:b.x+b.w+5,y:b.y}],'#263c55','#9a8152');
  });
 }
+function hqWallSegment(a,b,height,base,accent,brick=false){
+ poly([
+  {x:a.x,y:a.y},{x:b.x,y:b.y},
+  {x:b.x,y:b.y-height},{x:a.x,y:a.y-height}
+ ],base,'#172537');
+ // Fine masonry courses or quiet blue wall panels.
+ ctx.save();
+ ctx.strokeStyle=accent;ctx.globalAlpha=brick?.58:.34;ctx.lineWidth=1;
+ for(let row=1;row<height/12;row++){
+  const yA=a.y-row*12,yB=b.y-row*12;
+  ctx.beginPath();ctx.moveTo(a.x,yA);ctx.lineTo(b.x,yB);ctx.stroke();
+  if(brick){
+   const offset=row%2?12:0;
+   for(let col=1;col<4;col++){
+    const t=(col*0.25+(offset/Math.max(1,Math.hypot(b.x-a.x,b.y-a.y))))%1;
+    const x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t-row*12;
+    ctx.beginPath();ctx.moveTo(x,y-5);ctx.lineTo(x,y+5);ctx.stroke();
+   }
+  }
+ }
+ ctx.restore();
+ // Warm top cap and baseboard.
+ ctx.save();ctx.strokeStyle='#d0ae72';ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(a.x,a.y-height);ctx.lineTo(b.x,b.y-height);ctx.stroke();
+ ctx.strokeStyle='#3c4650';ctx.lineWidth=3;
+ ctx.beginPath();ctx.moveTo(a.x,a.y-5);ctx.lineTo(b.x,b.y-5);ctx.stroke();
+ ctx.restore();
+}
+function hqNoteBoard(x,y){
+ const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
+ px(-22,-70,44,48,'#5a4633');px(-19,-67,38,42,'#d9c8a0');
+ px(-15,-62,10,8,'#f3d66b');px(-2,-63,12,9,'#9ed0b8');
+ px(-14,-50,9,8,'#f08a7a');px(0,-50,14,8,'#f3d66b');
+ px(-14,-38,28,2,'#6b5a45');ctx.restore();
+}
+function hqCheckBoard(x,y){
+ const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
+ px(-24,-4,3,16,'#4c5560');px(21,-4,3,16,'#4c5560');
+ px(-26,-62,52,60,'#5a4633');px(-23,-59,46,54,'#e9e2cf');
+ for(let i=0;i<4;i++){
+  px(-19,-52+i*12,6,6,'#2f9e55');
+  px(-10,-50+i*12,24,2,'#7d8794');
+ }
+ px(-19,-6,10,2,'#c55');ctx.restore();
+}
 function drawFurniture(){
- // Rear shell with glazing and architectural columns.
+ // Rear shell: a brick feature wall, cool-blue wall panels and panoramic windows.
  for(let x=0;x<W-1;x++){
   const a=iso(x,0),b=iso(x+1,0);
   if(x===0||x===5||x===10||x===14){
-   poly([{x:a.x,y:a.y},{x:b.x,y:b.y},{x:b.x,y:b.y-132},{x:a.x,y:a.y-132}],'#596168','#303a40');
+   poly([
+    {x:a.x,y:a.y},{x:b.x,y:b.y},
+    {x:b.x,y:b.y-132},{x:a.x,y:a.y-132}
+   ],'#596168','#303a40');
    px((a.x+b.x)/2-2,(a.y+b.y)/2-128,4,125,'#b59a68');
-  }else{hqWindowPanel(a,b,126);px((a.x+b.x)/2-1,(a.y+b.y)/2-124,2,118,'#9bb8b8')}
+  }else if(x<=4){
+   hqWallSegment(a,b,126,'#8a4f3a','#5e3427',true);
+  }else if(x>=11&&x!==12&&x!==13){
+   hqWallSegment(a,b,126,'#23305c','#1a2447',false);
+  }else{
+   hqWindowPanel(a,b,126);
+   px((a.x+b.x)/2-1,(a.y+b.y)/2-124,2,118,'#9bb8b8');
+  }
  }
- // Left glass curtain wall opens onto the greenhouse.
- for(let y=0;y<H-1;y++){const a=iso(0,y),b=iso(0,y+1);hqWindowPanel(a,b,112);px((a.x+b.x)/2-2,(a.y+b.y)/2-110,4,108,'#d2bd88')}
- const brand=iso(12,0);
- poly([{x:brand.x-47,y:brand.y-113},{x:brand.x,y:brand.y-137},{x:brand.x+47,y:brand.y-113},{x:brand.x+47,y:brand.y-48},{x:brand.x,y:brand.y-24},{x:brand.x-47,y:brand.y-48}],'#26343c','#b99a65');
- ctx.save();ctx.shadowColor='#e6c778';ctx.shadowBlur=9;ctx.strokeStyle='#e6c778';ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(brand.x-13,brand.y-84);ctx.lineTo(brand.x,brand.y-108);ctx.lineTo(brand.x+13,brand.y-84);ctx.lineTo(brand.x,brand.y-60);ctx.closePath();ctx.stroke();
- ctx.fillStyle='#f0dfb3';ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED',brand.x,brand.y-42);ctx.restore();
+ // Left glass curtain wall reveals the greenhouse rather than hiding it.
+ for(let y=0;y<H-1;y++){
+  const a=iso(0,y),b=iso(0,y+1);
+  hqWindowPanel(a,b,112);
+  px((a.x+b.x)/2-2,(a.y+b.y)/2-110,4,108,'#d2bd88');
+ }
 
- // Glass atrium with planters and trees.
+ // FACT UNLOCKED brass identity panel, built from individual pixels and vectors.
+ const brand=iso(12,0);
+ poly([
+  {x:brand.x-47,y:brand.y-113},{x:brand.x,y:brand.y-137},
+  {x:brand.x+47,y:brand.y-113},{x:brand.x+47,y:brand.y-48},
+  {x:brand.x,y:brand.y-24},{x:brand.x-47,y:brand.y-48}
+ ],'#26343c','#b99a65');
+ ctx.save();ctx.shadowColor='#e6c778';ctx.shadowBlur=9;
+ ctx.strokeStyle='#e6c778';ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(brand.x-13,brand.y-84);ctx.lineTo(brand.x,brand.y-108);
+ ctx.lineTo(brand.x+13,brand.y-84);ctx.lineTo(brand.x,brand.y-60);ctx.closePath();ctx.stroke();
+ ctx.fillStyle='#f0dfb3';ctx.font='bold 9px system-ui';ctx.textAlign='center';
+ ctx.fillText('FACT UNLOCKED',brand.x,brand.y-42);ctx.restore();
+
+ // Glass atrium: green tile bed, raised planters and mature plants.
  const ga=iso(0,3),gb=iso(4,3),gc=iso(4,9),gd=iso(0,9);
  poly([ga,gb,gc,gd],'#4b6b5c','#293b37');
- poly([{x:ga.x+10,y:ga.y-4},{x:gb.x-10,y:gb.y-4},{x:gc.x-10,y:gc.y-4},{x:gd.x+10,y:gd.y-4}],'#698b70','#b49a67');
- for(let x=0;x<=4;x++)for(let y=3;y<=9;y++)if((x+y)%2===0){const p=iso(x,y);diamond(p.x,p.y,22,11,'#477654','#315941');px(p.x-5,p.y-5,8,5,'#6aa86e');px(p.x+3,p.y-8,7,6,'#85b878')}
+ poly([
+  {x:ga.x+10,y:ga.y-4},{x:gb.x-10,y:gb.y-4},
+  {x:gc.x-10,y:gc.y-4},{x:gd.x+10,y:gd.y-4}
+ ],'#698b70','#b49a67');
+ for(let x=0;x<=4;x++)for(let y=3;y<=9;y++)if((x+y)%2===0){
+  const p=iso(x,y);diamond(p.x,p.y,22,11,'#477654','#315941');
+  px(p.x-5,p.y-5,8,5,'#6aa86e');px(p.x+3,p.y-8,7,6,'#85b878');
+ }
  hqPlant(1,5,0,true);hqPlant(3,7,0,true);hqPlant(1,9,0,true);
  [[0,3],[4,3],[4,9],[0,9]].forEach(([x,y])=>hqPillar(x,y,0,58));
- for(let y=3;y<9;y++){const a=iso(0,y),b=iso(0,y+1);ctx.save();ctx.strokeStyle='#8fc5c8';ctx.globalAlpha=.75;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y-54);ctx.lineTo(b.x,b.y-54);ctx.stroke();ctx.restore()}
- for(let x=0;x<4;x++){const a=iso(x,3),b=iso(x+1,3);ctx.save();ctx.strokeStyle='#8fc5c8';ctx.globalAlpha=.75;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y-54);ctx.lineTo(b.x,b.y-54);ctx.stroke();ctx.restore()}
+ // Delicate glass mullions around the atrium.
+ for(let y=3;y<9;y++){
+  const a=iso(0,y),b=iso(0,y+1);
+  ctx.save();ctx.strokeStyle='#8fc5c8';ctx.globalAlpha=.75;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(a.x,a.y-54);ctx.lineTo(b.x,b.y-54);ctx.stroke();ctx.restore();
+ }
+ for(let x=0;x<4;x++){
+  const a=iso(x,3),b=iso(x+1,3);
+  ctx.save();ctx.strokeStyle='#8fc5c8';ctx.globalAlpha=.75;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(a.x,a.y-54);ctx.lineTo(b.x,b.y-54);ctx.stroke();ctx.restore();
+ }
 
- // Ground-floor video studio, source library, fact-check and editorial desks.
+ // Ground-floor functional areas: studio, research, verification and production support.
  rug(3,2,75,42,'#496b72');hqWallScreen(3,0,0,'VIDEO STUDIO','#70c6ce');
- hqDesk(3,2,0,'#62c1c8',true);hqChair(3,3);hqPlant(1,2);hqPlant(5,2);
+ hqPlant(1,2);hqPlant(5,2);
  rug(5,4,86,48,'#6b6556');hqWallScreen(6,1,0,'SOURCE LIBRARY','#78b9c0');
- hqBookshelf(5,1);hqBookshelf(7,1);hqDesk(5,4,0,'#62b9bf');hqChair(5,5);
+ hqBookshelf(5,1);hqBookshelf(7,1);
  rug(8,4,78,46,'#665d4d');hqWallScreen(9,1,0,'FACT CHECK','#d4b56d');
- hqDesk(8,4,0,'#d3ad63',true);hqChair(8,5);
- hqDesk(11,5,0,'#b78ab7',true);hqChair(11,6);hqDesk(13,5,0,'#83a66f');hqChair(13,6);
- const rack=iso(14,3);ctx.save();ctx.translate(rack.x,rack.y);px(-18,-71,36,72,'#505d62');px(-14,-67,28,64,'#1f2d35');
- for(let i=0;i<4;i++){px(-11,-60+i*14,22,8,'#344b55');px(-8,-57+i*14,4,3,'#63c6b5');px(2,-57+i*14,4,3,'#e3bd69')}
+ // Wall-mounted idea board and fact-check board.
+ hqNoteBoard(.4,5);
+ hqCheckBoard(2.3,7.8);
+ // Server rack and cooling hardware.
+ equipment(14,3,'server');equipment(15,1.2,'server');
+ const rack=iso(14,3);
+ ctx.save();ctx.translate(rack.x,rack.y);
+ px(-18,-71,36,72,'#505d62');px(-14,-67,28,64,'#1f2d35');
+ for(let i=0;i<4;i++){
+  px(-11,-60+i*14,22,8,'#344b55');
+  px(-8,-57+i*14,4,3,'#63c6b5');px(2,-57+i*14,4,3,'#e3bd69');
+ }
  px(-18,-71,36,3,'#d0b477');ctx.restore();
 
- // Raised mezzanine: independent upper-level slab, library and executive lounge.
+ // Raised mezzanine: independent slab thickness and tiled upper floor.
  const z=88,x1=6,y1=0,x2=15,y2=6;
  const A=iso(x1,y1,z),B=iso(x2,y1,z),C=iso(x2,y2,z),D=iso(x1,y2,z);
  const Bb=iso(x2,y1),Cb=iso(x2,y2),Db=iso(x1,y2);
- poly([D,C,Cb,Db],'#555d60','#333d43');poly([B,C,Cb,Bb],'#454f56','#29343a');poly([A,B,C,D],'#c5c0b2','#646761');
- for(let y=y1;y<y2;y++)for(let x=x1;x<x2;x++){const p=iso(x,y,z);diamond(p.x,p.y,TW,TH,(x+y)%2?'#d2cec1':'#c2beb1','#96958a')}
+ poly([D,C,Cb,Db],'#555d60','#333d43');
+ poly([B,C,Cb,Bb],'#454f56','#29343a');
+ poly([A,B,C,D],'#c5c0b2','#646761');
+ for(let y=y1;y<y2;y++)for(let x=x1;x<x2;x++){
+  const p=iso(x,y,z);
+  diamond(p.x,p.y,TW,TH,(x+y)%2?'#d2cec1':'#c2beb1','#96958a');
+ }
  rug(9,3,92,50,'#68717a');rug(12,2,72,42,'#605d55');
- for(let x=x1;x<x2;x++){const a=iso(x,y1,z),b=iso(x+1,y1,z);
-  if(x===6||x===9||x===13||x===14)poly([{x:a.x,y:a.y},{x:b.x,y:b.y},{x:b.x,y:b.y-92},{x:a.x,y:a.y-92}],'#586067','#303a40');else hqWindowPanel(a,b,91)}
+ for(let x=x1;x<x2;x++){
+  const a=iso(x,y1,z),b=iso(x+1,y1,z);
+  if(x===6||x===9||x===13||x===14){
+   poly([{x:a.x,y:a.y},{x:b.x,y:b.y},{x:b.x,y:b.y-92},{x:a.x,y:a.y-92}],'#586067','#303a40');
+  }else hqWindowPanel(a,b,91);
+ }
  hqPillar(6,6,0,88);hqPillar(10,6,0,88);hqPillar(15,6,0,88);
  hqBookshelf(7,1,z);hqBookshelf(8,1,z);hqBookshelf(14,2,z);
- hqSofa(10,3,z,1.05);hqSofa(12,4,z,.85);hqCoffeeTable(10.8,3.6,z);hqCodeDisplay(13,1,z);
- const statue=iso(13,4,z);ctx.save();ctx.translate(statue.x,statue.y);diamond(0,6,29,16,'#4b5355','#aa8d59');
- px(-7,-16,14,21,'#c8c4b6');px(-4,-25,8,12,'#e1ded2');px(-2,-31,4,8,'#aaa99f');px(-12,-20,5,10,'#c1beb1');px(7,-20,5,10,'#c1beb1');ctx.restore();
-
- // Mezzanine glass balustrade.
- const ra=iso(6,6,z),rb=iso(15,6,z);ctx.save();ctx.strokeStyle='#a5d3d2';ctx.globalAlpha=.78;ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(ra.x,ra.y-27);ctx.lineTo(rb.x,rb.y-27);ctx.stroke();ctx.strokeStyle='#d9bd7d';ctx.lineWidth=1.5;
+ hqSofa(10,3,z,1.05);hqSofa(12,4,z,.85);
+ hqCoffeeTable(10.8,3.6,z);hqCodeDisplay(13,1,z);
+ // Executive art plinth.
+ const statue=iso(13,4,z);
+ ctx.save();ctx.translate(statue.x,statue.y);
+ diamond(0,6,29,16,'#4b5355','#aa8d59');
+ px(-7,-16,14,21,'#c8c4b6');px(-4,-25,8,12,'#e1ded2');
+ px(-2,-31,4,8,'#aaa99f');px(-12,-20,5,10,'#c1beb1');px(7,-20,5,10,'#c1beb1');
+ ctx.restore();
+ // Glass balustrade, brass handrail and balusters.
+ const ra=iso(6,6,z),rb=iso(15,6,z);
+ ctx.save();ctx.strokeStyle='#a5d3d2';ctx.globalAlpha=.78;ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(ra.x,ra.y-27);ctx.lineTo(rb.x,rb.y-27);ctx.stroke();
+ ctx.strokeStyle='#d9bd7d';ctx.lineWidth=1.5;
  ctx.beginPath();ctx.moveTo(ra.x,ra.y-33);ctx.lineTo(rb.x,rb.y-33);ctx.stroke();
- for(let i=0;i<=10;i++){const t=i/10,x=ra.x+(rb.x-ra.x)*t,y=ra.y+(rb.y-ra.y)*t;px(x-1,y-30,2,31,'#c7ad79')}ctx.restore();
-
- // Staircase between floors.
- for(let i=0;i<5;i++){const p=iso(8+i,7-i),rise=(i+1)*14;diamond(p.x,p.y-rise,42,22,'#7d817c','#424c4b');
-  poly([{x:p.x-21,y:p.y-rise},{x:p.x,y:p.y+11-rise},{x:p.x,y:p.y+17-rise},{x:p.x-21,y:p.y+6-rise}],'#5c6462','#333c3d');
-  poly([{x:p.x,y:p.y+11-rise},{x:p.x+21,y:p.y-rise},{x:p.x+21,y:p.y+6-rise},{x:p.x,y:p.y+17-rise}],'#495454','#303a3c')}
-
- // Eight dedicated desks in two isometric rows, with chairs tucked behind each workstation.
- // The blue carpet anchors this open-plan working zone like the PIXEL AGENTS reference.
+ for(let i=0;i<=10;i++){
+  const t=i/10,x=ra.x+(rb.x-ra.x)*t,y=ra.y+(rb.y-ra.y)*t;
+  px(x-1,y-30,2,31,'#c7ad79');
+ }
+ ctx.restore();
+ // Staircase connecting ground-floor studios to the mezzanine.
+ for(let i=0;i<5;i++){
+  const p=iso(8+i,7-i),rise=(i+1)*14;
+  diamond(p.x,p.y-rise,42,22,'#7d817c','#424c4b');
+  poly([{x:p.x-21,y:p.y-rise},{x:p.x,y:p.y+11-rise},
+        {x:p.x,y:p.y+17-rise},{x:p.x-21,y:p.y+6-rise}],
+       '#5c6462','#333c3d');
+  poly([{x:p.x,y:p.y+11-rise},{x:p.x+21,y:p.y-rise},
+        {x:p.x+21,y:p.y+6-rise},{x:p.x,y:p.y+17-rise}],
+       '#495454','#303a3c');
+ }
+ // Ground-floor workstations are drawn after the mezzanine so they stay on the correct level.
  officeWorkstations.forEach((s,i)=>hqChair(s.seatX,s.seatY,0,['#536d7a','#526a75','#586b79','#536b79'][i%4]));
  officeWorkstations.forEach(s=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual));
- // A small meeting nook at the edge of the work carpet.
- const meeting=iso(2.7,11.6);ctx.save();ctx.translate(meeting.x,meeting.y);
- diamond(0,7,45,23,'#554536','#b08b59');diamond(0,4,41,20,'#b99b70','#e0c98d');
- px(-3,-2,6,12,'#4c5353');px(-17,-5,8,5,'#f0e4cf');px(10,-11,7,6,'#314b5a');ctx.restore();
- hqChair(2,12,0,'#586a77');hqChair(4,12,0,'#586a77');
- // Lounge details, plants and warm path lights stay around the perimeter.
+ // Shared collaboration nook, plants, warm path lights and water station.
  hqSofa(2,10,0,.8);hqCoffeeTable(2.7,10.8,0);
  [[1,10],[2,12],[15,7],[15,10],[3,13],[9,13],[14,13]].forEach(([x,y],i)=>hqPlant(x,y,0,i===0||i===3));
- [[2,12],[6,13],[10,13],[14,13]].forEach(([x,y])=>{const p=iso(x,y);glow(p.x,p.y-17,20,'#e9c77a',.1);px(p.x-2,p.y-10,4,10,'#555e5b');px(p.x-7,p.y-18,14,7,'#e3c57f')});
- // Water cooler and floor-standing bulletin board make the space feel occupied.
+ [[2,12],[6,13],[10,13],[14,13]].forEach(([x,y])=>{
+  const p=iso(x,y);glow(p.x,p.y-17,20,'#e9c77a',.1);
+  px(p.x-2,p.y-10,4,10,'#555e5b');px(p.x-7,p.y-18,14,7,'#e3c57f');
+ });
+ // Bulletin board and hydration point complete the office details.
  const water=iso(2,8);ctx.save();ctx.translate(water.x,water.y);
- px(-7,-29,14,27,'#d4d9d4');px(-6,-42,12,14,'#4f91a0');px(-4,-40,8,10,'#77b9c3');
- px(-5,-45,10,4,'#d9e3e0');px(-4,-2,8,3,'#697a7c');ctx.restore();
+ px(-7,-29,14,27,'#d4d9d4');px(-6,-42,12,14,'#4f91a0');
+ px(-4,-40,8,10,'#77b9c3');px(-5,-45,10,4,'#d9e3e0');px(-4,-2,8,3,'#697a7c');
+ ctx.restore();
  const notice=iso(1,11);ctx.save();ctx.translate(notice.x,notice.y);
  px(-17,-48,34,44,'#5a4633');px(-14,-45,28,38,'#c5a879');
- px(-11,-40,8,7,'#f0e0bd');px(1,-41,10,9,'#95b3a9');px(-10,-28,18,2,'#7f6650');
- px(-10,-22,7,8,'#b36d62');px(0,-20,11,7,'#d9c28e');ctx.restore();
+ px(-11,-40,8,7,'#f0e0bd');px(1,-41,10,9,'#95b3a9');
+ px(-10,-28,18,2,'#7f6650');px(-10,-22,7,8,'#b36d62');
+ px(0,-20,11,7,'#d9c28e');ctx.restore();
 }
 // Four-by-two workstation grid: each agent owns a desk, monitor and chair.
 const officeWorkstations=[
  {id:'strategy',x:5,y:8,accent:'#507ab8',dual:false},
- {id:'research',x:8,y:8,accent:'#3c9d9c',dual:false},
+ {id:'research',x:8,y:8,accent:'#2f9e55',dual:false},
  {id:'fact',x:11,y:8,accent:'#b88c39',dual:false},
  {id:'editorial',x:14,y:8,accent:'#ad6d9a',dual:false},
  {id:'creative',x:5,y:11,accent:'#a65cbd',dual:true},
@@ -743,9 +831,8 @@ const officeWorkstations=[
  {id:'distribution',x:11,y:11,accent:'#408f9b',dual:false},
  {id:'analytics',x:14,y:11,accent:'#7a9c57',dual:false}
 ].map(s=>{
- const desk=worldPoint(s.x,s.y);
  const seat=worldPoint(s.x+1,s.y+1);
- return {...s,seatX:s.x+1,seatY:s.y+1,deskWorldX:desk.x,deskWorldY:desk.y,agentX:seat.x,agentY:seat.y-5};
+ return {...s,seatX:s.x+1,seatY:s.y+1,agentX:seat.x,agentY:seat.y-5};
 });
 const officeSeats=Object.fromEntries(officeWorkstations.map(s=>[s.id,{x:s.agentX,y:s.agentY}]));
 const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
@@ -954,121 +1041,14 @@ function officeView(){
  return {fit,view,ox,oy};
 }
 function drawOfficeBackground(){
- ctx.fillStyle='#74888b';ctx.fillRect(0,0,CW,CH);
+ const g=ctx.createLinearGradient(0,-80,0,CH+100);
+ g.addColorStop(0,'#101b31');g.addColorStop(.55,'#172641');g.addColorStop(1,'#0c1729');
+ ctx.fillStyle=g;ctx.fillRect(0,0,CW,CH);
  drawFloor();
  drawFurniture();
  drawMascots();
-/* ===== PIXEL OFFICE v2 — วางก่อนบรรทัด function draw(t=0){ (ลบแพตช์ v1 ออกก่อน) ===== */
-document.getElementById('stage').style.background='radial-gradient(ellipse at 50% 40%,#16295a 0%,#0a1230 70%,#050a1c 100%)';
-
-// ---- 1) จัดผังโต๊ะใหม่ให้เหมือนรูป: [x, y, จอคู่, โต๊ะประชุมรวม] ----
-(function(){try{
- const L={strategy:[4,4,0,0],research:[3,8,1,0],fact:[7,5,0,0],editorial:[10,5,1,0],
-          creative:[6,9,1,0],production:[9,9,1,0],distribution:[12,9,0,1],analytics:[14,9,0,1]};
- staff.find(s=>s.id==='research').color='#2f9e55';   // เสื้อฮู้ดเขียว
- officeWorkstations.forEach(s=>{
-  const [x,y,d,t]=L[s.id];
-  Object.assign(s,{x,y,dual:!!d,table:!!t,seatX:x+1,seatY:y+1});
-  const seat=worldPoint(x+1,y+1);s.agentX=seat.x;s.agentY=seat.y-5;
-  const n=npcState.find(n=>n.data.id===s.id);n.x=s.agentX;n.y=s.agentY;
- });
- const c=worldPoint(8,7);ceoState.x=ceoState.targetX=c.x;ceoState.y=ceoState.targetY=c.y;
-}catch(e){window.__patchErr='layout: '+e.message}})();
-
-// ---- 2) ผนัง: ซ้าย=อิฐ, ขวา=น้ำเงินมีหน้าต่าง ----
-function pxWall(ax,ay,bx,by,h,base,n,wins,line){
- for(let i=0;i<n;i++){
-  const t0=i/n,t1=(i+1)/n;
-  const p=iso(ax+(bx-ax)*t0,ay+(by-ay)*t0),q=iso(ax+(bx-ax)*t1,ay+(by-ay)*t1);
-  poly([p,q,{x:q.x,y:q.y-h},{x:p.x,y:p.y-h}],base,'#0b1226');
-  if(wins.includes(i)){
-   poly([{x:p.x+4,y:p.y-34},{x:q.x-4,y:q.y-34},{x:q.x-4,y:q.y-h+14},{x:p.x+4,y:p.y-h+14}],'#1d4b7d','#d3b06a');
-   const mx=(p.x+q.x)/2,my=(p.y+q.y)/2;
-   ctx.strokeStyle='#d3b06a';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(mx,my-34);ctx.lineTo(mx,my-h+14);ctx.stroke();
-   px(mx-5,my-h+22,3,3,'#cfe6ff');px(mx+6,my-h+30,2,2,'#cfe6ff');
-  }else{
-   ctx.save();ctx.strokeStyle=line;ctx.globalAlpha=.6;ctx.lineWidth=1;
-   for(let r=1;r<10;r++){ctx.beginPath();ctx.moveTo(p.x,p.y-r*12);ctx.lineTo(q.x,q.y-r*12);ctx.stroke()}ctx.restore();
-  }
-  poly([p,q,{x:q.x,y:q.y-7},{x:p.x,y:p.y-7}],'#2a2a3a',null);
- }
- const a=iso(ax,ay),b=iso(bx,by);
- ctx.strokeStyle='#d3b06a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y-h);ctx.lineTo(b.x,b.y-h);ctx.stroke();
 }
-function noteBoard(x,y){
- const b=iso(x,y);ctx.save();ctx.translate(b.x,b.y);
- px(-22,-70,44,48,'#5a4633');px(-19,-67,38,42,'#d9c8a0');
- px(-15,-62,10,8,'#f3d66b');px(-2,-63,12,9,'#9ed0b8');px(-14,-50,9,8,'#f08a7a');px(0,-50,14,8,'#f3d66b');
- px(-14,-38,28,2,'#6b5a45');ctx.restore();
-}
-function checkBoard(x,y){
- const b=iso(x,y);ctx.save();ctx.translate(b.x,b.y);
- px(-24,-4,3,16,'#4c5560');px(21,-4,3,16,'#4c5560');
- px(-26,-62,52,60,'#5a4633');px(-23,-59,46,54,'#e9e2cf');
- for(let i=0;i<4;i++){px(-19,-52+i*12,6,6,'#2f9e55');px(-10,-50+i*12,24,2,'#7d8794')}
- px(-19,-6,10,2,'#c55');ctx.restore();
-}
-
-// ---- 3) ของตกแต่งทั้งหมด ----
-function drawFurniture(){
- pxWall(0,0,0,H,140,'#8a4f3a',14,[],'#5e3427');      // ผนังซ้าย อิฐ
- pxWall(0,0,W,0,140,'#23305c',16,[2,3,6,7],'#1a2447');// ผนังขวา น้ำเงิน
- // ชั้นหนังสือ
- [[.5,2.4],[.5,3.7],[.5,6.2]].forEach(([x,y])=>hqBookshelf(x,y));
- [[9.6,.5],[10.9,.5]].forEach(([x,y])=>hqBookshelf(x,y));
- noteBoard(.4,5);
- // ตู้เซิร์ฟเวอร์มุมขวา
- equipment(14,.7,'server');equipment(15,1.2,'server');
- // จอโค้ดลอยด้านบนขวา
- hqCodeDisplay(13,-3,70);
- // พรมกลางห้อง
- rug(8,7,170,86,'#34498c');
- // ต้นไม้
- [[1.2,1.2],[1.2,10],[6,3],[14.5,6],[2,13]].forEach(([x,y],i)=>hqPlant(x,y,0,i!==2));
- // โต๊ะ + เก้าอี้
- officeWorkstations.forEach((s,i)=>{
-  hqChair(s.seatX,s.seatY,0,['#5a4a8a','#3f6aa0','#4a8a8a','#8a5a7a'][i%4]);
-  if(s.table){hqDeskFront(s.x,s.y,0,s.accent);const p=iso(s.x,s.y);px(p.x-12,p.y-24,14,9,'#f3efe2');px(p.x+4,p.y-20,10,7,'#e5d9b8')}
-  else hqDesk(s.x,s.y,0,s.accent,s.dual);
- });
- // เรืองแสงม่วงที่โต๊ะ Editorial
- const e=iso(10,5);glow(e.x,e.y-40,55,'#9b5cff',.35);
- checkBoard(11,11.8);
- // ชั้นหนังสือด้านหน้า (ตัดห้อง)
- [[1.5,12.8],[6,13.3],[7.3,13.3],[10,13.3],[11.3,13.3]].forEach(([x,y])=>hqBookshelf(x,y));
-}
-
-function drawOfficeBackground(){
- const g=ctx.createLinearGradient(0,-100,0,CH+100);g.addColorStop(0,'#0a1230');g.addColorStop(1,'#111d44');
- ctx.fillStyle=g;ctx.fillRect(-500,-500,CW+1000,CH+1000);
- for(let i=0;i<40;i++)px((i*137)%CW,(i*71)%110,2,2,i%3?'#4a5c94':'#8fa6e0');
- ctx.save();ctx.font='900 46px "Courier New",monospace';ctx.textAlign='center';
- ctx.shadowColor='#2fe6cf';ctx.shadowBlur=18;ctx.fillStyle='#8ff7e8';ctx.fillText('AI AGENTS',OX,62);
- ctx.shadowBlur=0;ctx.strokeStyle='#17806f';ctx.lineWidth=2;ctx.strokeText('AI AGENTS',OX,62);ctx.restore();
- try{drawFloor();drawFurniture();drawMascots();}catch(e){
-  ctx.save();ctx.fillStyle='#ff6b6b';ctx.font='bold 16px system-ui';ctx.textAlign='left';
-  ctx.fillText('ERROR: '+e.message,20,120);ctx.restore();}
- if(window.__patchErr){ctx.save();ctx.fillStyle='#ff6b6b';ctx.font='bold 16px system-ui';ctx.fillText(window.__patchErr,20,150);ctx.restore()}
-}
-
-// ---- 4) CEO เดินบนพื้นชั้นเดียว (ไม่มีชั้นลอยแล้ว) ----
-function drawCEO(t){
- if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
-  ceoState.wait--;
-  if(ceoState.wait<=0){
-   const stops=[worldPoint(8,7),worldPoint(5,6.5),worldPoint(8,3),worldPoint(11,7.5),worldPoint(11,11),worldPoint(7,12),worldPoint(2,7)];
-   const d=stops[ceoRouteIndex++%stops.length];ceoState.targetX=d.x;ceoState.targetY=d.y;ceoState.wait=230;
-  }
- }
- const dt=ceoState.lastFrame===null?1/60:Math.min(.05,Math.max(.001,(t-ceoState.lastFrame)/1000));
- ceoState.lastFrame=t;
- const dx=ceoState.targetX-ceoState.x,dy=ceoState.targetY-ceoState.y;
- if(Math.hypot(dx,dy)>.35){const b=1-Math.exp(-4.8*dt);ceoState.x+=dx*b;ceoState.y+=dy*b}
- drawWalkingCEO(ceoState.x,ceoState.y,t/260);
- drawStaffNameplate('CEO AI',ceoState.x,ceoState.y-50,'#d5a342',false);
-}
-/* ===== END v2 ===== */
-function draw(t=0){
+function draw(t=performance.now()){
  const v=officeView();
  ctx.setTransform(dpr,0,0,dpr,0,0);
  ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight);
@@ -1079,7 +1059,10 @@ function draw(t=0){
  drawWorkstationFronts();
  drawCEO(t);
  ctx.restore();
- requestAnimationFrame(draw);
+}
+function animate(t){
+ draw(t);
+ requestAnimationFrame(animate);
 }
 function openPanel(s){selected=s;document.getElementById('ptitle').textContent=s.name;document.getElementById('pdesc').textContent=s.role+' — '+s.desc;let items=document.getElementById('pitems');items.innerHTML='';['ตรวจสถานะงาน','ดูภารกิจประจำแผนก','ส่งข้อความถึง '+s.name].forEach((v,i)=>{let d=document.createElement('div');d.className='item';d.innerHTML='<span>'+v+'</span><span class="tag">'+(i===0?'พร้อมใช้งาน':'พร้อมใช้งาน')+'</span>';items.appendChild(d)});document.getElementById('paction').textContent='เริ่มสนทนา';document.getElementById('paction').onclick=()=>openChat(s);document.getElementById('panelbg').style.display='flex'}
 function openChat(s){selected=s;document.getElementById('panelbg').style.display='none';document.getElementById('chatname').textContent=s.name;const log=document.getElementById('chatlog');log.innerHTML='';addBubble('ai','สวัสดีครับ ผมคือ '+s.name+' ('+s.role+')\nเชื่อมต่อ AI Backend แล้ว พิมพ์คำสั่งเพื่อเริ่มสนทนาได้เลยครับ');document.getElementById('chatstate').textContent='';document.getElementById('chatbg').style.display='flex';document.getElementById('chatinput').focus()}
@@ -1574,6 +1557,6 @@ document.getElementById('explore').onclick=()=>{
 document.getElementById('close').onclick=()=>document.getElementById('panelbg').style.display='none';document.getElementById('panelbg').addEventListener('click',e=>{if(e.target.id==='panelbg')e.currentTarget.style.display='none'});
 document.getElementById('zoomin').onclick=()=>{scale=Math.min(1.6,scale+.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('zoomout').onclick=()=>{scale=Math.max(.65,scale-.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('center').onclick=()=>{camX=camY=0;scale=1;document.getElementById('zoomlevel').textContent='100%';draw()};
 document.getElementById('meeting').onclick=()=>{const n=npcState[ceoRouteIndex%npcState.length];ceoRouteIndex++;moveCEO(n.x+18,n.y+55);toast('CEO กำลังเดินไปตรวจงานที่ '+n.data.name)};
-window.addEventListener('resize',resize);resize();
+window.addEventListener('resize',resize);resize();requestAnimationFrame(animate);
 })();
 </script></body></html>
