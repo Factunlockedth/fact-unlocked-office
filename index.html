@@ -744,10 +744,10 @@ const officeWorkstations=[
  {id:'analytics',x:14,y:11,accent:'#7a9c57',dual:false}
 ].map(s=>{
  const desk=worldPoint(s.x,s.y);
- const seat=worldPoint(s.seatX??s.x+1,s.seatY??s.y+1);
- return {...s,seatX:s.x+1,seatY:s.y+1,deskX:desk.x,deskY:desk.y,x:seat.x,y:seat.y-5};
+ const seat=worldPoint(s.x+1,s.y+1);
+ return {...s,seatX:s.x+1,seatY:s.y+1,deskWorldX:desk.x,deskWorldY:desk.y,agentX:seat.x,agentY:seat.y-5};
 });
-const officeSeats=Object.fromEntries(officeWorkstations.map(s=>[s.id,{x:s.x,y:s.y}]));
+const officeSeats=Object.fromEntries(officeWorkstations.map(s=>[s.id,{x:s.agentX,y:s.agentY}]));
 const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
