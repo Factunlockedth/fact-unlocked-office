@@ -320,7 +320,7 @@ function resize(){
  let r=stage.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
  canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);
  ctx.setTransform(dpr,0,0,dpr,0,0);
- if(!window.officeScaleInit){scale=Math.min(1,Math.max(.42,(r.width-20)/CW));window.officeScaleInit=true}
+ if(!window.officeScaleInit){scale=Math.min(1,Math.max(.62,(r.width-20)/CW));window.officeScaleInit=true;const zl=document.getElementById('zoomlevel');if(zl)zl.textContent=Math.round(scale*100)+'%'}
  draw()
 }
 function clear(){ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight)}
@@ -999,7 +999,7 @@ const viewContent={
 document.querySelectorAll('#mainnav [data-view]').forEach(btn=>btn.addEventListener('click',()=>{
  document.querySelectorAll('#mainnav [data-view]').forEach(x=>x.classList.toggle('active',x===btn));
  const view=btn.dataset.view;
- if(view==='home'){closeHud();camX=camY=0;scale=Math.min(1,Math.max(.42,(stage.clientWidth-20)/CW));document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw();return}
+ if(view==='home'){closeHud();camX=camY=0;scale=Math.min(1,Math.max(.62,(stage.clientWidth-20)/CW));document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw();return}
  const c=viewContent[view];if(c)openHud(c[0],c[1]);
  if(view==='projects'){const b=document.getElementById('open-bridge');if(b)b.onclick=()=>{closeHud();document.getElementById('bridgebg').style.display='flex'}}
 }));
@@ -1027,7 +1027,7 @@ document.getElementById('explore').onclick=()=>{
 };
 
 document.getElementById('close').onclick=()=>document.getElementById('panelbg').style.display='none';document.getElementById('panelbg').addEventListener('click',e=>{if(e.target.id==='panelbg')e.currentTarget.style.display='none'});
-document.getElementById('zoomin').onclick=()=>{scale=Math.min(1.35,scale+.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('zoomout').onclick=()=>{scale=Math.max(.42,scale-.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('center').onclick=()=>{camX=camY=0;scale=Math.min(1,Math.max(.42,(stage.clientWidth-20)/CW));document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};
+document.getElementById('zoomin').onclick=()=>{scale=Math.min(1.35,scale+.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('zoomout').onclick=()=>{scale=Math.max(.42,scale-.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('center').onclick=()=>{camX=camY=0;scale=Math.min(1,Math.max(.62,(stage.clientWidth-20)/CW));document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};
 document.getElementById('meeting').onclick=()=>{const n=npcState[ceoRouteIndex%npcState.length];ceoRouteIndex++;moveCEO(n.x,Math.min(H-1,n.y+1));toast('CEO กำลังเดินไปตรวจงานที่ '+n.data.name)};
 window.addEventListener('resize',resize);resize();
 })();
