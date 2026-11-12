@@ -621,15 +621,15 @@ function drawFurniture(){
 }
 // Fixed interactive employee seats positioned over desks in the reference office artwork.
 const officeLoungeSeats=[
- // Eight assigned seats following the existing sofa groups in the front outdoor lounge.
- {id:'strategy',x:205,y:344},
- {id:'research',x:228,y:358},
- {id:'fact',x:258,y:377},
- {id:'editorial',x:282,y:393},
- {id:'creative',x:310,y:407},
- {id:'production',x:334,y:416},
- {id:'distribution',x:352,y:386},
- {id:'analytics',x:365,y:365}
+ // Eight seats aligned to the existing cushions around both front lounge sofa groups.
+ {id:'strategy',x:185,y:345},
+ {id:'research',x:207,y:350},
+ {id:'fact',x:186,y:367},
+ {id:'editorial',x:209,y:373},
+ {id:'creative',x:294,y:409},
+ {id:'production',x:316,y:416},
+ {id:'distribution',x:350,y:416},
+ {id:'analytics',x:373,y:404}
 ];
 const officeSeats=Object.fromEntries(officeLoungeSeats.map(s=>[s.id,{x:s.x,y:s.y}]));
 const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
@@ -753,14 +753,47 @@ function drawSeatedWorker(x,y,shirt,hair,index=0,time=0){
  ctx.restore();
 }
 function drawOutdoorSeatedStaff(x,y,shirt,hair,index,time){
- const breath=Math.sin(time*1.45+index*.7)*.26;
+ // Seated upper-body pixel avatar: the sofa from the reference artwork is the chair.
+ const breath=Math.sin(time*1.4+index*.73)*.22;
+ const bob=Math.round(breath);
  ctx.save();
- ctx.translate(x,y+breath);
- ctx.scale(.78,.78);
- seatedSprite(0,0,shirt,hair);
+ ctx.globalAlpha=.22;
+ ctx.fillStyle='#18232c';
+ ctx.beginPath();ctx.ellipse(x,y+1,6.5,1.8,0,0,Math.PI*2);ctx.fill();
  ctx.restore();
-}
-function drawNPCs(t=0){
+
+ ctx.save();
+ // Back and lap stay low so the character visually sits within the existing sofa cushion.
+ px(x-8,y-10+bob,16,9,'#293a46');
+ px(x-7,y-9+bob,14,7,'#526674');
+ // Folded legs and lap.
+ px(x-7,y-3,6,4,'#27364a');
+ px(x+1,y-3,6,4,'#27364a');
+ px(x-8,y-1,7,2,'#202d3e');
+ px(x+1,y-1,7,2,'#202d3e');
+ // Torso and short sleeves.
+ px(x-8,y-17+bob,16,12,shirt);
+ px(x-10,y-16+bob,4,8,shirt);
+ px(x+6,y-16+bob,4,8,shirt);
+ // Forearms resting on lap, hands visible.
+ px(x-9,y-9+bob,4,4,'#edc5a0');
+ px(x+5,y-9+bob,4,4,'#edc5a0');
+ // Neck and face.
+ px(x-3,y-20+bob,6,4,'#e2b48f');
+ px(x-5,y-27+bob,10,9,'#edc5a0');
+ // Hair silhouette and fringe.
+ px(x-6,y-29+bob,12,5,hair);
+ px(x-7,y-26+bob,3,6,hair);
+ px(x+4,y-26+bob,3,6,hair);
+ // Eyes and a subtle mouth pixel.
+ px(x-3,y-23+bob,2,2,'#273044');
+ px(x+2,y-23+bob,2,2,'#273044');
+ px(x-1,y-20+bob,3,1,'#9f5b50');
+ // Collar / tie detail.
+ px(x-2,y-16+bob,4,2,'#e7d5b1');
+ px(x-1,y-14+bob,2,6,'#d2ad64');
+ ctx.restore();
+}function drawNPCs(t=0){
  npcState.forEach(n=>{
   const index=staffSpriteIndex[n.data.id]??0;
   drawOutdoorSeatedStaff(n.x,n.y,n.data.color,n.data.hair,index,t/1000);
