@@ -208,7 +208,7 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
   <button class="navtab" data-view="settings"><b>⚙</b><small>ตั้งค่า</small></button>
  </nav>
  <div class="resourcebox"><span>⚡ 120/120</span><span>◉ 3,560</span><span>💎 240</span></div>
- <div class="topright"><span id="status">AI 9</span><button id="bridgeopen">META AI</button></div>
+ <div class="topright"><span id="status">AI 9</span><button id="meeting">CEO</button><button id="bridgeopen">META AI</button></div>
 </header>
 <div id="stage">
  <canvas id="game"></canvas>
@@ -223,14 +223,14 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
   <button data-rail="tools"><b>▰</b><small>เครื่องมือ</small></button>
  </aside>
  <section id="mission-panel" class="hud-card">
-  <div class="hud-title">ภารกิจประจำวัน <span>WORKFLOW</span></div>
-  <div class="mission-row done"><i>✓</i><span>กำหนดหัวข้อและเป้าหมาย</span></div>
-  <div class="mission-row done"><i>✓</i><span>ค้นคว้าข้อมูลต้นทาง</span></div>
-  <div class="mission-row done"><i>✓</i><span>ตรวจสอบข้อเท็จจริง</span></div>
-  <div class="mission-row"><i>4</i><span>เขียนสคริปต์สารคดี</span></div>
-  <div class="mission-row"><i>5</i><span>ผลิตภาพและวิดีโอ</span></div>
-  <div class="mission-row"><i>6</i><span>เตรียมเผยแพร่</span></div>
-  <div class="mission-progress"><div><b>ตัวอย่างขั้นตอนการผลิต</b><strong>3/6</strong></div><span><i></i></span></div>
+  <div class="hud-title">ลำดับการผลิต <span>STANDARD PIPELINE</span></div>
+  <div class="mission-row"><i>01</i><span>Strategy · วางแผนหัวข้อ</span></div>
+  <div class="mission-row"><i>02</i><span>Research · ค้นคว้าหลักฐาน</span></div>
+  <div class="mission-row"><i>03</i><span>Fact Check · ตรวจสอบข้อมูล</span></div>
+  <div class="mission-row"><i>04</i><span>Editorial · เขียนสคริปต์</span></div>
+  <div class="mission-row"><i>05</i><span>Creative / Production</span></div>
+  <div class="mission-row"><i>06</i><span>Distribution · เผยแพร่</span></div>
+  <div class="mission-progress"><div><b>ขั้นตอนมาตรฐานของทีม</b><strong>6 แกนงาน</strong></div><span><i></i></span></div>
  </section>
  <section id="activity-panel" class="hud-card">
   <div class="hud-title">AI TEAM ACTIVITY <span>8 แผนก</span></div>
@@ -316,7 +316,13 @@ const staff=[
 {id:'analytics',name:'Analytics AI',role:'วิเคราะห์ผล',x:10,y:8,color:'#7a9c57',hair:'#292633',desc:'วิเคราะห์ Views, Retention, CTR และเสนอการปรับปรุง'}
 ];
 function iso(x,y,z=0){return {x:(x-y)*TW/2+OX+camX,y:(x+y)*TH/2+OY+camY-z}}
-function resize(){let r=stage.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
+function resize(){
+ let r=stage.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
+ canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ if(!window.officeScaleInit){scale=Math.min(1,Math.max(.42,(r.width-20)/CW));window.officeScaleInit=true}
+ draw()
+}
 function clear(){ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight);ctx.fillStyle='#101a2d';ctx.fillRect(0,0,stage.clientWidth,stage.clientHeight)}
 function poly(pts,c,stroke='#26384e'){ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=c;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke()}}
 function diamond(x,y,w,h,c,stroke){poly([{x,y:y-h/2},{x:x+w/2,y},{x,y:y+h/2},{x:x-w/2,y}],c,stroke)}
@@ -590,7 +596,7 @@ function drawNPCs(){npcState.forEach(n=>{
 })}
 function moveCEO(tx,ty){if(tx<0||ty<0||tx>=W||ty>=H)return;const path=findPath(Math.round(ceoState.x),Math.round(ceoState.y),tx,ty);if(path.length){ceoState.path=path;ceoState.wait=210}}
 function drawCEO(t){if(!ceoState.path.length){ceoState.wait--;if(ceoState.wait<=0){const stops=[[6,6],[4,4],[7,5],[4,8],[7,9],[10,8],[8,2],[3,2]];const dest=stops[ceoRouteIndex++%stops.length];ceoState.path=findPath(Math.round(ceoState.x),Math.round(ceoState.y),dest[0],dest[1]);ceoState.wait=210}}if(ceoState.path.length){const [tx,ty]=ceoState.path[0],dx=tx-ceoState.x,dy=ty-ceoState.y,d=Math.hypot(dx,dy);if(d<.04){ceoState.x=tx;ceoState.y=ty;ceoState.path.shift()}else{ceoState.x+=dx/d*.045;ceoState.y+=dy/d*.045}}sprite(ceoState.x,ceoState.y,ceoState.data.color,ceoState.data.hair,ceoState.path.length>0,t/45+ceoState.phase,1.12);const p=iso(ceoState.x,ceoState.y);diamond(p.x,p.y-48,17,9,'#f3c85f','#8b672b');ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillStyle='#17243b';ctx.fillRect(p.x-28,p.y-63,56,13);ctx.fillStyle='#ffe3a1';ctx.fillText('CEO AI',p.x,p.y-54)}
-function draw(t=0){clear();ctx.save();ctx.translate(stage.clientWidth/2-CW/2,stage.clientHeight/2-CH/2);ctx.scale(scale,scale);ctx.translate(camX,camY);drawFloor();drawFurniture();drawMascots();[[2,2],[6,2],[9,5],[3,8],[10,8]].forEach(([x,y])=>{let lp=iso(x,y);let g=ctx.createRadialGradient(lp.x,lp.y-8,2,lp.x,lp.y-8,32);g.addColorStop(0,'#f7d98a30');g.addColorStop(1,'#f7d98a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(lp.x,lp.y-8,32,0,Math.PI*2);ctx.fill()});drawNPCs(t);drawCEO(t);let sign=iso(6,0);ctx.fillStyle='#f2cf7e';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED · AI CONTENT HQ',sign.x,sign.y-68);ctx.restore();requestAnimationFrame(draw)}
+function draw(t=0){clear();ctx.save();const fitX=(stage.clientWidth-CW*scale)/2,fitY=(stage.clientHeight-CH*scale)/2;ctx.translate(fitX,fitY);ctx.scale(scale,scale);ctx.translate(camX,camY);drawFloor();drawFurniture();drawMascots();[[2,2],[6,2],[9,5],[3,8],[10,8]].forEach(([x,y])=>{let lp=iso(x,y);let g=ctx.createRadialGradient(lp.x,lp.y-8,2,lp.x,lp.y-8,32);g.addColorStop(0,'#f7d98a30');g.addColorStop(1,'#f7d98a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(lp.x,lp.y-8,32,0,Math.PI*2);ctx.fill()});drawNPCs(t);drawCEO(t);let sign=iso(6,0);ctx.fillStyle='#f2cf7e';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED · AI CONTENT HQ',sign.x,sign.y-68);ctx.restore();requestAnimationFrame(draw)}
 
 function openPanel(s){selected=s;document.getElementById('ptitle').textContent=s.name;document.getElementById('pdesc').textContent=s.role+' — '+s.desc;let items=document.getElementById('pitems');items.innerHTML='';['ตรวจสถานะงาน','ดูภารกิจประจำแผนก','ส่งข้อความถึง '+s.name].forEach((v,i)=>{let d=document.createElement('div');d.className='item';d.innerHTML='<span>'+v+'</span><span class="tag">'+(i===0?'พร้อมใช้งาน':'พร้อมใช้งาน')+'</span>';items.appendChild(d)});document.getElementById('paction').textContent='เริ่มสนทนา';document.getElementById('paction').onclick=()=>openChat(s);document.getElementById('panelbg').style.display='flex'}
 function openChat(s){selected=s;document.getElementById('panelbg').style.display='none';document.getElementById('chatname').textContent=s.name;const log=document.getElementById('chatlog');log.innerHTML='';addBubble('ai','สวัสดีครับ ผมคือ '+s.name+' ('+s.role+')\nเชื่อมต่อ AI Backend แล้ว พิมพ์คำสั่งเพื่อเริ่มสนทนาได้เลยครับ');document.getElementById('chatstate').textContent='';document.getElementById('chatbg').style.display='flex';document.getElementById('chatinput').focus()}
@@ -937,9 +943,55 @@ bridgeLoad();
 function toast(s){let e=document.getElementById('toast');e.textContent=s;e.style.display='block';clearTimeout(window.to);window.to=setTimeout(()=>e.style.display='none',2300)}
 function pointToTile(px0,py0){let x=px0-OX-camX,y=py0-OY-camY;let gx=y/TH+x/TW,gy=y/TH-x/TW;return[Math.round(gx),Math.round(gy)]}
 function onDown(e){let r=canvas.getBoundingClientRect();let sx=(e.clientX-r.left)*stage.clientWidth/r.width,sy=(e.clientY-r.top)*stage.clientHeight/r.height;drag={x:e.clientX,y:e.clientY,sx,sy};canvas.setPointerCapture(e.pointerId)}
-canvas.addEventListener('pointerdown',onDown);canvas.addEventListener('pointerup',e=>{if(!drag)return;let dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>8){camX+=dx/scale;camY+=dy/scale;drag=null;return}let xx=(drag.sx-(stage.clientWidth/2-CW/2))/scale,yy=(drag.sy-(stage.clientHeight/2-CH/2))/scale;let[tx,ty]=pointToTile(xx,yy);let found=npcState.find(n=>{const p=iso(n.x,n.y),d=iso(n.x,n.y-1);return(Math.abs(xx-p.x)<34&&Math.abs(yy-(p.y-20))<42)||(Math.abs(xx-d.x)<38&&Math.abs(yy-d.y)<26)});const cp=iso(ceoState.x,ceoState.y);if(found)openChat(found.data);else if(Math.abs(xx-cp.x)<34&&Math.abs(yy-(cp.y-22))<46)openChat(ceoData);else moveCEO(tx,ty);drag=null});
+canvas.addEventListener('pointerdown',onDown);canvas.addEventListener('pointerup',e=>{if(!drag)return;let dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>8){camX+=dx/scale;camY+=dy/scale;drag=null;return}let xx=(drag.sx-(stage.clientWidth-CW*scale)/2)/scale,yy=(drag.sy-(stage.clientHeight-CH*scale)/2)/scale;let[tx,ty]=pointToTile(xx,yy);let found=npcState.find(n=>{const p=iso(n.x,n.y),d=iso(n.x,n.y-1);return(Math.abs(xx-p.x)<34&&Math.abs(yy-(p.y-20))<42)||(Math.abs(xx-d.x)<38&&Math.abs(yy-d.y)<26)});const cp=iso(ceoState.x,ceoState.y);if(found)openChat(found.data);else if(Math.abs(xx-cp.x)<34&&Math.abs(yy-(cp.y-22))<46)openChat(ceoData);else moveCEO(tx,ty);drag=null});
+
+function openHud(title,html){
+ const bg=document.getElementById('hudbg');document.getElementById('hudtitle').textContent=title;
+ const content=document.getElementById('hudcontent');content.innerHTML=html;bg.style.display='flex';
+ content.querySelectorAll('[data-chat-id]').forEach(btn=>btn.onclick=()=>{const n=staff.find(x=>x.id===btn.dataset.chatId);if(n){bg.style.display='none';openChat(n)}});
+}
+function closeHud(){document.getElementById('hudbg').style.display='none'}
+document.getElementById('hudclose').onclick=closeHud;
+document.getElementById('hudbg').addEventListener('click',e=>{if(e.target.id==='hudbg')closeHud()});
+const viewContent={
+ projects:['โปรเจกต์ CONTENT STUDIO','<p>จัดการงานสารคดีตั้งแต่เลือกหัวข้อจนถึงเตรียมเผยแพร่</p><button class="hud-action" id="open-bridge"><b>META AI PRODUCTION BRIDGE</b><br>เปิดพื้นที่ทำ Prompt แยกฉากและติดตามสถานะคลิป</button><p class="hud-muted">การสร้างวิดีโอใน Meta AI ยังเป็นขั้นตอนที่ผู้ใช้คัดลอก Prompt ไปดำเนินการเอง</p>'],
+ team:['ทีมงาน AI','<p>เลือกพนักงานเพื่อเริ่มสนทนาโดยตรง</p>'+staff.map(n=>'<button class="hud-action" data-chat-id="'+n.id+'"><b>'+n.name+'</b><br>'+n.role+'</button>').join('')],
+ knowledge:['คลังความรู้','<p>Research รวบรวมข้อมูลต้นทาง ส่วน Fact Check ตรวจสอบคำกล่าวอ้างและระดับความน่าเชื่อถือ</p><p class="hud-muted">พื้นที่นี้เป็นทางลัดไปยังทีมงาน ยังไม่ได้เป็นฐานเอกสารที่ซิงก์ไฟล์อัตโนมัติ</p><button class="hud-action" data-chat-id="research">คุยกับ Research AI</button><button class="hud-action" data-chat-id="fact">คุยกับ Fact Check AI</button>'],
+ reports:['รายงานและ Analytics','<p>พื้นที่สำหรับวิเคราะห์ยอดรับชม การดูต่อเนื่อง อัตราคลิก และผลลัพธ์ของคอนเทนต์</p><p class="hud-muted">รายงานจริงจะแสดงเมื่อเชื่อมข้อมูลแพลตฟอร์มและระบบวิเคราะห์เรียบร้อย</p><button class="hud-action" data-chat-id="analytics">คุยกับ Analytics AI</button>'],
+ settings:['การใช้งานสำนักงาน','<p>แตะพนักงานหรือโต๊ะเพื่อเปิดแชต · แตะพื้นที่ว่างเพื่อให้ CEO เดิน · ใช้ปุ่ม + / − เพื่อซูม และ ⌖ เพื่อจัดมุมมองใหม่</p><p class="hud-muted">บน iPhone สามารถลากฉากเพื่อเลื่อนมุมกล้องได้</p>']
+};
+document.querySelectorAll('#mainnav [data-view]').forEach(btn=>btn.addEventListener('click',()=>{
+ document.querySelectorAll('#mainnav [data-view]').forEach(x=>x.classList.toggle('active',x===btn));
+ const view=btn.dataset.view;
+ if(view==='home'){closeHud();camX=camY=0;scale=Math.min(1,Math.max(.42,(stage.clientWidth-20)/CW));document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw();return}
+ const c=viewContent[view];if(c)openHud(c[0],c[1]);
+ if(view==='projects'){const b=document.getElementById('open-bridge');if(b)b.onclick=()=>{closeHud();document.getElementById('bridgebg').style.display='flex'}}
+}));
+const railContent={
+ missions:['ลำดับการผลิต','<p>ขั้นตอนมาตรฐานของ FACT UNLOCKED</p><ol><li>Strategy — เลือกหัวข้อและกลุ่มผู้ชม</li><li>Research — รวบรวมแหล่งข้อมูล</li><li>Fact Check — ประเมินข้อเท็จจริง</li><li>Editorial — เขียนบท</li><li>Creative / Production — เตรียมภาพและวิดีโอ</li><li>Distribution — จัดทำชุดเผยแพร่</li></ol>'],
+ projects:viewContent.projects,
+ planning:['วางแผนงาน','<p>เริ่มวางแผนหัวข้อ กลุ่มผู้ชม และปฏิทินคอนเทนต์กับ Strategy AI</p><button class="hud-action" data-chat-id="strategy">เปิด Strategy AI</button>'],
+ analytics:viewContent.reports,
+ team:viewContent.team,
+ knowledge:viewContent.knowledge,
+ roadmap:['Roadmap','<p>ลำดับการพัฒนาสำนักงาน: ระบบทีม AI, การมอบหมายงาน, การติดตามชิ้นงาน และการเชื่อมข้อมูลวิเคราะห์</p><p class="hud-muted">เป็นแผนพัฒนา ไม่ใช่ฟังก์ชันที่เปิดใช้งานครบแล้ว</p>'],
+ tools:['เครื่องมือสร้างคอนเทนต์','<p>เปิด Meta AI Production Bridge เพื่อแยก Prompt รายฉากและติดตามสถานะการผลิต</p><button class="hud-action" id="open-bridge"><b>META AI BRIDGE</b><br>เปิดเครื่องมือ</button>']
+};
+document.querySelectorAll('#left-rail [data-rail]').forEach(btn=>btn.addEventListener('click',()=>{
+ const c=railContent[btn.dataset.rail];if(!c)return;openHud(c[0],c[1]);
+ const b=document.getElementById('open-bridge');if(b)b.onclick=()=>{closeHud();document.getElementById('bridgebg').style.display='flex'};
+}));
+document.getElementById('overview').onclick=()=>{
+ document.getElementById('overview').classList.add('selected');document.getElementById('explore').classList.remove('selected');
+ closeHud();camX=camY=0;draw();toast('มุมมองสำนักงานใหญ่');
+};
+document.getElementById('explore').onclick=()=>{
+ document.getElementById('explore').classList.add('selected');document.getElementById('overview').classList.remove('selected');
+ openHud('โหมดสำรวจสำนักงาน','<p>แตะพื้นที่ว่างบนแผนที่เพื่อให้ CEO เดินไปยังจุดนั้น หรือแตะพนักงานเพื่อเริ่มสนทนา</p>');
+};
+
 document.getElementById('close').onclick=()=>document.getElementById('panelbg').style.display='none';document.getElementById('panelbg').addEventListener('click',e=>{if(e.target.id==='panelbg')e.currentTarget.style.display='none'});
-document.getElementById('zoomin').onclick=()=>scale=Math.min(1.35,scale+.1);document.getElementById('zoomout').onclick=()=>scale=Math.max(.7,scale-.1);document.getElementById('center').onclick=()=>{camX=camY=0;scale=1};
+document.getElementById('zoomin').onclick=()=>scale=Math.min(1.35,scale+.1);document.getElementById('zoomout').onclick=()=>scale=Math.max(.42,scale-.1);document.getElementById('center').onclick=()=>{camX=camY=0;scale=1};
 document.getElementById('meeting').onclick=()=>{const n=npcState[ceoRouteIndex%npcState.length];ceoRouteIndex++;moveCEO(n.x,Math.min(H-1,n.y+1));toast('CEO กำลังเดินไปตรวจงานที่ '+n.data.name)};
 window.addEventListener('resize',resize);resize();
 })();
