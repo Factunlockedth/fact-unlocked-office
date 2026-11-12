@@ -958,7 +958,87 @@ function drawOfficeBackground(){
  drawFloor();
  drawFurniture();
  drawMascots();
+}/* ===== PIXEL OFFICE PATCH — วางก่อนบรรทัด function draw(t=0){ ===== */
+document.getElementById('stage').style.background='radial-gradient(ellipse at 50% 40%,#16295a 0%,#0a1230 70%,#050a1c 100%)';
+
+function pxWall(ax,ay,bx,by,h,base,n,wins,shade){
+ for(let i=0;i<n;i++){
+  const t0=i/n,t1=(i+1)/n;
+  const p=iso(ax+(bx-ax)*t0,ay+(by-ay)*t0),q=iso(ax+(bx-ax)*t1,ay+(by-ay)*t1);
+  poly([p,q,{x:q.x,y:q.y-h},{x:p.x,y:p.y-h}],base,'#0b1226');
+  if(wins.includes(i)){
+   // night window with mullions
+   poly([{x:p.x+4,y:p.y-30},{x:q.x-4,y:q.y-30},{x:q.x-4,y:q.y-h+14},{x:p.x+4,y:p.y-h+14}],'#1d4b7d','#d3b06a');
+   ctx.save();ctx.globalAlpha=.35;poly([{x:p.x+6,y:p.y-34},{x:(p.x+q.x)/2,y:(p.y+q.y)/2-34},{x:(p.x+q.x)/2,y:(p.y+q.y)/2-h+18},{x:p.x+6,y:p.y-h+18}],'#8fd0ff',null);ctx.restore();
+   ctx.strokeStyle='#d3b06a';ctx.lineWidth=1.5;ctx.beginPath();
+   ctx.moveTo((p.x+q.x)/2,(p.y+q.y)/2-30);ctx.lineTo((p.x+q.x)/2,(p.y+q.y)/2-h+14);ctx.stroke();
+  }else{
+   // pixel brick rows
+   ctx.save();ctx.strokeStyle=shade;ctx.globalAlpha=.55;ctx.lineWidth=1;
+   for(let r=1;r<9;r++){const o=r*13;ctx.beginPath();ctx.moveTo(p.x,p.y-o);ctx.lineTo(q.x,q.y-o);ctx.stroke()}
+   ctx.restore();
+  }
+  // baseboard
+  poly([p,q,{x:q.x,y:q.y-7},{x:p.x,y:p.y-7}],'#2a3558',null);
+ }
+ const a=iso(ax,ay),b=iso(bx,by);
+ ctx.strokeStyle='#d3b06a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y-h);ctx.lineTo(b.x,b.y-h);ctx.stroke();
 }
+
+function drawFurniture(){
+ // Back walls: left-back (y=0) and right-back (x=0)
+ pxWall(0,0,W,0,130,'#3a4a78',16,[2,3,9,10,13],'#2a375f');
+ pxWall(0,0,0,H,130,'#26325a',14,[3,4,8,9],'#1b2548');
+
+ // Bookshelves along the walls
+ [[2,.5],[3.4,.5],[5.2,.5]].forEach(([x,y])=>hqBookshelf(x,y));
+ [[.5,2],[.5,5.5],[.5,6.9]].forEach(([x,y])=>hqBookshelf(x,y));
+ hqBookshelf(.5,11.5);
+
+ // Code monitor on the back wall (top-right, like the reference)
+ hqCodeDisplay(11,.4,0);
+
+ // Server racks at the right end of the back wall
+ [[14,.7],[15,1.6]].forEach(([x,y])=>equipment(x,y,'server'));
+
+ // Bulletin / checklist board on the left wall
+ const b=iso(.4,9);ctx.save();ctx.translate(b.x,b.y);
+ px(-20,-62,40,46,'#5a4633');px(-17,-59,34,40,'#d9c8a0');
+ px(-13,-54,10,8,'#f3d66b');px(0,-55,12,9,'#9ed0b8');
+ px(-13,-42,26,2,'#6b5a45');px(-13,-36,18,2,'#6b5a45');px(-13,-30,22,2,'#6b5a45');ctx.restore();
+
+ // Plants
+ [[1,1],[1,13],[15,5],[15,12],[7,6]].forEach(([x,y],i)=>hqPlant(x,y,0,i%2===0));
+
+ // Rug under the central work area
+ rug(8,6,150,76,'#3a4a8a');
+
+ // Chairs and monitors for each workstation (desk fronts are drawn later)
+ officeWorkstations.forEach((s,i)=>hqChair(s.seatX,s.seatY,0,['#5a4a8a','#3f6aa0','#4a8a8a','#8a5a7a'][i%4]));
+ officeWorkstations.forEach(s=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual));
+ officeWorkstations.forEach(s=>{
+  // desks sit on the floor behind chairs
+  hqDesk(s.x,s.y,0,s.accent,s.dual);
+ });
+ officeWorkstations.forEach((s,i)=>hqChair(s.seatX,s.seatY,0,['#5a4a8a','#3f6aa0','#4a8a8a','#8a5a7a'][i%4]));
+}
+
+function drawOfficeBackground(){
+ // Dark navy game backdrop
+ const g=ctx.createLinearGradient(0,-100,0,CH+100);
+ g.addColorStop(0,'#0a1230');g.addColorStop(1,'#111d44');
+ ctx.fillStyle=g;ctx.fillRect(-500,-500,CW+1000,CH+1000);
+ // tiny pixel stars
+ for(let i=0;i<40;i++){px((i*137)%CW,(i*71)%110,2,2,i%3?'#4a5c94':'#8fa6e0')}
+ // Neon pixel title
+ ctx.save();ctx.font='900 46px "Courier New",monospace';ctx.textAlign='center';
+ ctx.shadowColor='#2fe6cf';ctx.shadowBlur=18;ctx.fillStyle='#8ff7e8';ctx.fillText('AI AGENTS',OX,62);
+ ctx.shadowBlur=0;ctx.strokeStyle='#17806f';ctx.lineWidth=2;ctx.strokeText('AI AGENTS',OX,62);ctx.restore();
+ drawFloor();
+ drawFurniture();
+ drawMascots();
+}
+/* ===== END PATCH ===== */
 function draw(t=0){
  const v=officeView();
  ctx.setTransform(dpr,0,0,dpr,0,0);
