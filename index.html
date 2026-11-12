@@ -1078,7 +1078,7 @@ function moveCEO(tx,ty){
 function officeView(){
  // Fit the actual illustrated building, not the unused transparent canvas margins.
  // This enlarges the two-storey HQ while keeping all corners, pillars and floor trim visible.
- const frame={x:72,y:-72,w:774,h:638};
+ const frame={x:120,y:28,w:700,h:520};
  const fit=Math.min((stage.clientWidth-20)/frame.w,(stage.clientHeight-18)/frame.h);
  const view=fit*scale;
  const ox=(stage.clientWidth-frame.w*view)/2-frame.x*view;
