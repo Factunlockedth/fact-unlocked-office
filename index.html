@@ -8,7 +8,7 @@ header{height:54px;flex:none;display:flex;align-items:center;justify-content:spa
 .topright{display:flex;gap:6px}.topright button{font-size:10px;padding:7px 9px;border-radius:8px;border:1px solid #596b86;background:#1b2b46;color:#fff}
 #status{font-size:10px;color:#f3d38c;padding:0 8px;white-space:nowrap}
 #stage{position:relative;flex:1;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
-canvas{width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none}
+canvas{width:100%;height:100%;display:block;image-rendering:auto;touch-action:none}
 #hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:#0b172be8;border:1px solid #9f8149;border-radius:18px;padding:7px 12px;font-size:10px;white-space:nowrap;pointer-events:none}
 #controls{position:absolute;right:10px;bottom:10px;display:flex;gap:6px}#controls button{border:1px solid #b28b4a;background:#152641eF;color:#f6e4b8;border-radius:8px;padding:8px 10px;font-size:10px}
 #toast{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#1b2d49;border:1px solid #d0a75c;border-radius:9px;padding:8px 12px;font-size:11px;display:none;z-index:4}
@@ -192,6 +192,18 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
  #bottom-toolbar>button:nth-child(2){display:none}
 }
 
+
+/* Architectural reference scene */
+#stage{background:#65777b}
+#stage:before{display:none}
+#game{z-index:1}
+@media(max-width:700px){
+ #mission-panel,#activity-panel,#minimap-panel{display:none}
+ #left-rail{top:50%;transform:translateY(-50%);bottom:auto;width:32px;gap:4px}
+ #left-rail button{height:35px;background:#0d1b2be8}
+ #left-rail button small{display:none}
+ #hint{bottom:58px}
+}
 </style></head><body><div id="app">
 <header id="topbar">
  <div class="identity">
@@ -300,8 +312,8 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
 (()=>{
 const API_BASE='https://fact-unlocked-ai-api.songvit-sre.workers.dev';
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),stage=document.getElementById('stage');
-const CW=960,CH=600,TW=52,TH=26,OX=480,OY=155;
-let dpr=1,scale=1,camX=0,camY=0,selected=null,drag=null,movePath=[];
+const CW=900,CH=900,TW=52,TH=26,OX=450,OY=430;
+let dpr=1,scale=1,camX=0,camY=0,selected=null,drag=null;
 const W=13,H=11;
 const floor=Array.from({length:H},()=>Array(W).fill(1));
 const furniture=[];
@@ -315,13 +327,17 @@ const staff=[
 {id:'production',name:'Production AI',role:'ผลิตวิดีโอและเสียง',x:3,y:2,color:'#3f80bd',hair:'#332a26',desc:'ผลิตวิดีโอ เสียงบรรยาย ภาพประกอบ และตรวจคุณภาพงาน'},
 {id:'distribution',name:'Distribution AI',role:'เผยแพร่คอนเทนต์',x:7,y:9,color:'#408f9b',hair:'#30282e',desc:'เตรียมโพสต์และจัดตาราง TikTok, YouTube, Facebook, Instagram'},
 {id:'analytics',name:'Analytics AI',role:'วิเคราะห์ผล',x:10,y:8,color:'#7a9c57',hair:'#292633',desc:'วิเคราะห์ Views, Retention, CTR และเสนอการปรับปรุง'}
-];
+]; 
+const officeArt=new Image();
+let officeArtReady=false;
+officeArt.onload=()=>{officeArtReady=true;draw()};
+officeArt.onerror=()=>{officeArtReady=false;toast('โหลดภาพสำนักงานไม่สำเร็จ กำลังใช้ฉากสำรอง')};
+officeArt.src='assets/fact-unlocked-hq.webp?v=ed44e708';
 function iso(x,y,z=0){return {x:(x-y)*TW/2+OX+camX,y:(x+y)*TH/2+OY+camY-z}}
 function resize(){
  let r=stage.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
  canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);
  ctx.setTransform(dpr,0,0,dpr,0,0);
- if(!window.officeScaleInit){scale=Math.min(1,Math.max(.62,(r.width-20)/CW));window.officeScaleInit=true;const zl=document.getElementById('zoomlevel');if(zl)zl.textContent=Math.round(scale*100)+'%'}
  draw()
 }
 function clear(){ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight)}
@@ -576,9 +592,17 @@ function drawFurniture(){
   // Glass railings along the open front edge create the HQ's elevated-platform feel.
   glassRail([0,H-1],[W-1,H-1]);glassRail([W-1,0],[W-1,H-1]);
 }
-const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({data,x:data.x,y:data.y,phase:i*.8}));
+// Fixed interactive employee seats positioned over desks in the reference office artwork.
+const officeSeats={
+ strategy:{x:475,y:625},research:{x:538,y:520},fact:{x:690,y:500},
+ editorial:{x:612,y:450},creative:{x:650,y:630},production:{x:785,y:555},
+ distribution:{x:744,y:680},analytics:{x:620,y:690}
+};
+const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
+ data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
+}));
 const ceoData=staff.find(data=>data.id==='ceo');
-const ceoState={data:ceoData,x:ceoData.x,y:ceoData.y,path:[],wait:90,phase:0};
+const ceoState={data:ceoData,x:465,y:600,targetX:465,targetY:600,wait:90,phase:0};
 let ceoRouteIndex=0;
 function sprite(x,y,shirt,hair,walking,phase,size=1){const p=iso(x,y);const bob=walking?Math.round(Math.sin(phase)*2):0;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);diamond(0,1,18,8,'#1a2638aa',null);px(-6,-8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');px(2,-24+bob,3,3,'#f3d17d');ctx.restore()}
 function seatedSprite(x,y,shirt,hair){
@@ -623,17 +647,67 @@ function drawMascots(){
   dog(5.1,9.75,'#f4ead7','#d3c2a5','#d8ae58','TUAYFOO',performance.now()/230);
   dog(6.35,9.7,'#d9a36d','#a86d46','#5eb7c1','UDONG',performance.now()/190+1);
 }
+function drawSeatedWorker(x,y,shirt,hair){
+ ctx.save();ctx.translate(Math.round(x),Math.round(y));
+ // Chair and small seated pixel avatar, aligned to the existing desk in the artwork.
+ ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(0,1,17,6,0,0,Math.PI*2);ctx.fill();
+ px(-9,-28,18,19,'#283a4d');px(-7,-26,14,14,'#50667b');px(-10,-21,2,9,'#d1ad69');px(8,-21,2,9,'#d1ad69');
+ px(-5,-46,10,10,'#edc5a0');px(-7,-48,14,5,hair);px(-8,-45,3,7,hair);px(5,-45,3,6,hair);
+ px(-3,-42,2,2,'#273044');px(3,-42,2,2,'#273044');
+ px(-8,-36,16,13,shirt);px(-10,-34,4,9,shirt);px(6,-34,4,9,shirt);
+ px(-10,-27,5,4,'#edc5a0');px(5,-27,5,4,'#edc5a0');
+ px(-2,-34,4,8,'#e1c276');px(-8,-20,16,3,'#202e40');
+ ctx.restore();
+}
+function drawWalkingCEO(x,y,phase){
+ ctx.save();ctx.translate(Math.round(x),Math.round(y));
+ const bob=Math.round(Math.sin(phase)*2);
+ ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(0,1,16,6,0,0,Math.PI*2);ctx.fill();
+ px(-7,-12+bob,5,12,'#24384c');px(2,-12-bob,5,12,'#24384c');
+ px(-8,-29+bob,16,17,'#d5a342');px(-10,-27+bob,3,11,'#d5a342');px(7,-27+bob,3,11,'#d5a342');
+ px(-5,-43+bob,10,12,'#edc5a0');px(-7,-46+bob,14,6,'#302631');px(-8,-42+bob,3,6,'#302631');px(5,-42+bob,3,6,'#302631');
+ px(-3,-38+bob,2,2,'#273044');px(3,-38+bob,2,2,'#273044');px(-2,-29+bob,4,8,'#ead28e');
+ ctx.restore();
+}
 function drawNPCs(){npcState.forEach(n=>{
-  const p=iso(n.x,n.y);seatedSprite(n.x,n.y,n.data.color,n.data.hair);
-  const label=n.data.name.toUpperCase(),w=Math.max(72,Math.min(100,label.length*5.1));
-  ctx.save();ctx.shadowColor=n.data.color;ctx.shadowBlur=7;ctx.fillStyle='#0d192b';ctx.fillRect(p.x-w/2,p.y-72,w,25);
-  ctx.strokeStyle=n.data.color;ctx.lineWidth=1;ctx.strokeRect(p.x-w/2,p.y-72,w,25);ctx.shadowBlur=0;
-  ctx.fillStyle='#f3d58f';ctx.font='bold 7px system-ui';ctx.textAlign='center';ctx.fillText(label,p.x,p.y-61);
-  ctx.fillStyle='#c1cfdb';ctx.font='6px system-ui';ctx.fillText(n.data.role,p.x,p.y-52);ctx.restore();
+ drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair);
+ const label=n.data.name.toUpperCase(),w=Math.max(66,Math.min(90,label.length*4.6));
+ ctx.save();ctx.shadowColor=n.data.color;ctx.shadowBlur=6;ctx.fillStyle='#101b2d';ctx.fillRect(n.x-w/2,n.y-69,w,17);
+ ctx.strokeStyle='#d1ad68';ctx.lineWidth=1;ctx.strokeRect(n.x-w/2,n.y-69,w,17);ctx.shadowBlur=0;
+ ctx.fillStyle='#f7e4b0';ctx.font='bold 7px system-ui';ctx.textAlign='center';ctx.fillText(label,n.x,n.y-58);ctx.restore();
 })}
-function moveCEO(tx,ty){if(tx<0||ty<0||tx>=W||ty>=H)return;const path=findPath(Math.round(ceoState.x),Math.round(ceoState.y),tx,ty);if(path.length){ceoState.path=path;ceoState.wait=210}}
-function drawCEO(t){if(!ceoState.path.length){ceoState.wait--;if(ceoState.wait<=0){const stops=[[6,6],[4,4],[7,5],[4,8],[7,9],[10,8],[8,2],[3,2]];const dest=stops[ceoRouteIndex++%stops.length];ceoState.path=findPath(Math.round(ceoState.x),Math.round(ceoState.y),dest[0],dest[1]);ceoState.wait=210}}if(ceoState.path.length){const [tx,ty]=ceoState.path[0],dx=tx-ceoState.x,dy=ty-ceoState.y,d=Math.hypot(dx,dy);if(d<.04){ceoState.x=tx;ceoState.y=ty;ceoState.path.shift()}else{ceoState.x+=dx/d*.045;ceoState.y+=dy/d*.045}}sprite(ceoState.x,ceoState.y,ceoState.data.color,ceoState.data.hair,ceoState.path.length>0,t/45+ceoState.phase,1.12);const p=iso(ceoState.x,ceoState.y);diamond(p.x,p.y-48,17,9,'#f3c85f','#8b672b');ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillStyle='#17243b';ctx.fillRect(p.x-28,p.y-63,56,13);ctx.fillStyle='#ffe3a1';ctx.fillText('CEO AI',p.x,p.y-54)}
-function draw(t=0){clear();ctx.save();drawOutsideLandmarks();const fitX=(stage.clientWidth-CW*scale)/2,fitY=(stage.clientHeight-CH*scale)/2;ctx.translate(fitX,fitY);ctx.scale(scale,scale);ctx.translate(camX,camY);drawFloor();drawFurniture();drawMascots();[[2,2],[6,2],[9,5],[3,8],[10,8]].forEach(([x,y])=>{let lp=iso(x,y);let g=ctx.createRadialGradient(lp.x,lp.y-8,2,lp.x,lp.y-8,32);g.addColorStop(0,'#f7d98a30');g.addColorStop(1,'#f7d98a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(lp.x,lp.y-8,32,0,Math.PI*2);ctx.fill()});drawNPCs(t);drawCEO(t);let sign=iso(6,0);ctx.fillStyle='#f2cf7e';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText('FACT UNLOCKED · AI CONTENT HQ',sign.x,sign.y-68);ctx.restore();requestAnimationFrame(draw)}
+function moveCEO(tx,ty){
+ ceoState.targetX=Math.max(380,Math.min(825,tx));ceoState.targetY=Math.max(420,Math.min(815,ty));ceoState.wait=0;
+}
+function drawCEO(t){
+ if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
+  ceoState.wait--;
+  if(ceoState.wait<=0){
+   const stops=[[475,580],[585,560],[640,620],[520,700],[750,590],[690,465]];
+   const dest=stops[ceoRouteIndex++%stops.length];ceoState.targetX=dest[0];ceoState.targetY=dest[1];ceoState.wait=230;
+  }
+ }
+ const dx=ceoState.targetX-ceoState.x,dy=ceoState.targetY-ceoState.y,d=Math.hypot(dx,dy);
+ if(d>4){ceoState.x+=dx/d*1.15;ceoState.y+=dy/d*1.15;}
+ drawWalkingCEO(ceoState.x,ceoState.y,t/38);
+ ctx.save();ctx.fillStyle='#111e30';ctx.strokeStyle='#dfba6e';ctx.lineWidth=1;
+ ctx.fillRect(ceoState.x-21,ceoState.y-64,42,14);ctx.strokeRect(ceoState.x-21,ceoState.y-64,42,14);
+ ctx.fillStyle='#ffe3a1';ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillText('CEO AI',ceoState.x,ceoState.y-54);ctx.restore();
+}
+function officeView(){
+ const fit=Math.min((stage.clientWidth-18)/CW,(stage.clientHeight-18)/CH);
+ const view=fit*scale,ox=(stage.clientWidth-CW*view)/2,oy=(stage.clientHeight-CH*view)/2;
+ return {fit,view,ox,oy};
+}
+function draw(t=0){
+ clear();
+ const v=officeView();
+ ctx.save();ctx.translate(v.ox,v.oy);ctx.scale(v.view,v.view);ctx.translate(camX,camY);
+ if(officeArtReady){ctx.drawImage(officeArt,0,0,CW,CH);}
+ else {drawFloor();drawFurniture();drawOutsideLandmarks();}
+ drawNPCs();drawCEO(t);
+ ctx.restore();requestAnimationFrame(draw);
+}
 
 function openPanel(s){selected=s;document.getElementById('ptitle').textContent=s.name;document.getElementById('pdesc').textContent=s.role+' — '+s.desc;let items=document.getElementById('pitems');items.innerHTML='';['ตรวจสถานะงาน','ดูภารกิจประจำแผนก','ส่งข้อความถึง '+s.name].forEach((v,i)=>{let d=document.createElement('div');d.className='item';d.innerHTML='<span>'+v+'</span><span class="tag">'+(i===0?'พร้อมใช้งาน':'พร้อมใช้งาน')+'</span>';items.appendChild(d)});document.getElementById('paction').textContent='เริ่มสนทนา';document.getElementById('paction').onclick=()=>openChat(s);document.getElementById('panelbg').style.display='flex'}
 function openChat(s){selected=s;document.getElementById('panelbg').style.display='none';document.getElementById('chatname').textContent=s.name;const log=document.getElementById('chatlog');log.innerHTML='';addBubble('ai','สวัสดีครับ ผมคือ '+s.name+' ('+s.role+')\nเชื่อมต่อ AI Backend แล้ว พิมพ์คำสั่งเพื่อเริ่มสนทนาได้เลยครับ');document.getElementById('chatstate').textContent='';document.getElementById('chatbg').style.display='flex';document.getElementById('chatinput').focus()}
@@ -1058,9 +1132,19 @@ document.getElementById('bridge-openmeta').addEventListener('click',function(){
 bridgeLoad();
 
 function toast(s){let e=document.getElementById('toast');e.textContent=s;e.style.display='block';clearTimeout(window.to);window.to=setTimeout(()=>e.style.display='none',2300)}
-function pointToTile(px0,py0){let x=px0-OX-camX,y=py0-OY-camY;let gx=y/TH+x/TW,gy=y/TH-x/TW;return[Math.round(gx),Math.round(gy)]}
 function onDown(e){let r=canvas.getBoundingClientRect();let sx=(e.clientX-r.left)*stage.clientWidth/r.width,sy=(e.clientY-r.top)*stage.clientHeight/r.height;drag={x:e.clientX,y:e.clientY,sx,sy};canvas.setPointerCapture(e.pointerId)}
-canvas.addEventListener('pointerdown',onDown);canvas.addEventListener('pointerup',e=>{if(!drag)return;let dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>8){camX+=dx/scale;camY+=dy/scale;drag=null;return}let xx=(drag.sx-(stage.clientWidth-CW*scale)/2)/scale,yy=(drag.sy-(stage.clientHeight-CH*scale)/2)/scale;let[tx,ty]=pointToTile(xx,yy);let found=npcState.find(n=>{const p=iso(n.x,n.y),d=iso(n.x,n.y-1);return(Math.abs(xx-p.x)<34&&Math.abs(yy-(p.y-20))<42)||(Math.abs(xx-d.x)<38&&Math.abs(yy-d.y)<26)});const cp=iso(ceoState.x,ceoState.y);if(found)openChat(found.data);else if(Math.abs(xx-cp.x)<34&&Math.abs(yy-(cp.y-22))<46)openChat(ceoData);else moveCEO(tx,ty);drag=null});
+canvas.addEventListener('pointerdown',onDown);
+canvas.addEventListener('pointerup',e=>{
+ if(!drag)return;
+ const v=officeView(),dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+ if(Math.hypot(dx,dy)>8){camX+=dx/v.view;camY+=dy/v.view;drag=null;draw();return}
+ const xx=(drag.sx-v.ox)/v.view-camX,yy=(drag.sy-v.oy)/v.view-camY;
+ const found=npcState.find(n=>Math.abs(xx-n.x)<31&&Math.abs(yy-(n.y-28))<36);
+ if(found)openChat(found.data);
+ else if(Math.abs(xx-ceoState.x)<28&&Math.abs(yy-(ceoState.y-25))<35)openChat(ceoData);
+ else moveCEO(xx,yy);
+ drag=null;
+});
 
 function openHud(title,html){
  const bg=document.getElementById('hudbg');document.getElementById('hudtitle').textContent=title;
@@ -1108,8 +1192,8 @@ document.getElementById('explore').onclick=()=>{
 };
 
 document.getElementById('close').onclick=()=>document.getElementById('panelbg').style.display='none';document.getElementById('panelbg').addEventListener('click',e=>{if(e.target.id==='panelbg')e.currentTarget.style.display='none'});
-document.getElementById('zoomin').onclick=()=>{scale=Math.min(1.35,scale+.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('zoomout').onclick=()=>{scale=Math.max(.42,scale-.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('center').onclick=()=>{camX=camY=0;scale=Math.min(1,Math.max(.62,(stage.clientWidth-20)/CW));document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};
-document.getElementById('meeting').onclick=()=>{const n=npcState[ceoRouteIndex%npcState.length];ceoRouteIndex++;moveCEO(n.x,Math.min(H-1,n.y+1));toast('CEO กำลังเดินไปตรวจงานที่ '+n.data.name)};
+document.getElementById('zoomin').onclick=()=>{scale=Math.min(1.6,scale+.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('zoomout').onclick=()=>{scale=Math.max(.65,scale-.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('center').onclick=()=>{camX=camY=0;scale=1;document.getElementById('zoomlevel').textContent='100%';draw()};
+document.getElementById('meeting').onclick=()=>{const n=npcState[ceoRouteIndex%npcState.length];ceoRouteIndex++;moveCEO(n.x+18,n.y+55);toast('CEO กำลังเดินไปตรวจงานที่ '+n.data.name)};
 window.addEventListener('resize',resize);resize();
 })();
 </script></body></html>
