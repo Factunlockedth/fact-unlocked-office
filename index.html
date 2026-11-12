@@ -352,36 +352,69 @@ function glow(x,y,r,color,alpha=.2){
   ctx.globalAlpha=alpha;ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();
 }
 function drawFloor(){
- ctx.save();ctx.globalAlpha=.2;ctx.fillStyle='#17252b';ctx.beginPath();ctx.ellipse(OX,486,350,45,0,0,Math.PI*2);ctx.fill();ctx.restore();
+ // Warm timber floor: each isometric tile is built from small plank sections.
+ ctx.save();ctx.globalAlpha=.18;ctx.fillStyle='#101c2a';
+ ctx.beginPath();ctx.ellipse(OX,500,365,43,0,0,Math.PI*2);ctx.fill();ctx.restore();
+ const boards=['#b77b49','#c1854f','#ad7144','#bd8150','#a96c40'];
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-  const p=iso(x,y),alt=(x+y)%2===0;
-  diamond(p.x,p.y,TW,TH,alt?'#c7c4b8':'#b8b6aa','#96958b');
-  ctx.save();ctx.globalAlpha=.22;ctx.strokeStyle='#f5efe0';ctx.lineWidth=.8;
-  ctx.beginPath();ctx.moveTo(p.x-15,p.y-2);ctx.lineTo(p.x-4,p.y-7);ctx.stroke();ctx.restore();
-  if((x*5+y*3)%17===0)px(p.x+8,p.y-1,2,2,'#8f8d82');
+  const p=iso(x,y),seed=(x*7+y*11)%boards.length;
+  diamond(p.x,p.y,TW,TH,boards[seed],'#805337');
+  // Fine seams clipped to the diamond keep the floor reading as timber planks.
+  ctx.save();
+  ctx.beginPath();ctx.moveTo(p.x,p.y-TH/2);ctx.lineTo(p.x+TW/2,p.y);ctx.lineTo(p.x,p.y+TH/2);ctx.lineTo(p.x-TW/2,p.y);ctx.closePath();ctx.clip();
+  ctx.strokeStyle='#805236';ctx.globalAlpha=.48;ctx.lineWidth=1;
+  const shift=((x+y)%2)*5;
+  for(let k=-1;k<=1;k++){
+   ctx.beginPath();ctx.moveTo(p.x-TW/2,p.y+k*6+shift-3);ctx.lineTo(p.x+TW/2,p.y+k*6+shift-3);ctx.stroke();
+  }
+  ctx.strokeStyle='#e0ad72';ctx.globalAlpha=.32;
+  ctx.beginPath();ctx.moveTo(p.x-13,p.y-3);ctx.lineTo(p.x+10,p.y-3);ctx.stroke();
+  ctx.restore();
+  if((x*5+y*3)%19===0)px(p.x+8,p.y-1,2,1,'#68462f');
  }
+ // Central blue work carpet with a double brass and pale-blue woven border.
+ rug(10,10,342,164,'#315a78');
+ const cp=iso(10,10);
+ ctx.save();ctx.globalAlpha=.48;ctx.strokeStyle='#c6aa75';ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(cp.x-153,cp.y);ctx.lineTo(cp.x,cp.y-70);ctx.lineTo(cp.x+153,cp.y);ctx.lineTo(cp.x,cp.y+70);ctx.closePath();ctx.stroke();
+ ctx.strokeStyle='#8db8c1';ctx.lineWidth=1;
+ ctx.beginPath();ctx.moveTo(cp.x-137,cp.y);ctx.lineTo(cp.x,cp.y-62);ctx.lineTo(cp.x+137,cp.y);ctx.lineTo(cp.x,cp.y+62);ctx.closePath();ctx.stroke();
+ ctx.restore();
+
+ // Foundation sides and trim.
  const fa=iso(0,H-1),fb=iso(W-1,H-1),rb=iso(W-1,0);
  poly([{x:fa.x,y:fa.y+8},{x:fb.x,y:fb.y+8},{x:fb.x,y:fb.y+24},{x:fa.x,y:fa.y+24}],'#59636a','#29343a');
  poly([{x:fb.x,y:fb.y+8},{x:rb.x,y:rb.y+8},{x:rb.x,y:rb.y+24},{x:fb.x,y:fb.y+24}],'#46525a','#29343a');
- ctx.save();ctx.strokeStyle='#d0ae6b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fa.x,fa.y+8);ctx.lineTo(fb.x,fb.y+8);ctx.lineTo(rb.x,rb.y+8);ctx.stroke();ctx.restore();
+ ctx.save();ctx.strokeStyle='#d0ae6b';ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(fa.x,fa.y+8);ctx.lineTo(fb.x,fb.y+8);ctx.lineTo(rb.x,rb.y+8);ctx.stroke();ctx.restore();
 }
 function hqDesk(x,y,z=0,accent='#64b9c6',dual=false){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
  ctx.globalAlpha=.2;ctx.fillStyle='#17232c';ctx.beginPath();ctx.ellipse(0,11,36,14,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ // Four square timber legs and dark steel brackets.
  px(-25,-6,5,25,'#3b4548');px(20,-6,5,25,'#3b4548');
- poly([{x:-27,y:-7},{x:-2,y:6},{x:-2,y:17},{x:-27,y:4}],'#59615f','#30383b');
- poly([{x:-2,y:6},{x:27,y:-7},{x:27,y:4},{x:-2,y:17}],'#394347','#252e32');
- diamond(0,-9,67,35,'#594536','#2d2925');diamond(0,-12,64,32,'#b18a59','#e0c58c');diamond(0,-13,54,24,'#5c554c','#8b775c');
+ px(-24,3,3,13,'#9c744c');px(20,3,3,13,'#806040');
+ // Front apron and walnut desktop.
+ poly([{x:-27,y:-7},{x:-2,y:6},{x:-2,y:17},{x:-27,y:4}],'#59412f','#30383b');
+ poly([{x:-2,y:6},{x:27,y:-7},{x:27,y:4},{x:-2,y:17}],'#48392f','#252e32');
+ diamond(0,-9,67,35,'#594536','#2d2925');
+ diamond(0,-12,64,32,'#b18a59','#e0c58c');
+ diamond(0,-13,54,24,'#5c554c','#8b775c');
+ // Monitor(s) sit at the back of the desk, high enough to leave the seated agent visible.
  const n=dual?2:1;
  for(let i=0;i<n;i++){
   const mx=(i-(n-1)/2)*22;
-  px(mx-8,-42,16,16,'#1b2834');px(mx-6,-40,12,12,'#477b88');
-  px(mx-5,-38,10,2,accent);px(mx-5,-34,7,2,'#d7d6c7');
-  px(mx-2,-26,4,8,'#6c7370');px(mx-8,-19,16,2,'#303a40');px(mx-8,-42,16,1,'#e5c98f');
+  px(mx-8,-54,16,16,'#1b2834');px(mx-6,-52,12,12,'#477b88');
+  px(mx-5,-50,10,2,accent);px(mx-5,-46,7,2,'#d7d6c7');
+  px(mx-2,-40,4,8,'#6c7370');px(mx-8,-33,16,2,'#303a40');
+  px(mx-8,-54,16,1,'#e5c98f');
  }
+ // Keyboard, notebook, mug and a tiny status LED.
  px(-8,-10,17,3,'#273744');px(-7,-9,14,1,'#c7c9bc');
  px(17,-18,7,6,'#eee1c9');px(18,-20,4,2,'#ffffff');
- px(-22,-19,3,9,'#8f744d');px(-26,-22,9,3,'#e5c37b');px(25,-8,3,3,accent);ctx.restore();
+ px(-22,-19,3,9,'#8f744d');px(-26,-22,9,3,'#e5c37b');
+ px(25,-8,3,3,accent);
+ ctx.restore();
 }
 function hqChair(x,y,z=0,color='#526674'){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
@@ -431,6 +464,29 @@ function hqWallScreen(x,y,z=0,title='FACT UNLOCKED',accent='#79c4cc'){
  px(-36,-77,72,48,'#202d36');px(-32,-73,64,40,'#385a69');
  px(-28,-68,56,3,accent);px(-28,-60,39,2,'#e6dfc9');px(-28,-53,48,2,'#e6dfc9');px(-28,-46,28,2,accent);
  ctx.fillStyle='#e8d6a7';ctx.font='bold 7px system-ui';ctx.textAlign='center';ctx.fillText(title,0,-82);ctx.restore();
+}
+function hqCodeDisplay(x,y,z=0){
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ // Wall-mounted developer monitor, inspired by the IDE panel in the PIXEL AGENTS reference.
+ ctx.globalAlpha=.28;ctx.fillStyle='#071321';ctx.beginPath();ctx.ellipse(0,8,91,12,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ px(-88,-118,176,108,'#202a32');px(-84,-114,168,100,'#111b27');
+ px(-84,-114,168,12,'#2d3944');
+ px(-79,-110,4,4,'#d8a65e');px(-72,-110,4,4,'#b46c70');px(-65,-110,4,4,'#75a99a');
+ px(55,-110,20,3,'#6b7b89');px(55,-105,20,2,'#425768');
+ // Editor sidebar.
+ px(-80,-97,22,76,'#182532');px(-76,-91,14,2,'#5c8c91');
+ for(let r=0;r<8;r++){px(-76,-83+r*8,11-(r%3)*2,2,r%2?'#627b8e':'#977b58')}
+ px(-53,-98,1,77,'#42515d');
+ const syntax=['const office = createHQ();','function renderAgents(){','  scene.draw(floor);','  staff.forEach(agent => {','    agent.work();','    agent.updateStatus();','  });','return render(scene);'];
+ const colors=['#78b4bd','#d9b66e','#b58caf','#82a68d','#d5d7d0','#82a68d','#d5d7d0','#78b4bd'];
+ for(let i=0;i<syntax.length;i++){
+  ctx.fillStyle=colors[i];ctx.font='6px monospace';ctx.textAlign='left';ctx.textBaseline='alphabetic';
+  ctx.fillText(syntax[i],-47,-91+i*10,128);
+ }
+ px(-79,-9,158,1,'#374959');px(-79,-5,50,2,'#4c9b91');px(65,-5,14,2,'#c7a867');
+ // Small stand and brass hinge.
+ px(-5,-10,10,7,'#59656a');px(-17,-4,34,3,'#9b8057');
+ ctx.restore();
 }
 function hqPillar(x,y,z=0,height=108){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
@@ -606,7 +662,7 @@ function drawFurniture(){
   if(x===6||x===9||x===13||x===14)poly([{x:a.x,y:a.y},{x:b.x,y:b.y},{x:b.x,y:b.y-92},{x:a.x,y:a.y-92}],'#586067','#303a40');else hqWindowPanel(a,b,91)}
  hqPillar(6,6,0,88);hqPillar(10,6,0,88);hqPillar(15,6,0,88);
  hqBookshelf(7,1,z);hqBookshelf(8,1,z);hqBookshelf(14,2,z);
- hqSofa(10,3,z,1.05);hqSofa(12,4,z,.85);hqCoffeeTable(10.8,3.6,z);hqWallScreen(13,1,z,'HQ COMMAND','#d5b46d');
+ hqSofa(10,3,z,1.05);hqSofa(12,4,z,.85);hqCoffeeTable(10.8,3.6,z);hqCodeDisplay(13,1,z);
  const statue=iso(13,4,z);ctx.save();ctx.translate(statue.x,statue.y);diamond(0,6,29,16,'#4b5355','#aa8d59');
  px(-7,-16,14,21,'#c8c4b6');px(-4,-25,8,12,'#e1ded2');px(-2,-31,4,8,'#aaa99f');px(-12,-20,5,10,'#c1beb1');px(7,-20,5,10,'#c1beb1');ctx.restore();
 
@@ -621,30 +677,40 @@ function drawFurniture(){
   poly([{x:p.x-21,y:p.y-rise},{x:p.x,y:p.y+11-rise},{x:p.x,y:p.y+17-rise},{x:p.x-21,y:p.y+6-rise}],'#5c6462','#333c3d');
   poly([{x:p.x,y:p.y+11-rise},{x:p.x+21,y:p.y-rise},{x:p.x+21,y:p.y+6-rise},{x:p.x,y:p.y+17-rise}],'#495454','#303a3c')}
 
- // Outdoor collaboration terrace: four tables with eight individual seats.
- const tablePoints=[[4,9],[7,11],[10,9],[13,11]];
- tablePoints.forEach((s,i)=>{const p=iso(s[0],s[1]);ctx.save();ctx.translate(p.x,p.y);
-  ctx.globalAlpha=.18;ctx.fillStyle='#1b2a31';ctx.beginPath();ctx.ellipse(0,10,25,10,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-  px(-3,-3,6,14,'#4a514f');diamond(0,-8,50,25,'#4d4942','#92764f');diamond(0,-11,46,22,'#b8a17c','#e0c992');
-  px(-8,-24,17,9,'#25323a');px(-6,-22,13,6,['#65aab2','#c8ae6d','#ad87ac','#8dae82'][i]);
-  px(-6,-14,13,2,'#303a3e');px(12,-16,5,5,'#eee3c9');px(14,-18,2,2,'#faf3df');
-  px(-19,-13,8,4,'#ece1c8');px(-17,-12,5,1,'#7c9f9b');ctx.restore()});
- officeLoungeSeats.forEach((s,i)=>hqChair(s.gridX,s.gridY,0,['#526674','#556b70','#5b6572','#5d6873'][i%4]));
- [[1,10],[2,12],[14,8],[15,10],[3,12],[9,12],[14,12]].forEach(([x,y],i)=>hqPlant(x,y,0,i===0||i===3));
- [[2,12],[6,12],[10,12],[14,12]].forEach(([x,y])=>{const p=iso(x,y);glow(p.x,p.y-17,20,'#e9c77a',.12);px(p.x-2,p.y-10,4,10,'#555e5b');px(p.x-7,p.y-18,14,7,'#e3c57f')});
+ // Eight dedicated desks in two isometric rows, with chairs tucked behind each workstation.
+ // The blue carpet anchors this open-plan working zone like the PIXEL AGENTS reference.
+ officeWorkstations.forEach((s,i)=>hqChair(s.seatX,s.seatY,0,['#536d7a','#526a75','#586b79','#536b79'][i%4]));
+ officeWorkstations.forEach(s=>hqDesk(s.x,s.y,0,s.accent,s.dual));
+ // A small meeting nook at the edge of the work carpet.
+ const meeting=iso(2.7,11.6);ctx.save();ctx.translate(meeting.x,meeting.y);
+ diamond(0,7,45,23,'#554536','#b08b59');diamond(0,4,41,20,'#b99b70','#e0c98d');
+ px(-3,-2,6,12,'#4c5353');px(-17,-5,8,5,'#f0e4cf');px(10,-11,7,6,'#314b5a');ctx.restore();
+ hqChair(2,12,0,'#586a77');hqChair(4,12,0,'#586a77');
+ // Lounge details, plants and warm path lights stay around the perimeter.
+ hqSofa(2,10,0,.8);hqCoffeeTable(2.7,10.8,0);
+ [[1,10],[2,12],[15,7],[15,10],[3,13],[9,13],[14,13]].forEach(([x,y],i)=>hqPlant(x,y,0,i===0||i===3));
+ [[2,12],[6,13],[10,13],[14,13]].forEach(([x,y])=>{const p=iso(x,y);glow(p.x,p.y-17,20,'#e9c77a',.1);px(p.x-2,p.y-10,4,10,'#555e5b');px(p.x-7,p.y-18,14,7,'#e3c57f')});
+ // Water cooler and floor-standing bulletin board make the space feel occupied.
+ const water=iso(2,8);ctx.save();ctx.translate(water.x,water.y);
+ px(-7,-29,14,27,'#d4d9d4');px(-6,-42,12,14,'#4f91a0');px(-4,-40,8,10,'#77b9c3');
+ px(-5,-45,10,4,'#d9e3e0');px(-4,-2,8,3,'#697a7c');ctx.restore();
+ const notice=iso(1,11);ctx.save();ctx.translate(notice.x,notice.y);
+ px(-17,-48,34,44,'#5a4633');px(-14,-45,28,38,'#c5a879');
+ px(-11,-40,8,7,'#f0e0bd');px(1,-41,10,9,'#95b3a9');px(-10,-28,18,2,'#7f6650');
+ px(-10,-22,7,8,'#b36d62');px(0,-20,11,7,'#d9c28e');ctx.restore();
 }
-// Fixed interactive employee seats positioned over desks in the reference office artwork.
-const officeLoungeSeats=[
- {id:'strategy',gridX:3,gridY:9},
- {id:'research',gridX:5,gridY:9},
- {id:'fact',gridX:6,gridY:11},
- {id:'editorial',gridX:8,gridY:11},
- {id:'creative',gridX:9,gridY:9},
- {id:'production',gridX:11,gridY:9},
- {id:'distribution',gridX:12,gridY:11},
- {id:'analytics',gridX:14,gridY:11}
-].map(s=>({...s,...worldPoint(s.gridX,s.gridY)}));
-const officeSeats=Object.fromEntries(officeLoungeSeats.map(s=>[s.id,{x:s.x,y:s.y}]));
+// Four-by-two workstation grid: each agent owns a desk, monitor and chair.
+const officeWorkstations=[
+ {id:'strategy',x:5,y:8,accent:'#507ab8',dual:false},
+ {id:'research',x:8,y:8,accent:'#3c9d9c',dual:false},
+ {id:'fact',x:11,y:8,accent:'#b88c39',dual:false},
+ {id:'editorial',x:14,y:8,accent:'#ad6d9a',dual:false},
+ {id:'creative',x:5,y:11,accent:'#a65cbd',dual:true},
+ {id:'production',x:8,y:11,accent:'#3f80bd',dual:true},
+ {id:'distribution',x:11,y:11,accent:'#408f9b',dual:false},
+ {id:'analytics',x:14,y:11,accent:'#7a9c57',dual:false}
+].map(s=>({...s,seatX:s.x+1,seatY:s.y+1,...worldPoint(s.x+1,s.y+1),screenY:worldPoint(s.x+1,s.y+1).y-5}));
+const officeSeats=Object.fromEntries(officeWorkstations.map(s=>[s.id,{x:s.x,y:s.screenY}]));
 const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
@@ -776,23 +842,44 @@ function drawStaffNameplate(label,x,topY,accent,active=false){
  ctx.fillStyle='#f3ead5';ctx.textAlign='center';ctx.textBaseline='middle';
  ctx.fillText(shortLabel,x+2,top+5.6,width-14);ctx.restore();
 }
-function drawOutdoorSeatedStaff(x,y,shirt,hair,index,time){
- const bob=Math.round(Math.sin(time*1.5+index*.7)*.35);
- ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#1b272c';ctx.beginPath();ctx.ellipse(x,y+1,8,2.4,0,0,Math.PI*2);ctx.fill();ctx.restore();
+function drawDeskAgent(x,y,shirt,hair,index,time){
+ // Staff sit behind their own monitor and type at a calm, staggered rhythm.
+ const phase=time*4.2+index*.91;
+ const breath=Math.sin(time*1.2+index*.63)*.28;
+ const typing=Math.sin(phase)>.28?1:0;
+ const bob=Math.round(breath*10)/10;
  ctx.save();
- px(x-7,y-8,14,8,'#344650');px(x-7,y-3,5,4,'#273747');px(x+2,y-3,5,4,'#273747');
- px(x-8,y-19+bob,16,12,shirt);px(x-10,y-17+bob,4,8,shirt);px(x+6,y-17+bob,4,8,shirt);
- px(x-10,y-10+bob,4,4,'#edc5a0');px(x+6,y-10+bob,4,4,'#edc5a0');
- px(x-3,y-22+bob,6,4,'#e2b48f');px(x-6,y-33+bob,12,11,'#edc5a0');
- px(x-7,y-35+bob,14,5,hair);px(x-8,y-32+bob,3,6,hair);px(x+5,y-32+bob,3,6,hair);
- px(x-3,y-29+bob,2,2,'#273044');px(x+2,y-29+bob,2,2,'#273044');px(x-1,y-25+bob,3,1,'#9f5b50');
- px(x-2,y-19+bob,4,2,'#e7d5b1');px(x-1,y-17+bob,2,5,'#d2ad64');ctx.restore();
+ ctx.globalAlpha=.2;ctx.fillStyle='#17202a';
+ ctx.beginPath();ctx.ellipse(x,y+3,8.5,2.2,0,0,Math.PI*2);ctx.fill();
+ ctx.restore();
+ ctx.save();
+ // Upper back, shoulders and torso behind the front edge of the desk.
+ px(x-8,y-35+bob,16,16,shirt);
+ px(x-10,y-32+bob,4,9,shirt);px(x+6,y-32+bob,4,9,shirt);
+ px(x-7,y-22+bob,14,5,'#273a4b');
+ // Neck and pixel face, always drawn in every frame.
+ px(x-3,y-41+bob,6,5,'#e2b48f');
+ px(x-6,y-53+bob,12,13,'#edc5a0');
+ px(x-7,y-55+bob,14,5,hair);
+ px(x-8,y-52+bob,3,7,hair);px(x+5,y-52+bob,3,7,hair);
+ px(x-3,y-48+bob,2,2,'#273044');px(x+2,y-48+bob,2,2,'#273044');
+ px(x-1,y-44+bob,3,1,'#9f5b50');
+ // Shirt collar and tie / badge detail.
+ px(x-3,y-36+bob,6,2,'#e8dcc0');
+ px(x-1,y-34+bob,2,7,'#d5ad66');
+ // Forearms reach forward to the keyboard; only the hands change while typing.
+ px(x-9,y-29+bob,4,11,'#edc5a0');px(x+5,y-29+bob,4,11,'#edc5a0');
+ px(x-10,y-20+bob+typing,5,3,'#f0cba8');
+ px(x+5,y-20+bob-typing,5,3,'#f0cba8');
+ // Wrist cuffs are kept stable so the motion never flashes.
+ px(x-9,y-29+bob,4,2,shirt);px(x+5,y-29+bob,4,2,shirt);
+ ctx.restore();
 }
 function drawNPCs(t=0){
- npcState.forEach(n=>{
+ [...npcState].sort((a,b)=>a.y-b.y).forEach(n=>{
   const index=staffSpriteIndex[n.data.id]??0;
-  drawOutdoorSeatedStaff(n.x,n.y,n.data.color,n.data.hair,index,t/1000);
-  drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-45,n.data.color,hoveredStaffId===n.data.id);
+  drawDeskAgent(n.x,n.y,n.data.color,n.data.hair,index,t/1000);
+  drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-64,n.data.color,hoveredStaffId===n.data.id);
  });
 }
 function drawCEO(t){
