@@ -681,50 +681,85 @@ function drawMascots(){
   dog(6.35,9.7,'#d9a36d','#a86d46','#5eb7c1','UDONG',performance.now()/190+1);
 }
 const staffSpriteIndex={strategy:0,research:1,fact:2,editorial:3,creative:4,production:5,distribution:6,analytics:7};
-function drawSeatedWorker(x,y,shirt,hair,index=0){
+function drawSeatedWorker(x,y,shirt,hair,index=0,time=0){
+ // A soft contact shadow anchors each seated colleague to the office floor.
+ const breath=Math.sin(time*2.1+index*.73)*.42;
+ ctx.save();
+ ctx.globalAlpha=.24;
+ ctx.fillStyle='#17202a';
+ ctx.beginPath();ctx.ellipse(x,y+1,8.2,2.35,0,0,Math.PI*2);ctx.fill();
+ ctx.restore();
+
  if(staffAtlasReady){
   const sx=(index%4)*40,sy=Math.floor(index/4)*48;
-  ctx.drawImage(staffAtlas,sx,sy,40,48,Math.round(x-20),Math.round(y-44),40,48);
+  // Slightly smaller than the atlas cell so the employees match the furniture scale.
+  // Smooth downsampling softens the pixel edges without changing the artwork.
+  ctx.save();
+  ctx.imageSmoothingEnabled=true;
+  ctx.globalAlpha=.98;
+  ctx.drawImage(staffAtlas,sx,sy,40,48,x-17,y-40+breath,34,41);
+  ctx.restore();
   return;
  }
- // Safe fallback with a compact pixel silhouette if the sprite atlas cannot load.
- ctx.save();ctx.translate(Math.round(x),Math.round(y));
+
+ // Proportional fallback avatar, with the same grounded size as the main atlas.
+ ctx.save();ctx.translate(x,y+breath);ctx.scale(.84,.84);
  ctx.fillStyle='#182739';ctx.fillRect(-10,-27,20,25);
  ctx.fillStyle=shirt;ctx.fillRect(-8,-31,16,20);
  ctx.fillStyle='#edc5a0';ctx.fillRect(-6,-47,12,13);
  ctx.fillStyle=hair;ctx.fillRect(-8,-49,16,5);
  ctx.restore();
-}
-function drawWalkingCEO(x,y,phase){
- const bob=Math.round(Math.sin(phase)*1.5);
+}function drawWalkingCEO(x,y,phase){
+ const bob=Math.sin(phase*1.4)*.45;
  if(staffAtlasReady){
-  ctx.drawImage(staffAtlas,0,96,40,48,Math.round(x-20),Math.round(y-44+bob),40,48);
+  // The last atlas row contains the CEO's four-step walk cycle.
+  const frame=Math.floor(phase)%4;
+  ctx.save();
+  ctx.imageSmoothingEnabled=true;
+  ctx.drawImage(staffAtlas,frame*40,96,40,48,x-17,y-40+bob,34,41);
+  ctx.restore();
  }else{
-  ctx.save();ctx.translate(Math.round(x),Math.round(y));
-  ctx.fillStyle='#263d58';ctx.fillRect(-8,-12+bob,6,13);ctx.fillRect(3,-12-bob,6,13);
-  ctx.fillStyle='#d5a342';ctx.fillRect(-8,-29+bob,16,17);
-  ctx.fillStyle='#edc5a0';ctx.fillRect(-5,-43+bob,10,12);
-  ctx.fillStyle='#302631';ctx.fillRect(-7,-46+bob,14,6);
+  ctx.save();ctx.translate(x,y+bob);ctx.scale(.84,.84);
+  ctx.fillStyle='#263d58';ctx.fillRect(-8,-12,6,13);ctx.fillRect(3,-12,6,13);
+  ctx.fillStyle='#d5a342';ctx.fillRect(-8,-29,16,17);
+  ctx.fillStyle='#edc5a0';ctx.fillRect(-5,-43,10,12);
+  ctx.fillStyle='#302631';ctx.fillRect(-7,-46,14,6);
   ctx.restore();
  }
+}function drawStaffNameplate(label,x,topY,accent,active=false){
+ ctx.save();
+ ctx.font='600 5.8px system-ui,sans-serif';
+ const width=Math.max(38,Math.min(72,ctx.measureText(label).width+12));
+ const left=Math.round(x-width/2),top=Math.round(topY),height=10;
+ ctx.shadowColor='rgba(12,20,30,.28)';
+ ctx.shadowBlur=active?3:1;
+ ctx.fillStyle='rgba(20,32,46,.91)';
+ ctx.strokeStyle=active?'#e6c77e':'rgba(168,143,101,.78)';
+ ctx.lineWidth=.8;
+ ctx.fillRect(left,top,width,height);
+ ctx.strokeRect(left,top,width,height);
+ ctx.shadowBlur=0;
+ ctx.fillStyle=accent;
+ ctx.fillRect(left+4,top+3.5,3,3);
+ ctx.fillStyle='#eee3cb';
+ ctx.textAlign='center';
+ ctx.textBaseline='middle';
+ ctx.fillText(label,x+2,top+5.1,width-13);
+ ctx.restore();
 }
-function drawNPCs(){
+function drawNPCs(t=0){
  npcState.forEach(n=>{
   const index=staffSpriteIndex[n.data.id]??0;
-  drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair,index);
-  const label=n.data.name.toUpperCase();
-  const w=Math.max(58,Math.min(102,label.length*4.35+14));
-  ctx.save();
-  ctx.shadowColor='#d5b46d';ctx.shadowBlur=hoveredStaffId===n.data.id?8:2;
-  ctx.fillStyle='#0b1728';ctx.strokeStyle=hoveredStaffId===n.data.id?'#ffe19a':'#c7a45f';ctx.lineWidth=1;
-  ctx.fillRect(n.x-w/2,n.y-64,w,15);ctx.strokeRect(n.x-w/2,n.y-64,w,15);
-  ctx.fillStyle=n.data.color;ctx.fillRect(n.x-w/2+4,n.y-59,4,5);
-  ctx.fillStyle='#f7e4b0';ctx.font='bold 7px system-ui';ctx.textAlign='center';
-  ctx.fillText(label,n.x+2,n.y-54);
-  ctx.restore();
+  drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair,index,t/1000);
+  drawStaffNameplate(
+   n.data.name.toUpperCase(),
+   n.x,
+   n.y-52,
+   n.data.color,
+   hoveredStaffId===n.data.id
+  );
  });
-}
-function moveCEO(tx,ty){
+}function moveCEO(tx,ty){
  ceoState.targetX=Math.max(30,Math.min(610,tx));ceoState.targetY=Math.max(40,Math.min(440,ty));ceoState.wait=0;
 }
 function drawCEO(t){
@@ -732,17 +767,23 @@ function drawCEO(t){
   ceoState.wait--;
   if(ceoState.wait<=0){
    const stops=[[510,153],[550,210],[500,255],[580,225],[500,338],[443,310],[350,400],[220,356],[392,410]];
-   const dest=stops[ceoRouteIndex++%stops.length];ceoState.targetX=dest[0];ceoState.targetY=dest[1];ceoState.wait=230;
+   const dest=stops[ceoRouteIndex++%stops.length];
+   ceoState.targetX=dest[0];ceoState.targetY=dest[1];ceoState.wait=230;
   }
  }
  const dx=ceoState.targetX-ceoState.x,dy=ceoState.targetY-ceoState.y,d=Math.hypot(dx,dy);
- if(d>4){ceoState.x+=dx/d*1.15;ceoState.y+=dy/d*1.15;}
- drawWalkingCEO(ceoState.x,ceoState.y,t/38);
- ctx.save();ctx.fillStyle='#111e30';ctx.strokeStyle='#dfba6e';ctx.lineWidth=1;
- ctx.fillRect(ceoState.x-21,ceoState.y-64,42,14);ctx.strokeRect(ceoState.x-21,ceoState.y-64,42,14);
- ctx.fillStyle='#ffe3a1';ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillText('CEO AI',ceoState.x,ceoState.y-54);ctx.restore();
-}
-function officeView(){
+ if(d>1.2){
+  // Ease into each destination instead of moving at a rigid constant speed.
+  const speed=Math.min(.9,Math.max(.12,d*.04));
+  ceoState.x+=dx/d*speed;ceoState.y+=dy/d*speed;
+ }
+ ctx.save();
+ ctx.globalAlpha=.24;ctx.fillStyle='#17202a';
+ ctx.beginPath();ctx.ellipse(ceoState.x,ceoState.y+1,8.5,2.5,0,0,Math.PI*2);ctx.fill();
+ ctx.restore();
+ drawWalkingCEO(ceoState.x,ceoState.y,t/150);
+ drawStaffNameplate('CEO AI',ceoState.x,ceoState.y-52,'#d5a342',false);
+}function officeView(){
  // Contain the complete reference artwork without stretching on desktop or iPhone.
  const fit=Math.min((stage.clientWidth-18)/CW,(stage.clientHeight-18)/CH);
  const view=fit*scale,ox=(stage.clientWidth-CW*view)/2,oy=(stage.clientHeight-CH*view)/2;
@@ -769,7 +810,7 @@ function draw(t=0){
  ctx.save();
  ctx.translate(v.ox,v.oy);ctx.scale(v.view,v.view);ctx.translate(camX,camY);
  drawOfficeBackground();
- drawNPCs();
+ drawNPCs(t);
  drawCEO(t);
  ctx.restore();
  requestAnimationFrame(draw);
