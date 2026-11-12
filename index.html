@@ -594,14 +594,14 @@ function drawFurniture(){
 }
 // Fixed interactive employee seats positioned over desks in the reference office artwork.
 const officeSeats={
- production:{x:265,y:220},
- research:{x:275,y:365},
- fact:{x:505,y:365},
- editorial:{x:735,y:365},
- strategy:{x:250,y:535},
- creative:{x:470,y:545},
- distribution:{x:690,y:545},
- analytics:{x:925,y:525}
+ production:{x:265,y:260},
+ research:{x:275,y:405},
+ fact:{x:505,y:405},
+ editorial:{x:735,y:405},
+ strategy:{x:250,y:575},
+ creative:{x:470,y:585},
+ distribution:{x:690,y:585},
+ analytics:{x:925,y:565}
 };
 const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
