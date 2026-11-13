@@ -506,41 +506,7 @@ function hqWallScreen(x,y,z=0,title='FACT UNLOCKED',accent='#79c4cc'){
  ctx.strokeStyle='#8d9e9b';ctx.lineWidth=1;ctx.strokeRect(-44,-87,88,59);
  ctx.restore();
 }
-function hqGlassDivider(x1,y1,x2,y2,height=68,accent='#86c7ca'){
- const a=iso(x1,y1),b=iso(x2,y2),topA={x:a.x,y:a.y-height},topB={x:b.x,y:b.y-height};
- poly([{x:a.x,y:a.y},{x:b.x,y:b.y},{x:topB.x,y:topB.y},{x:topA.x,y:topA.y}],
-      'rgba(102,166,177,.22)','#304958');
- ctx.save();ctx.globalAlpha=.72;ctx.strokeStyle=accent;ctx.lineWidth=3;
- ctx.beginPath();ctx.moveTo(a.x,a.y-3);ctx.lineTo(topA.x,topA.y);ctx.lineTo(topB.x,topB.y);ctx.lineTo(b.x,b.y-3);ctx.stroke();
- ctx.strokeStyle='#d0b77f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y-2);ctx.lineTo(b.x,b.y-2);ctx.stroke();
- ctx.globalAlpha=.52;ctx.strokeStyle='#b7d7d7';ctx.lineWidth=1.4;
- ctx.beginPath();ctx.moveTo(a.x,a.y-height*.48);ctx.lineTo(b.x,b.y-height*.48);ctx.stroke();
- for(let i=1;i<4;i++){const t=i/4,x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t;px(Math.round(x-1),Math.round(y-height+2),2,height-2,'#b99e69')}
- ctx.restore();
-}
-function hqRoomPlaque(x,y,title,subtitle,accent='#83c4c7'){
- const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
- ctx.globalAlpha=.3;ctx.fillStyle='#050d16';ctx.fillRect(-51,-61,102,28);ctx.globalAlpha=1;
- px(-51,-65,102,27,'#142638');px(-48,-62,96,21,'#253d50');
- ctx.strokeStyle=accent;ctx.lineWidth=1.4;ctx.strokeRect(-51,-65,102,27);
- px(-45,-57,4,11,accent);px(41,-57,4,11,'#d3b478');
- ctx.fillStyle='#f4e7cf';ctx.font='bold 7px monospace';ctx.textAlign='center';
- ctx.fillText(title,0,-51);ctx.fillStyle=accent;ctx.font='5px monospace';ctx.fillText(subtitle,0,-43);
- ctx.restore();
-}
-function hqReceptionDesk(x,y){
- const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
- ctx.globalAlpha=.26;ctx.fillStyle='#07121b';ctx.beginPath();ctx.ellipse(0,15,49,17,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
- px(-32,-11,7,27,'#34444b');px(25,-11,7,27,'#34444b');
- poly([{x:-35,y:-13},{x:0,y:5},{x:0,y:22},{x:-35,y:4}],'#4a4035','#28383e');
- poly([{x:0,y:5},{x:35,y:-13},{x:35,y:4},{x:0,y:22}],'#3a3a34','#28383e');
- diamond(0,-17,88,45,'#876847','#e1c18a');diamond(0,-20,78,39,'#b98d59','#ead19c');
- px(-23,-22,46,4,'#526c73');px(-20,-21,40,2,'#d7d4c4');
- px(18,-37,12,15,'#172b3a');px(20,-35,8,10,'#6ca3ad');
- px(-9,-32,18,6,'#eee5d4');px(-8,-34,16,2,'#fff');
- ctx.fillStyle='#f4dfb4';ctx.font='bold 7px monospace';ctx.textAlign='center';ctx.fillText('WELCOME',0,15);
- ctx.restore();
-}
+// Overview avoids free-floating room dividers, plaques and a reception counter on the floor plane.
 function hqCameraRig(x,y){
  const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
  px(-2,-3,4,35,'#3c4a52');px(-22,31,44,3,'#3c4a52');
@@ -819,19 +785,7 @@ function drawFurniture(){
  rug(6.35,2.75,130,76,'#354d68');
  rug(9.95,2.75,130,76,'#65573f');
  rug(13.55,2.75,118,76,'#315b59');
- // Transparent dividers form recognisable rooms while preserving the open-plan feel.
- hqGlassDivider(4.7,.6,4.7,5.5,75,'#74c1c8');
- hqGlassDivider(8.25,.6,8.25,5.5,75,'#b5c9c5');
- hqGlassDivider(11.85,.6,11.85,5.5,75,'#d5b477');
- hqGlassDivider(4.7,5.5,6.0,5.5,75,'#74c1c8');
- hqGlassDivider(6.95,5.5,8.25,5.5,75,'#74c1c8');
- hqGlassDivider(8.25,5.5,9.35,5.5,75,'#b5c9c5');
- hqGlassDivider(10.25,5.5,11.85,5.5,75,'#b5c9c5');
- hqGlassDivider(11.85,5.5,13.15,5.5,75,'#d5b477');
- hqGlassDivider(14.05,5.5,15.1,5.5,75,'#d5b477');
- hqRoomPlaque(5.9,5.75,'VIDEO STUDIO','01 / CAPTURE','#74c1c8');
- hqRoomPlaque(9.35,5.75,'RESEARCH LAB','02 / SOURCES','#8dbac0');
- hqRoomPlaque(12.9,5.75,'FACT CHECK','03 / VERIFY','#d5b477');
+ // Floor finishes and wall-mounted displays carry room identity without crossing the walkways.
  hqWallScreen(3,0,0,'VIDEO STUDIO','#70c6ce');
  hqPlant(1,2);hqPlant(5,2);
  hqWallScreen(6,1,0,'SOURCE LIBRARY','#78b9c0');
@@ -881,7 +835,7 @@ function drawFurniture(){
  hqDeskMonitors(10.15,2.65,z,'#e0b75f',true);
  hqSofa(12.1,2.7,z,.86);hqSofa(13.6,4.0,z,.72);
  hqCoffeeTable(12.8,3.45,z);hqCodeDisplay(14,1.0,z);
- hqRoomPlaque(11.1,.25,'EXECUTIVE SUITE','CEO / PRIVATE OFFICE','#d7b875');
+ // Executive suite is identified by the CEO and the rear wall code display.
  // Compact brass art plinth.
  const statue=iso(14.0,4.0,z);
  ctx.save();ctx.translate(statue.x,statue.y);
@@ -907,30 +861,12 @@ function drawFurniture(){
   poly([{x:p.x-19,y:p.y-rise},{x:p.x,y:p.y+10-rise},{x:p.x,y:p.y+15-rise},{x:p.x-19,y:p.y+5-rise}],'#5c696a','#34434b');
   poly([{x:p.x,y:p.y+10-rise},{x:p.x+19,y:p.y-rise},{x:p.x+19,y:p.y+5-rise},{x:p.x,y:p.y+15-rise}],'#43545d','#2b3b46');
  }
- // Four paired department bays replace the crowded row of eight identical isolated pads.
- const bays=[
-  {x:6.55,y:8.55,title:'STRATEGY  +  RESEARCH',sub:'PLAN  /  SOURCES',color:'#355e70',accent:'#83cbd0'},
-  {x:12.55,y:8.55,title:'FACT CHECK  +  EDITORIAL',sub:'VERIFY  /  SCRIPT',color:'#66543e',accent:'#d8ba78'},
-  {x:6.55,y:11.65,title:'CREATIVE  +  PRODUCTION',sub:'DESIGN  /  STUDIO',color:'#4a4d69',accent:'#b8a0d2'},
-  {x:12.55,y:11.65,title:'DISTRIBUTION  +  ANALYTICS',sub:'PUBLISH  /  INSIGHTS',color:'#365d53',accent:'#8fbea1'}
- ];
- bays.forEach((bay)=>{
-  const p=iso(bay.x,bay.y);
-  diamond(p.x,p.y+5,174,94,'#17232e','#8b744e');
-  diamond(p.x,p.y,164,86,bay.color,bay.accent);
-  ctx.save();ctx.globalAlpha=.24;ctx.strokeStyle='#f0d9a6';ctx.lineWidth=1.4;
-  ctx.beginPath();ctx.moveTo(p.x-70,p.y);ctx.lineTo(p.x,p.y-36);ctx.lineTo(p.x+70,p.y);ctx.lineTo(p.x,p.y+36);ctx.closePath();ctx.stroke();
-  ctx.restore();
-  hqRoomPlaque(bay.x,bay.y-1.25,bay.title,bay.sub,bay.accent);
- });
- equipment(4.2,3.1,'camera');
+ // Keep eight individual workstation stations and their own click targets; remove duplicate floor labels.
  // Ground-floor workstations are drawn after the mezzanine so they stay on the correct level.
  officeWorkstations.forEach((s,i)=>hqChair(s.seatX,s.seatY,0,['#536d7a','#526a75','#586b79','#536b79'][i%4]));
  officeWorkstations.forEach(s=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual));
  // Shared collaboration nook, plants, warm path lights and water station.
  hqSofa(2,10,0,.8);hqCoffeeTable(2.7,10.8,0);
- hqReceptionDesk(8.9,13.1);
- hqPlant(7.7,13.0,true);hqPlant(10.1,13.0,true);
  [[1,10],[2,12],[15,7],[15,10],[3,13],[9,13],[14,13]].forEach(([x,y],i)=>hqPlant(x,y,0,i===0||i===3));
  [[2,12],[6,13],[10,13],[14,13]].forEach(([x,y])=>{
   const p=iso(x,y);glow(p.x,p.y-17,20,'#e9c77a',.1);
@@ -1093,7 +1029,7 @@ function drawStaffNameplate(label,x,topY,accent,active=false){
  ctx.fillStyle='#f3ead5';ctx.textAlign='center';ctx.textBaseline='middle';
  ctx.fillText(shortLabel,x+2,top+5.6,width-14);ctx.restore();
 }
-function drawDeskAgent(x,y,shirt,hair,index,time){
+function drawDeskAgentBase(x,y,shirt,hair,index,time){
  // Staff sit behind their own monitor and type at a calm, staggered rhythm.
  const phase=time*4.2+index*.91;
  const breath=Math.sin(time*1.2+index*.63)*.28;
@@ -1126,11 +1062,16 @@ function drawDeskAgent(x,y,shirt,hair,index,time){
  px(x-9,y-29+bob,4,2,shirt);px(x+5,y-29+bob,4,2,shirt);
  ctx.restore();
 }
+function drawDeskAgent(x,y,shirt,hair,index,time){
+ ctx.save();ctx.translate(x,y);ctx.scale(1.18,1.18);ctx.translate(-x,-y);
+ drawDeskAgentBase(x,y,shirt,hair,index,time);
+ ctx.restore();
+}
 function drawNPCs(t=0){
  [...npcState].sort((a,b)=>a.y-b.y).forEach(n=>{
   const index=staffSpriteIndex[n.data.id]??0;
   drawDeskAgent(n.x,n.y,n.data.color,n.data.hair,index,t/1000);
-  drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-78,n.data.color,hoveredStaffId===n.data.id);
+  drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-82,n.data.color,hoveredStaffId===n.data.id);
  });
 }
 function drawCEO(t){
