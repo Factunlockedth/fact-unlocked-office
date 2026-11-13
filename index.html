@@ -756,37 +756,30 @@ function drawFurniture(){
  rug(6.3,12.3,135,72,'#454a66');
  rug(12.3,12.3,135,72,'#34574e');
 
- // COMPACT EXECUTIVE MEZZANINE — rear-right wing, about one third of the former upper area.
- const z=108,x1=11,y1=0,x2=15,y2=4;
- const A=iso(x1,y1,z),B=iso(x2,y1,z),C=iso(x2,y2,z),D=iso(x1,y2,z);
- const Bb=iso(x2,y1),Cb=iso(x2,y2),Db=iso(x1,y2);
- poly([D,C,Cb,Db],'#34434b','#1e2c35');
- poly([B,C,Cb,Bb],'#263941','#1a2730');
- poly([A,B,C,D],'#c6c2b4','#59636a');
- for(let y=y1;y<y2;y++)for(let x=x1;x<x2;x++){const p=iso(x,y);diamond(p.x,p.y,TW,TH,(x+y)%2?'#d4d0c4':'#c4c0b4','#96978e')}
- // Executive wall, book storage, private workstation and compact lounge.
- hqWallSegment(iso(11,0,z),iso(15,0,z),78,'#283c4c','#607e8b',false);
- hqBookshelf(11.8,.7,z);hqBookshelf(12.8,.7,z);
- hqDeskFront(12.1,2.7,z,'#d5a342');hqDeskMonitors(12.1,2.7,z,'#e0b75f',true);
- hqChair(12.1,3.6,z,'#596f82');
- hqSofa(14.0,2.4,z,.7);hqCoffeeTable(13.6,3.25,z);hqCodeDisplay(14.5,.8,z);
- // Open glass balustrade with a thin brass handrail.
- const ra=iso(11,4,z),rb=iso(15,4,z);
- ctx.save();ctx.strokeStyle='#a4d2d0';ctx.globalAlpha=.8;ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(ra.x,ra.y-23);ctx.lineTo(rb.x,rb.y-23);ctx.stroke();
- ctx.strokeStyle='#d5b879';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ra.x,ra.y-29);ctx.lineTo(rb.x,rb.y-29);ctx.stroke();
- for(let i=0;i<=6;i++){const t=i/6,x=ra.x+(rb.x-ra.x)*t,y=ra.y+(rb.y-ra.y)*t;px(x-1,y-26,2,27,'#c7ae79')}
+  // CEO PRIVATE OFFICE — same ground level as every team; no raised deck, columns or stairs.
+ // A dark timber rug marks the executive area without lifting the floor plane.
+ rug(13.0,2.7,112,62,'#495a65');
+ hqWallScreen(13.0,0,0,'CEO / CONTENT DIRECTOR','#d8b875');
+ hqBookshelf(11.4,.7,0);hqBookshelf(14.5,.8,0);
+ hqDeskFront(12.45,2.25,0,'#d5a342');
+ hqDeskMonitors(12.45,2.25,0,'#e0b75f',true);
+ hqChair(12.45,3.15,0,'#596f82');
+ hqSofa(14.0,2.9,0,.72);hqCoffeeTable(13.7,3.65,0);
+ hqCodeDisplay(14.3,.7,0);
+ hqPlant(11.2,3.7,0,true);
+ // Floor-level low divider signals a private office while keeping an open sightline.
+ const officeA=iso(11.2,4.3),officeB=iso(14.8,4.3);
+ ctx.save();ctx.strokeStyle='#8eb7bb';ctx.globalAlpha=.68;ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(officeA.x,officeA.y-18);ctx.lineTo(officeB.x,officeB.y-18);ctx.stroke();
+ ctx.strokeStyle='#d1b477';ctx.lineWidth=1.5;
+ ctx.beginPath();ctx.moveTo(officeA.x,officeA.y-23);ctx.lineTo(officeB.x,officeB.y-23);ctx.stroke();
  ctx.restore();
- hqPillar(11,4,0,108);hqPillar(13,4,0,108);hqPillar(15,4,0,108);
+ // Open circulation path connects the CEO office to all eight team stations.
+ const pathA=iso(10.3,5.2),pathB=iso(10.3,8.1);
+ ctx.save();ctx.globalAlpha=.28;ctx.strokeStyle='#d7bc82';ctx.lineWidth=3;
+ ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(pathA.x,pathA.y);ctx.lineTo(pathB.x,pathB.y);ctx.stroke();ctx.restore();
 
- // Staircase is a short diagonal flight at the edge of the collaboration lounge.
- for(let i=0;i<4;i++){
-  const p=iso(9+i,7-i),rise=(i+1)*15;
-  diamond(p.x,p.y-rise,38,20,'#7d877f','#3a4b50');
-  poly([{x:p.x-19,y:p.y-rise},{x:p.x,y:p.y+10-rise},{x:p.x,y:p.y+15-rise},{x:p.x-19,y:p.y+5-rise}],'#53656a','#303e48');
-  poly([{x:p.x,y:p.y+10-rise},{x:p.x+19,y:p.y-rise},{x:p.x+19,y:p.y+5-rise},{x:p.x,y:p.y+15-rise}],'#40545c','#2c3b43');
- }
- // Furniture sits under characters; clickable specialist sprites are rendered above it.
+// Furniture sits under characters; clickable specialist sprites are rendered above it.
  officeWorkstations.forEach(s=>hqChair(s.seatX,s.seatY,0,'#596d78'));
  officeWorkstations.forEach(s=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual));
 }
@@ -809,7 +802,7 @@ const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
 const ceoData=staff.find(data=>data.id==='ceo');
-const ceoStart=worldPoint(12,2,108);
+const ceoStart=worldPoint(12.8,3.0,0);
 const ceoState={data:ceoData,x:ceoStart.x,y:ceoStart.y,targetX:ceoStart.x,targetY:ceoStart.y,wait:90,phase:0,lastFrame:null};
 let ceoRouteIndex=0;
 function sprite(x,y,shirt,hair,walking,phase,size=1){const p=iso(x,y);const bob=walking?Math.round(Math.sin(phase)*2):0;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);diamond(0,1,18,8,'#1a2638aa',null);px(-6,-8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');px(2,-24+bob,3,3,'#f3d17d');ctx.restore()}
@@ -985,7 +978,7 @@ function drawCEO(t){
  if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
   ceoState.wait--;
   if(ceoState.wait<=0){
-   const stops=[worldPoint(12,2,108),worldPoint(14,2,108),worldPoint(13,3,108),worldPoint(8,6,0),worldPoint(7,7,0),worldPoint(10,7,0),worldPoint(13,8,0)];
+   const stops=[worldPoint(12.8,3.0,0),worldPoint(14.2,2.8,0),worldPoint(13.3,4.0,0),worldPoint(8,6,0),worldPoint(7,7,0),worldPoint(10,7,0),worldPoint(13,8,0)];
    const dest=stops[ceoRouteIndex++%stops.length];
    ceoState.targetX=dest.x;ceoState.targetY=dest.y;ceoState.wait=230;
   }
