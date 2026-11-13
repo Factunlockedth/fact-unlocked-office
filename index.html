@@ -404,38 +404,39 @@ function drawFloor(){
 
 function hqDeskFront(x,y,z=0,accent='#64b9c6'){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
- ctx.globalAlpha=.2;ctx.fillStyle='#17232c';ctx.beginPath();ctx.ellipse(0,11,36,14,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
- // Legs and dark apron form the near side of the desk, drawn in front of the agent.
- px(-25,-6,5,25,'#3b4548');px(20,-6,5,25,'#3b4548');
- px(-24,3,3,13,'#9c744c');px(20,3,3,13,'#806040');
- poly([{x:-27,y:-7},{x:-2,y:6},{x:-2,y:17},{x:-27,y:4}],'#59412f','#30383b');
- poly([{x:-2,y:6},{x:27,y:-7},{x:27,y:4},{x:-2,y:17}],'#48392f','#252e32');
- diamond(0,-9,67,35,'#594536','#2d2925');
- diamond(0,-12,64,32,'#b18a59','#e0c58c');
- diamond(0,-13,54,24,'#5c554c','#8b775c');
- // Keyboard / hands zone on the near side.
- px(-8,-10,17,3,'#273744');px(-7,-9,14,1,'#c7c9bc');
- px(17,-18,7,6,'#eee1c9');px(18,-20,4,2,'#ffffff');
- px(-22,-19,3,9,'#8f744d');px(-26,-22,9,3,'#e5c37b');
- px(25,-8,3,3,accent);
+ ctx.globalAlpha=.28;ctx.fillStyle='#07121b';ctx.beginPath();ctx.ellipse(0,16,43,17,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ px(-31,-5,6,28,'#303a3d');px(25,-5,6,28,'#303a3d');
+ px(-29,13,5,12,'#98704a');px(25,13,5,12,'#72543b');
+ poly([{x:-33,y:-8},{x:0,y:9},{x:0,y:24},{x:-33,y:7}],'#503b2d','#283238');
+ poly([{x:0,y:9},{x:33,y:-8},{x:33,y:7},{x:0,y:24}],'#43352c','#283238');
+ diamond(0,-12,82,43,'#46352a','#252d31');
+ diamond(0,-16,78,41,'#c0915b','#e1c38a');
+ diamond(0,-18,66,32,'#6a5b48','#947952');
+ poly([{x:-27,y:-2},{x:0,y:12},{x:0,y:18},{x:-27,y:4}],'#755036','#4c3a2d');
+ poly([{x:0,y:12},{x:27,y:-2},{x:27,y:4},{x:0,y:18}],'#60432f','#43352c');
+ px(-20,5,9,2,'#d3b06c');px(12,5,9,2,'#d3b06c');
+ px(-10,-17,21,4,'#263747');px(-9,-16,18,2,'#c5c6b7');
+ px(19,-26,9,7,'#eee3ce');px(20,-28,6,2,'#ffffff');
+ px(-26,-26,5,11,'#8d7958');px(-29,-30,11,4,'#d9be83');
+ px(30,-18,5,5,accent);
  ctx.restore();
 }
 function hqDeskMonitors(x,y,z=0,accent='#64b9c6',dual=false){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
  const n=dual?2:1;
  for(let i=0;i<n;i++){
-  const mx=(i-(n-1)/2)*24;
-  // Soft screen glow and a thicker graphite bezel make each workstation readable at game scale.
-  glow(mx,-45,22,accent,.13);
-  px(mx-10,-59,20,22,'#182633');px(mx-8,-57,16,18,'#355a69');
-  px(mx-7,-55,14,3,accent);px(mx-7,-50,10,2,'#e3e0d1');
-  px(mx-7,-46,12,2,'#8eb7bd');px(mx-7,-42,7,2,'#d7d6c7');
-  px(mx-2,-37,4,7,'#747c7b');px(mx-10,-31,20,2,'#303a40');
-  px(mx-10,-59,20,1,'#f0d59a');
+  const mx=(i-(n-1)/2)*25;
+  glow(mx,-47,28,accent,.19);
+  px(mx-12,-64,24,27,'#111e2c');px(mx-10,-62,20,23,'#315566');
+  px(mx-9,-60,18,3,accent);px(mx-9,-54,13,2,'#ede8d9');
+  px(mx-9,-49,16,2,'#8fbac0');px(mx-9,-44,9,2,'#d7d6c7');
+  px(mx-3,-37,6,8,'#777e79');px(mx-13,-30,26,3,'#26343e');
+  px(mx-12,-64,24,2,'#e2c78e');
  }
- // Keyboard and mouse, visible from the isometric front angle.
- px(-10,-12,19,3,'#303e49');px(-9,-11,16,1,'#d4c9ad');
- px(15,-17,4,4,'#e7dec9');
+ px(-20,-26,40,2,accent);px(-13,-15,25,4,'#263947');
+ px(-12,-14,23,1,'#c9c7b7');px(18,-19,5,5,'#f0e0c5');
+ px(-34,-28,3,12,'#82684c');px(-39,-32,13,4,'#d8bb7f');
+ glow(-33,-30,12,'#e3c17c',.12);
  ctx.restore();
 }
 function drawWorkstationFronts(){
@@ -443,10 +444,12 @@ function drawWorkstationFronts(){
 }
 function hqChair(x,y,z=0,color='#526674'){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
- ctx.globalAlpha=.2;ctx.fillStyle='#17232c';ctx.beginPath();ctx.ellipse(0,2,12,5,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
- px(-9,-17,18,12,'#273744');px(-7,-15,14,9,color);
- px(-11,-6,4,10,'#303b43');px(7,-6,4,10,'#303b43');
- px(-9,2,3,4,'#b28d57');px(6,2,3,4,'#b28d57');ctx.restore();
+ ctx.globalAlpha=.25;ctx.fillStyle='#07121b';ctx.beginPath();ctx.ellipse(0,5,17,7,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ px(-12,-32,24,22,'#273744');px(-10,-30,20,17,color);
+ px(-13,-12,26,9,'#202f3b');px(-17,-17,5,12,'#566a77');px(12,-17,5,12,'#566a77');
+ px(-3,-3,6,14,'#64717a');px(-17,9,34,3,'#3d4a50');
+ px(-18,10,4,7,'#9d8158');px(-2,10,4,7,'#9d8158');px(14,10,4,7,'#9d8158');
+ ctx.restore();
 }
 function hqBookshelf(x,y,z=0){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
@@ -486,9 +489,61 @@ function hqCoffeeTable(x,y,z=0){
 }
 function hqWallScreen(x,y,z=0,title='FACT UNLOCKED',accent='#79c4cc'){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
- px(-36,-77,72,48,'#202d36');px(-32,-73,64,40,'#385a69');
- px(-28,-68,56,3,accent);px(-28,-60,39,2,'#e6dfc9');px(-28,-53,48,2,'#e6dfc9');px(-28,-46,28,2,accent);
- ctx.fillStyle='#e8d6a7';ctx.font='bold 7px system-ui';ctx.textAlign='center';ctx.fillText(title,0,-82);ctx.restore();
+ glow(0,-56,63,accent,.1);
+ px(-44,-87,88,59,'#111e2b');px(-40,-83,80,51,'#253e4e');
+ px(-37,-80,74,45,'#152d3e');px(-35,-78,70,4,accent);
+ for(let i=0;i<5;i++){px(-32,-68+i*7,31-(i%3)*4,2,'#e3e2d8');px(4,-68+i*7,25+(i%2)*5,2,i%2?accent:'#c5a66f')}
+ px(-32,-40,65,2,'#91aeb2');px(-32,-34,40,2,'#d8cdb6');
+ px(22,-73,9,9,accent);px(22,-58,9,9,'#d7b878');px(22,-43,9,9,'#75b99a');
+ px(-44,-87,88,2,'#e2c88e');
+ ctx.fillStyle='#f6e4c1';ctx.font='bold 8px monospace';ctx.textAlign='center';ctx.fillText(title,0,-94);
+ ctx.strokeStyle='#8d9e9b';ctx.lineWidth=1;ctx.strokeRect(-44,-87,88,59);
+ ctx.restore();
+}
+function hqGlassDivider(x1,y1,x2,y2,height=68,accent='#86c7ca'){
+ const a=iso(x1,y1),b=iso(x2,y2),topA={x:a.x,y:a.y-height},topB={x:b.x,y:b.y-height};
+ poly([{x:a.x,y:a.y},{x:b.x,y:b.y},{x:topB.x,y:topB.y},{x:topA.x,y:topA.y}],
+      'rgba(102,166,177,.22)','#304958');
+ ctx.save();ctx.globalAlpha=.72;ctx.strokeStyle=accent;ctx.lineWidth=3;
+ ctx.beginPath();ctx.moveTo(a.x,a.y-3);ctx.lineTo(topA.x,topA.y);ctx.lineTo(topB.x,topB.y);ctx.lineTo(b.x,b.y-3);ctx.stroke();
+ ctx.strokeStyle='#d0b77f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y-2);ctx.lineTo(b.x,b.y-2);ctx.stroke();
+ ctx.globalAlpha=.52;ctx.strokeStyle='#b7d7d7';ctx.lineWidth=1.4;
+ ctx.beginPath();ctx.moveTo(a.x,a.y-height*.48);ctx.lineTo(b.x,b.y-height*.48);ctx.stroke();
+ for(let i=1;i<4;i++){const t=i/4,x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t;px(Math.round(x-1),Math.round(y-height+2),2,height-2,'#b99e69')}
+ ctx.restore();
+}
+function hqRoomPlaque(x,y,title,subtitle,accent='#83c4c7'){
+ const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
+ ctx.globalAlpha=.3;ctx.fillStyle='#050d16';ctx.fillRect(-51,-61,102,28);ctx.globalAlpha=1;
+ px(-51,-65,102,27,'#142638');px(-48,-62,96,21,'#253d50');
+ ctx.strokeStyle=accent;ctx.lineWidth=1.4;ctx.strokeRect(-51,-65,102,27);
+ px(-45,-57,4,11,accent);px(41,-57,4,11,'#d3b478');
+ ctx.fillStyle='#f4e7cf';ctx.font='bold 7px monospace';ctx.textAlign='center';
+ ctx.fillText(title,0,-51);ctx.fillStyle=accent;ctx.font='5px monospace';ctx.fillText(subtitle,0,-43);
+ ctx.restore();
+}
+function hqReceptionDesk(x,y){
+ const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
+ ctx.globalAlpha=.26;ctx.fillStyle='#07121b';ctx.beginPath();ctx.ellipse(0,15,49,17,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ px(-32,-11,7,27,'#34444b');px(25,-11,7,27,'#34444b');
+ poly([{x:-35,y:-13},{x:0,y:5},{x:0,y:22},{x:-35,y:4}],'#4a4035','#28383e');
+ poly([{x:0,y:5},{x:35,y:-13},{x:35,y:4},{x:0,y:22}],'#3a3a34','#28383e');
+ diamond(0,-17,88,45,'#876847','#e1c18a');diamond(0,-20,78,39,'#b98d59','#ead19c');
+ px(-23,-22,46,4,'#526c73');px(-20,-21,40,2,'#d7d4c4');
+ px(18,-37,12,15,'#172b3a');px(20,-35,8,10,'#6ca3ad');
+ px(-9,-32,18,6,'#eee5d4');px(-8,-34,16,2,'#fff');
+ ctx.fillStyle='#f4dfb4';ctx.font='bold 7px monospace';ctx.textAlign='center';ctx.fillText('WELCOME',0,15);
+ ctx.restore();
+}
+function hqCameraRig(x,y){
+ const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
+ px(-2,-3,4,35,'#3c4a52');px(-22,31,44,3,'#3c4a52');
+ px(-2,17,3,15,'#6b7370');px(-15,30,3,12,'#6b7370');px(12,30,3,12,'#6b7370');
+ px(-20,-35,40,27,'#182735');px(-16,-31,32,19,'#456f7e');
+ px(-11,-27,22,11,'#274e63');px(-5,-25,10,7,'#79c6d0');
+ px(13,-42,8,10,'#d5b477');px(-17,-43,11,7,'#d5b477');
+ ctx.strokeStyle='#d9bd80';ctx.lineWidth=2;ctx.strokeRect(-20,-35,40,27);
+ glow(0,-24,30,'#73bdcb',.18);ctx.restore();
 }
 function hqCodeDisplay(x,y,z=0){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
@@ -747,25 +802,42 @@ function drawFurniture(){
   ctx.beginPath();ctx.moveTo(a.x,a.y-54);ctx.lineTo(b.x,b.y-54);ctx.stroke();ctx.restore();
  }
 
- // Ground-floor functional areas: studio, research, verification and production support.
- rug(3,2,75,42,'#496b72');hqWallScreen(3,0,0,'VIDEO STUDIO','#70c6ce');
+ // Ground-floor functional areas — four glass-fronted studios with distinct materials and equipment.
+ rug(2.35,2.75,148,82,'#32606a');
+ rug(6.35,2.75,130,76,'#354d68');
+ rug(9.95,2.75,130,76,'#65573f');
+ rug(13.55,2.75,118,76,'#315b59');
+ // Transparent dividers form recognisable rooms while preserving the open-plan feel.
+ hqGlassDivider(4.7,.6,4.7,5.5,75,'#74c1c8');
+ hqGlassDivider(8.25,.6,8.25,5.5,75,'#b5c9c5');
+ hqGlassDivider(11.85,.6,11.85,5.5,75,'#d5b477');
+ hqGlassDivider(4.7,5.5,6.0,5.5,75,'#74c1c8');
+ hqGlassDivider(6.95,5.5,8.25,5.5,75,'#74c1c8');
+ hqGlassDivider(8.25,5.5,9.35,5.5,75,'#b5c9c5');
+ hqGlassDivider(10.25,5.5,11.85,5.5,75,'#b5c9c5');
+ hqGlassDivider(11.85,5.5,13.15,5.5,75,'#d5b477');
+ hqGlassDivider(14.05,5.5,15.1,5.5,75,'#d5b477');
+ hqRoomPlaque(5.9,5.75,'VIDEO STUDIO','01 / CAPTURE','#74c1c8');
+ hqRoomPlaque(9.35,5.75,'RESEARCH LAB','02 / SOURCES','#8dbac0');
+ hqRoomPlaque(12.9,5.75,'FACT CHECK','03 / VERIFY','#d5b477');
+ hqWallScreen(3,0,0,'VIDEO STUDIO','#70c6ce');
  hqPlant(1,2);hqPlant(5,2);
- rug(5,4,86,48,'#6b6556');hqWallScreen(6,1,0,'SOURCE LIBRARY','#78b9c0');
+ hqWallScreen(6,1,0,'SOURCE LIBRARY','#78b9c0');
  hqBookshelf(5,1);hqBookshelf(7,1);
- rug(8,4,78,46,'#665d4d');hqWallScreen(9,1,0,'FACT CHECK','#d4b56d');
- // Wall-mounted idea board and fact-check board.
+ hqWallScreen(9,1,0,'FACT CHECK','#d4b56d');
+ hqWallScreen(13,0,0,'PRODUCTION BAY','#78c6bd');
+ hqBookshelf(12.6,1);hqBookshelf(14,1.1);
+ hqCameraRig(3.9,4.1);equipment(4.2,2.1,'light');equipment(13.3,4.1,'light');
+ hqCameraRig(14.6,3.5);
  hqNoteBoard(.4,5);
  hqCheckBoard(2.3,7.8);
- // Server rack and cooling hardware.
  equipment(15,1.2,'server');
  const rack=iso(14,3);
  ctx.save();ctx.translate(rack.x,rack.y);
  px(-18,-71,36,72,'#505d62');px(-14,-67,28,64,'#1f2d35');
- for(let i=0;i<4;i++){
-  px(-11,-60+i*14,22,8,'#344b55');
-  px(-8,-57+i*14,4,3,'#63c6b5');px(2,-57+i*14,4,3,'#e3bd69');
- }
+ for(let i=0;i<4;i++){px(-11,-60+i*14,22,8,'#344b55');px(-8,-57+i*14,4,3,'#63c6b5');px(2,-57+i*14,4,3,'#e3bd69')}
  px(-18,-71,36,3,'#d0b477');ctx.restore();
+
 
  // Raised mezzanine: independent slab thickness and tiled upper floor.
  const z=88,x1=6,y1=0,x2=15,y2=6;
@@ -845,6 +917,8 @@ function drawFurniture(){
  officeWorkstations.forEach(s=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual));
  // Shared collaboration nook, plants, warm path lights and water station.
  hqSofa(2,10,0,.8);hqCoffeeTable(2.7,10.8,0);
+ hqReceptionDesk(8.9,13.1);
+ hqPlant(7.7,13.0,true);hqPlant(10.1,13.0,true);
  [[1,10],[2,12],[15,7],[15,10],[3,13],[9,13],[14,13]].forEach(([x,y],i)=>hqPlant(x,y,0,i===0||i===3));
  [[2,12],[6,13],[10,13],[14,13]].forEach(([x,y])=>{
   const p=iso(x,y);glow(p.x,p.y-17,20,'#e9c77a',.1);
