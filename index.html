@@ -118,7 +118,10 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
 #left-rail button b{font-size:20px;color:#f4ca68;line-height:1}#left-rail button small{font-size:8px;color:#e5edf5}
 #left-rail button:active{border-color:#f5d27b;transform:translateY(1px)}
 .hud-card{position:absolute;z-index:3;background:linear-gradient(145deg,#0c1b31f2,#071221f5);border:1px solid #607895;border-radius:10px;box-shadow:0 6px 22px #000b,inset 0 0 0 1px #ffffff0b;color:#e8edf4}
-#mission-panel{right:12px;top:14px;width:218px;padding:10px 11px}
+#mission-panel{right:12px;top:14px;width:326px;padding:10px 11px;display:grid;grid-template-columns:1fr 1fr;column-gap:12px;align-content:start}
+#mission-panel .hud-title,#mission-panel .mission-progress{grid-column:1/-1}
+#mission-panel .mission-row{padding:4px 0;font-size:8.5px;min-width:0}
+#mission-panel .mission-row i{width:18px;height:18px}
 .hud-title{display:flex;align-items:center;justify-content:space-between;gap:5px;color:#f5d37f;font-weight:900;font-size:12px;border-bottom:1px solid #4b617a;padding-bottom:7px;margin-bottom:5px}
 .hud-title span{font-size:7px;color:#92abc4;letter-spacing:.08em}
 .mission-row{display:flex;align-items:center;gap:7px;font-size:9px;padding:5px 0;color:#c7d2df}
@@ -168,10 +171,11 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
  #left-rail{left:5px;top:8px;bottom:78px;width:39px;gap:4px}
  #left-rail button{height:42px;border-radius:6px;padding:1px}
  #left-rail button b{font-size:15px}#left-rail button small{font-size:6px}
- #mission-panel{right:5px;top:8px;width:145px;padding:6px}
+ #mission-panel{right:5px;top:8px;width:145px;padding:6px;grid-template-columns:1fr;column-gap:0}
+ #mission-panel .hud-title,#mission-panel .mission-progress{grid-column:1}
+ #mission-panel .mission-row{font-size:6px;gap:4px;padding:3px 0}
  .hud-title{font-size:8px;padding-bottom:4px;margin-bottom:3px}
  .hud-title span{font-size:5px}
- .mission-row{font-size:6px;gap:4px;padding:3px 0}
  .mission-row i{width:11px;height:11px;font-size:6px}
  .mission-progress div{font-size:6px}
  #activity-panel,#minimap-panel{display:none}
@@ -253,9 +257,11 @@ header{background:linear-gradient(105deg,#0b1425 0%,#172943 55%,#101a2d 100%);bo
   <div class="mission-row"><i>02</i><span>Research · ค้นคว้าหลักฐาน</span></div>
   <div class="mission-row"><i>03</i><span>Fact Check · ตรวจสอบข้อมูล</span></div>
   <div class="mission-row"><i>04</i><span>Editorial · เขียนสคริปต์</span></div>
-  <div class="mission-row"><i>05</i><span>Creative / Production</span></div>
-  <div class="mission-row"><i>06</i><span>Distribution · เผยแพร่</span></div>
-  <div class="mission-progress"><div><b>ขั้นตอนมาตรฐานของทีม</b><strong>6 แกนงาน</strong></div><span><i></i></span></div>
+  <div class="mission-row"><i>05</i><span>Creative · ออกแบบภาพ</span></div>
+  <div class="mission-row"><i>06</i><span>Production · ผลิตคลิป</span></div>
+  <div class="mission-row"><i>07</i><span>Distribution · เผยแพร่</span></div>
+  <div class="mission-row"><i>08</i><span>Analytics · วิเคราะห์ผล</span></div>
+  <div class="mission-progress"><div><b>ทีม AI ทั้งหมด</b><strong>8 แผนก</strong></div><span><i></i></span></div>
  </section>
  <section id="activity-panel" class="hud-card">
   <div class="hud-title">AI TEAM ACTIVITY <span>8 แผนก</span></div>
@@ -575,11 +581,17 @@ function hqPillar(x,y,z=0,height=108){
  px(-12,-3,24,4,'#5d6669');px(-14,1,28,4,'#c0a06a');ctx.restore();
 }
 function hqWindowPanel(p1,p2,height=120){
- poly([{x:p1.x,y:p1.y},{x:p2.x,y:p2.y},{x:p2.x,y:p2.y-height},{x:p1.x,y:p1.y-height}],'#4d7580','#27363d');
- ctx.save();ctx.globalAlpha=.55;
- poly([{x:p1.x+3,y:p1.y-7},{x:p2.x-3,y:p2.y-7},{x:p2.x-3,y:p2.y-height+8},{x:p1.x+3,y:p1.y-height+8}],'#a7c9c7','#71949a');
- ctx.globalAlpha=.8;ctx.strokeStyle='#d7c28d';ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p1.x,p1.y-height);ctx.moveTo(p2.x,p2.y);ctx.lineTo(p2.x,p2.y-height);ctx.stroke();ctx.restore();
+ // Deep teal glass with narrow brass mullions and a single reflected highlight.
+ poly([{x:p1.x,y:p1.y},{x:p2.x,y:p2.y},{x:p2.x,y:p2.y-height},{x:p1.x,y:p1.y-height}],'#244b5d','#182f40');
+ ctx.save();
+ ctx.globalAlpha=.42;
+ poly([{x:p1.x+4,y:p1.y-10},{x:p2.x-4,y:p2.y-10},{x:p2.x-4,y:p2.y-height+12},{x:p1.x+4,y:p1.y-height+12}],'#7baeb3',null);
+ ctx.globalAlpha=.62;ctx.strokeStyle='#a8d1d0';ctx.lineWidth=1;
+ const vx=p1.x+(p2.x-p1.x)*.28,vy=p1.y+(p2.y-p1.y)*.28;
+ ctx.beginPath();ctx.moveTo(vx,vy-12);ctx.lineTo(vx,vy-height+14);ctx.stroke();
+ ctx.globalAlpha=.82;ctx.strokeStyle='#d0b77f';ctx.lineWidth=1.5;
+ ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p1.x,p1.y-height);ctx.moveTo(p2.x,p2.y);ctx.lineTo(p2.x,p2.y-height);ctx.stroke();
+ ctx.restore();
 }
 function plant(x,y,large=false){
   const p=iso(x,y),w=large?23:18,h=large?24:19;
@@ -839,77 +851,77 @@ function drawFurniture(){
  px(-18,-71,36,3,'#d0b477');ctx.restore();
 
 
- // Raised mezzanine: independent slab thickness and tiled upper floor.
- const z=88,x1=6,y1=0,x2=15,y2=6;
+ // Compact mezzanine: the executive suite occupies the back-right wing only.
+ // More than half of the ground floor remains visible from the isometric overview.
+ const z=116,x1=9,y1=0,x2=15,y2=5;
  const A=iso(x1,y1,z),B=iso(x2,y1,z),C=iso(x2,y2,z),D=iso(x1,y2,z);
  const Bb=iso(x2,y1),Cb=iso(x2,y2),Db=iso(x1,y2);
- poly([D,C,Cb,Db],'#555d60','#333d43');
- poly([B,C,Cb,Bb],'#454f56','#29343a');
- poly([A,B,C,D],'#c5c0b2','#646761');
+ // Solid floor fascia gives the upper storey a clear architectural thickness.
+ poly([D,C,Cb,Db],'#3c4b54','#24323d');
+ poly([B,C,Cb,Bb],'#2f414c','#1d2c38');
+ poly([A,B,C,D],'#c7c3b7','#59636a');
  for(let y=y1;y<y2;y++)for(let x=x1;x<x2;x++){
   const p=iso(x,y,z);
-  diamond(p.x,p.y,TW,TH,(x+y)%2?'#d2cec1':'#c2beb1','#96958a');
+  diamond(p.x,p.y,TW,TH,(x+y)%2?'#d9d4c7':'#c6c2b5','#8d928f');
  }
- rug(9,3,92,50,'#68717a');rug(12,2,72,42,'#605d55');
+ // Two soft area rugs separate the private office from the lounge.
+ rug(10.4,1.4,88,47,'#526879');rug(12.8,3.7,78,44,'#666052');
  for(let x=x1;x<x2;x++){
   const a=iso(x,y1,z),b=iso(x+1,y1,z);
-  if(x===6||x===9||x===13||x===14){
-   poly([{x:a.x,y:a.y},{x:b.x,y:b.y},{x:b.x,y:b.y-92},{x:a.x,y:a.y-92}],'#586067','#303a40');
+  if(x===9||x===13||x===14){
+   poly([{x:a.x,y:a.y},{x:b.x,y:b.y},{x:b.x,y:b.y-92},{x:a.x,y:a.y-92}],'#334854','#253641');
   }else hqWindowPanel(a,b,91);
  }
- hqPillar(6,6,0,88);hqPillar(10,6,0,88);hqPillar(15,6,0,88);
- hqBookshelf(7,1,z);hqBookshelf(8,1,z);hqBookshelf(14,2,z);
- // Executive suite: a dedicated CEO desk, dual display and chair beside the lounge.
- hqChair(8.1,4.35,z,'#596f82');
- hqDeskFront(8.1,3.35,z,'#d5a342');
- hqDeskMonitors(8.1,3.35,z,'#e0b75f',true);
- hqSofa(10.5,3.05,z,1.0);hqSofa(12.6,4.15,z,.82);
- hqCoffeeTable(11.3,4.0,z);hqCodeDisplay(13,1,z);
- // A discreet brass title plaque anchors the executive zone.
- const ex=iso(8.1,.15,z);
- ctx.save();ctx.translate(ex.x,ex.y);
- px(-39,-86,78,19,'#172b3b');px(-37,-84,74,15,'#314b58');
- ctx.strokeStyle='#d6b779';ctx.strokeRect(-39,-86,78,19);
- ctx.fillStyle='#f0d8a2';ctx.font='bold 6px monospace';ctx.textAlign='center';
- ctx.fillText('CEO  /  STRATEGY',0,-75);ctx.restore();
- // Executive art plinth.
- const statue=iso(13,4,z);
+ // Support columns and a restrained glass balustrade.
+ hqPillar(9,5,0,116);hqPillar(12,5,0,116);hqPillar(15,5,0,116);
+ hqBookshelf(10,1,z);hqBookshelf(11.2,1,z);hqBookshelf(14.2,1.3,z);
+ // Executive desk plus a compact lounge cluster.
+ hqChair(10.15,3.55,z,'#596f82');
+ hqDeskFront(10.15,2.65,z,'#d5a342');
+ hqDeskMonitors(10.15,2.65,z,'#e0b75f',true);
+ hqSofa(12.1,2.7,z,.86);hqSofa(13.6,4.0,z,.72);
+ hqCoffeeTable(12.8,3.45,z);hqCodeDisplay(14,1.0,z);
+ hqRoomPlaque(11.1,.25,'EXECUTIVE SUITE','CEO / PRIVATE OFFICE','#d7b875');
+ // Compact brass art plinth.
+ const statue=iso(14.0,4.0,z);
  ctx.save();ctx.translate(statue.x,statue.y);
- diamond(0,6,29,16,'#4b5355','#aa8d59');
- px(-7,-16,14,21,'#c8c4b6');px(-4,-25,8,12,'#e1ded2');
- px(-2,-31,4,8,'#aaa99f');px(-12,-20,5,10,'#c1beb1');px(7,-20,5,10,'#c1beb1');
- ctx.restore();
- // Glass balustrade, brass handrail and balusters.
- const ra=iso(6,6,z),rb=iso(15,6,z);
- ctx.save();ctx.strokeStyle='#a5d3d2';ctx.globalAlpha=.78;ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(ra.x,ra.y-27);ctx.lineTo(rb.x,rb.y-27);ctx.stroke();
- ctx.strokeStyle='#d9bd7d';ctx.lineWidth=1.5;
- ctx.beginPath();ctx.moveTo(ra.x,ra.y-33);ctx.lineTo(rb.x,rb.y-33);ctx.stroke();
- for(let i=0;i<=10;i++){
-  const t=i/10,x=ra.x+(rb.x-ra.x)*t,y=ra.y+(rb.y-ra.y)*t;
-  px(x-1,y-30,2,31,'#c7ad79');
+ diamond(0,6,27,15,'#4b5355','#aa8d59');
+ px(-6,-15,12,20,'#c8c4b6');px(-4,-24,8,11,'#e1ded2');
+ px(-2,-30,4,8,'#aaa99f');ctx.restore();
+ // Brass-and-glass front rail, following the full mezzanine edge.
+ const ra=iso(x1,y2,z),rb=iso(x2,y2,z);
+ ctx.save();ctx.globalAlpha=.84;ctx.strokeStyle='#91c9cf';ctx.lineWidth=2.4;
+ ctx.beginPath();ctx.moveTo(ra.x,ra.y-28);ctx.lineTo(rb.x,rb.y-28);ctx.stroke();
+ ctx.strokeStyle='#d7b975';ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(ra.x,ra.y-34);ctx.lineTo(rb.x,rb.y-34);ctx.stroke();
+ for(let i=0;i<=8;i++){
+  const t=i/8,x=ra.x+(rb.x-ra.x)*t,y=ra.y+(rb.y-ra.y)*t;
+  ctx.globalAlpha=.78;ctx.strokeStyle='#d7bd82';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(x,y-28);ctx.lineTo(x,y+1);ctx.stroke();
  }
  ctx.restore();
- // Staircase connecting ground-floor studios to the mezzanine.
+ // Stair flight rises from the central circulation lane to the private suite.
  for(let i=0;i<5;i++){
-  const p=iso(8+i,7-i),rise=(i+1)*14;
-  diamond(p.x,p.y-rise,42,22,'#7d817c','#424c4b');
-  poly([{x:p.x-21,y:p.y-rise},{x:p.x,y:p.y+11-rise},
-        {x:p.x,y:p.y+17-rise},{x:p.x-21,y:p.y+6-rise}],
-       '#5c6462','#333c3d');
-  poly([{x:p.x,y:p.y+11-rise},{x:p.x+21,y:p.y-rise},
-        {x:p.x+21,y:p.y+6-rise},{x:p.x,y:p.y+17-rise}],
-       '#495454','#303a3c');
+  const p=iso(8+i,7-i),rise=(i+1)*18;
+  diamond(p.x,p.y-rise,39,21,'#8b8e83','#46545a');
+  poly([{x:p.x-19,y:p.y-rise},{x:p.x,y:p.y+10-rise},{x:p.x,y:p.y+15-rise},{x:p.x-19,y:p.y+5-rise}],'#5c696a','#34434b');
+  poly([{x:p.x,y:p.y+10-rise},{x:p.x+19,y:p.y-rise},{x:p.x+19,y:p.y+5-rise},{x:p.x,y:p.y+15-rise}],'#43545d','#2b3b46');
  }
- // Eight individual work islands: subtle department mats separate teams without cluttering the floor.
- const workMatColors=['#36566b','#3d5b55','#665842','#51465f','#39556a','#4d5965','#355a60','#526347'];
- officeWorkstations.forEach((s,i)=>{
-  const p=iso(s.x+.82,s.y+.62);
-  diamond(p.x,p.y+3,82,45,'#1a2631','#9b8058');
-  diamond(p.x,p.y,75,39,workMatColors[i],'#bd9f6b');
-  ctx.save();ctx.globalAlpha=.38;ctx.strokeStyle='#e0c58d';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(p.x-29,p.y);ctx.lineTo(p.x,p.y-15);ctx.lineTo(p.x+29,p.y);ctx.lineTo(p.x,p.y+15);ctx.closePath();ctx.stroke();
+ // Four paired department bays replace the crowded row of eight identical isolated pads.
+ const bays=[
+  {x:6.55,y:8.55,title:'STRATEGY  +  RESEARCH',sub:'PLAN  /  SOURCES',color:'#355e70',accent:'#83cbd0'},
+  {x:12.55,y:8.55,title:'FACT CHECK  +  EDITORIAL',sub:'VERIFY  /  SCRIPT',color:'#66543e',accent:'#d8ba78'},
+  {x:6.55,y:11.65,title:'CREATIVE  +  PRODUCTION',sub:'DESIGN  /  STUDIO',color:'#4a4d69',accent:'#b8a0d2'},
+  {x:12.55,y:11.65,title:'DISTRIBUTION  +  ANALYTICS',sub:'PUBLISH  /  INSIGHTS',color:'#365d53',accent:'#8fbea1'}
+ ];
+ bays.forEach((bay)=>{
+  const p=iso(bay.x,bay.y);
+  diamond(p.x,p.y+5,174,94,'#17232e','#8b744e');
+  diamond(p.x,p.y,164,86,bay.color,bay.accent);
+  ctx.save();ctx.globalAlpha=.24;ctx.strokeStyle='#f0d9a6';ctx.lineWidth=1.4;
+  ctx.beginPath();ctx.moveTo(p.x-70,p.y);ctx.lineTo(p.x,p.y-36);ctx.lineTo(p.x+70,p.y);ctx.lineTo(p.x,p.y+36);ctx.closePath();ctx.stroke();
   ctx.restore();
+  hqRoomPlaque(bay.x,bay.y-1.25,bay.title,bay.sub,bay.accent);
  });
  equipment(4.2,3.1,'camera');
  // Ground-floor workstations are drawn after the mezzanine so they stay on the correct level.
@@ -954,7 +966,7 @@ const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
 const ceoData=staff.find(data=>data.id==='ceo');
-const ceoStart=worldPoint(11,2,88);
+const ceoStart=worldPoint(11,2,116);
 const ceoState={data:ceoData,x:ceoStart.x,y:ceoStart.y,targetX:ceoStart.x,targetY:ceoStart.y,wait:90,phase:0,lastFrame:null};
 let ceoRouteIndex=0;
 function sprite(x,y,shirt,hair,walking,phase,size=1){const p=iso(x,y);const bob=walking?Math.round(Math.sin(phase)*2):0;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);diamond(0,1,18,8,'#1a2638aa',null);px(-6,-8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');px(2,-24+bob,3,3,'#f3d17d');ctx.restore()}
@@ -1125,7 +1137,7 @@ function drawCEO(t){
  if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
   ceoState.wait--;
   if(ceoState.wait<=0){
-   const stops=[worldPoint(11,2,88),worldPoint(13,3,88),worldPoint(10,5,88),worldPoint(8,6,0),worldPoint(7,7,0),worldPoint(10,7,0),worldPoint(13,8,0)];
+   const stops=[worldPoint(11,2,116),worldPoint(13,3,116),worldPoint(14,4,116),worldPoint(8,6,0),worldPoint(7,7,0),worldPoint(10,7,0),worldPoint(13,8,0)];
    const dest=stops[ceoRouteIndex++%stops.length];
    ceoState.targetX=dest.x;ceoState.targetY=dest.y;ceoState.wait=230;
   }
@@ -1170,25 +1182,12 @@ function drawOfficePendant(x,y,z=136,tone='#e9c77a'){
  ctx.restore();
 }
 function drawOfficeAtmosphere(){
- // Exposed timber-and-brass beams make the open ceiling read as a real building.
- const beamA=iso(0,0,148),beamB=iso(W-1,0,148);
- ctx.save();ctx.lineCap='square';
- ctx.strokeStyle='#283b48';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(beamA.x,beamA.y);ctx.lineTo(beamB.x,beamB.y);ctx.stroke();
- ctx.strokeStyle='#d0ae72';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(beamA.x,beamA.y-4);ctx.lineTo(beamB.x,beamB.y-4);ctx.stroke();
- const sideA=iso(0,0,148),sideB=iso(0,H-1,148);
- ctx.strokeStyle='#344d59';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(sideA.x,sideA.y);ctx.lineTo(sideB.x,sideB.y);ctx.stroke();
- ctx.strokeStyle='#bfa16a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sideA.x+3,sideA.y-3);ctx.lineTo(sideB.x+3,sideB.y-3);ctx.stroke();
- ctx.restore();
- // Warm light pools above the studio, library and central circulation spine.
- [[2,0],[7,0],[12,0],[0,5]].forEach(([x,y],i)=>drawOfficePendant(x,y,132,i===2?'#f0d18d':'#d6c18a'));
- [[3,2,'#71bdc7'],[6,4,'#8cb9ad'],[9,4,'#d0b16f'],[12,8,'#7fae9d'],[8,11,'#d7b477']].forEach(([x,y,c])=>{
-  const p=iso(x,y);glow(p.x,p.y-30,54,c,.055);
+ // Pendant fixtures are attached to the rear wall line; no oversized decorative beam crosses the roof.
+ [[2,0],[7,0],[12,0]].forEach(([x,y],i)=>drawOfficePendant(x,y,132,i===2?'#f0d18d':'#d6c18a'));
+ // Focused pools of warm light mark each studio and the central walkway.
+ [[3,2,'#71bdc7'],[6,4,'#8cb9ad'],[9,4,'#d0b16f'],[12,8,'#7fae9d'],[8,11,'#d7b477'],[13,3,'#e3c27e']].forEach(([x,y,c])=>{
+  const p=iso(x,y);glow(p.x,p.y-28,44,c,.07);
  });
- // A slim luminous handrail reinforces the mezzanine edge.
- const a=iso(6,6,88),b=iso(15,6,88);
- ctx.save();ctx.globalAlpha=.32;ctx.strokeStyle='#9ed4d1';ctx.lineWidth=5;
- ctx.beginPath();ctx.moveTo(a.x,a.y-27);ctx.lineTo(b.x,b.y-27);ctx.stroke();
- ctx.restore();
 }
 function drawOfficeBackground(){
  const g=ctx.createLinearGradient(0,-80,0,CH+100);
