@@ -371,78 +371,50 @@ function glow(x,y,r,color,alpha=.2){
   ctx.globalAlpha=alpha;ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();
 }
 function drawFloor(){
- // Warm timber floor: each isometric tile is built from small plank sections.
- ctx.save();ctx.globalAlpha=.18;ctx.fillStyle='#101c2a';
- ctx.beginPath();ctx.ellipse(OX,500,365,43,0,0,Math.PI*2);ctx.fill();ctx.restore();
- const boards=['#b77b49','#c1854f','#ad7144','#bd8150','#a96c40'];
+ const boards=['#a96f43','#b77c4c','#c08753','#a66b40','#bd8050','#ad7347'];
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-  const p=iso(x,y),seed=(x*7+y*11)%boards.length;
-  diamond(p.x,p.y,TW,TH,boards[seed],'#805337');
-  // Fine seams clipped to the diamond keep the floor reading as timber planks.
-  ctx.save();
-  ctx.beginPath();ctx.moveTo(p.x,p.y-TH/2);ctx.lineTo(p.x+TW/2,p.y);ctx.lineTo(p.x,p.y+TH/2);ctx.lineTo(p.x-TW/2,p.y);ctx.closePath();ctx.clip();
-  ctx.strokeStyle='#805236';ctx.globalAlpha=.48;ctx.lineWidth=1;
-  const shift=((x+y)%2)*5;
-  for(let k=-1;k<=1;k++){
-   ctx.beginPath();ctx.moveTo(p.x-TW/2,p.y+k*6+shift-3);ctx.lineTo(p.x+TW/2,p.y+k*6+shift-3);ctx.stroke();
-  }
-  ctx.strokeStyle='#e0ad72';ctx.globalAlpha=.32;
-  ctx.beginPath();ctx.moveTo(p.x-13,p.y-3);ctx.lineTo(p.x+10,p.y-3);ctx.stroke();
-  ctx.restore();
-  if((x*5+y*3)%19===0)px(p.x+8,p.y-1,2,1,'#68462f');
+  const p=iso(x,y),tone=boards[(x*3+y*5)%boards.length];
+  diamond(p.x,p.y,TW,TH,tone,'#765036');
+  ctx.save();ctx.beginPath();
+  ctx.moveTo(p.x,p.y-TH/2);ctx.lineTo(p.x+TW/2,p.y);ctx.lineTo(p.x,p.y+TH/2);ctx.lineTo(p.x-TW/2,p.y);
+  ctx.closePath();ctx.clip();ctx.globalAlpha=.46;ctx.strokeStyle='#754a2d';ctx.lineWidth=1;
+  for(let k=-1;k<=1;k++){const yy=p.y+k*5+((x+y)%2)*2;ctx.beginPath();ctx.moveTo(p.x-TW/2,yy);ctx.lineTo(p.x+TW/2,yy);ctx.stroke()}
+  ctx.globalAlpha=.26;ctx.strokeStyle='#f1c18b';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(p.x-14,p.y-2);ctx.lineTo(p.x+13,p.y-2);ctx.stroke();ctx.restore();
  }
- // Central blue work carpet with a double brass and pale-blue woven border.
- rug(10,10,342,164,'#315a78');
- const cp=iso(10,10);
- ctx.save();ctx.globalAlpha=.48;ctx.strokeStyle='#c6aa75';ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(cp.x-153,cp.y);ctx.lineTo(cp.x,cp.y-70);ctx.lineTo(cp.x+153,cp.y);ctx.lineTo(cp.x,cp.y+70);ctx.closePath();ctx.stroke();
- ctx.strokeStyle='#8db8c1';ctx.lineWidth=1;
- ctx.beginPath();ctx.moveTo(cp.x-137,cp.y);ctx.lineTo(cp.x,cp.y-62);ctx.lineTo(cp.x+137,cp.y);ctx.lineTo(cp.x,cp.y+62);ctx.closePath();ctx.stroke();
- ctx.restore();
-
- // Foundation sides and trim.
  const fa=iso(0,H-1),fb=iso(W-1,H-1),rb=iso(W-1,0);
- poly([{x:fa.x,y:fa.y+8},{x:fb.x,y:fb.y+8},{x:fb.x,y:fb.y+24},{x:fa.x,y:fa.y+24}],'#59636a','#29343a');
- poly([{x:fb.x,y:fb.y+8},{x:rb.x,y:rb.y+8},{x:rb.x,y:rb.y+24},{x:fb.x,y:fb.y+24}],'#46525a','#29343a');
- ctx.save();ctx.strokeStyle='#d0ae6b';ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(fa.x,fa.y+8);ctx.lineTo(fb.x,fb.y+8);ctx.lineTo(rb.x,rb.y+8);ctx.stroke();ctx.restore();
+ poly([{x:fa.x,y:fa.y+2},{x:fb.x,y:fb.y+2},{x:fb.x,y:fb.y+17},{x:fa.x,y:fa.y+17}],'#394a4c','#1b2a32');
+ poly([{x:fb.x,y:fb.y+2},{x:rb.x,y:rb.y+2},{x:rb.x,y:rb.y+17},{x:fb.x,y:fb.y+17}],'#2d4047','#1b2a32');
+ ctx.save();ctx.strokeStyle='#d5ae69';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fa.x,fa.y+2);ctx.lineTo(fb.x,fb.y+2);ctx.lineTo(rb.x,rb.y+2);ctx.stroke();ctx.restore();
 }
-
 function hqDeskFront(x,y,z=0,accent='#64b9c6'){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
- ctx.globalAlpha=.28;ctx.fillStyle='#07121b';ctx.beginPath();ctx.ellipse(0,16,43,17,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
- px(-31,-5,6,28,'#303a3d');px(25,-5,6,28,'#303a3d');
- px(-29,13,5,12,'#98704a');px(25,13,5,12,'#72543b');
- poly([{x:-33,y:-8},{x:0,y:9},{x:0,y:24},{x:-33,y:7}],'#503b2d','#283238');
- poly([{x:0,y:9},{x:33,y:-8},{x:33,y:7},{x:0,y:24}],'#43352c','#283238');
- diamond(0,-12,82,43,'#46352a','#252d31');
- diamond(0,-16,78,41,'#c0915b','#e1c38a');
- diamond(0,-18,66,32,'#6a5b48','#947952');
- poly([{x:-27,y:-2},{x:0,y:12},{x:0,y:18},{x:-27,y:4}],'#755036','#4c3a2d');
- poly([{x:0,y:12},{x:27,y:-2},{x:27,y:4},{x:0,y:18}],'#60432f','#43352c');
- px(-20,5,9,2,'#d3b06c');px(12,5,9,2,'#d3b06c');
- px(-10,-17,21,4,'#263747');px(-9,-16,18,2,'#c5c6b7');
- px(19,-26,9,7,'#eee3ce');px(20,-28,6,2,'#ffffff');
- px(-26,-26,5,11,'#8d7958');px(-29,-30,11,4,'#d9be83');
- px(30,-18,5,5,accent);
- ctx.restore();
+ ctx.globalAlpha=.25;ctx.fillStyle='#08131d';ctx.beginPath();ctx.ellipse(0,10,29,11,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ px(-21,-4,4,19,'#35424a');px(17,-4,4,19,'#35424a');
+ px(-19,8,4,8,'#98704a');px(16,8,4,8,'#72543b');
+ poly([{x:-23,y:-7},{x:0,y:5},{x:0,y:16},{x:-23,y:4}],'#503b2d','#283238');
+ poly([{x:0,y:5},{x:23,y:-7},{x:23,y:4},{x:0,y:16}],'#43352c','#283238');
+ diamond(0,-10,60,32,'#47372b','#252d31');
+ diamond(0,-13,56,29,'#bb8f5a','#e1c38a');
+ diamond(0,-15,47,22,'#6b5a47','#947952');
+ px(-8,-14,16,3,'#283949');px(-7,-13,14,1,'#c5c6b7');
+ px(14,-22,7,5,'#eee3ce');px(15,-24,4,2,'#ffffff');
+ px(-20,-23,4,8,'#8d7958');px(-23,-26,8,3,'#d9be83');
+ px(21,-10,4,4,accent);ctx.restore();
 }
 function hqDeskMonitors(x,y,z=0,accent='#64b9c6',dual=false){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
  const n=dual?2:1;
  for(let i=0;i<n;i++){
-  const mx=(i-(n-1)/2)*25;
-  glow(mx,-47,28,accent,.19);
-  px(mx-12,-64,24,27,'#111e2c');px(mx-10,-62,20,23,'#315566');
-  px(mx-9,-60,18,3,accent);px(mx-9,-54,13,2,'#ede8d9');
-  px(mx-9,-49,16,2,'#8fbac0');px(mx-9,-44,9,2,'#d7d6c7');
-  px(mx-3,-37,6,8,'#777e79');px(mx-13,-30,26,3,'#26343e');
-  px(mx-12,-64,24,2,'#e2c78e');
+  const mx=(i-(n-1)/2)*18;
+  glow(mx,-41,20,accent,.15);
+  px(mx-7,-54,14,17,'#121f2c');px(mx-5,-52,10,13,'#315567');
+  px(mx-4,-50,8,2,accent);px(mx-4,-46,7,2,'#e8e2d1');
+  px(mx-4,-42,8,2,'#86b7bd');px(mx-4,-38,5,2,'#d7d6c7');
+  px(mx-2,-34,4,5,'#777e79');px(mx-8,-29,16,2,'#26343e');
+  px(mx-7,-54,14,1,'#e2c78e');
  }
- px(-20,-26,40,2,accent);px(-13,-15,25,4,'#263947');
- px(-12,-14,23,1,'#c9c7b7');px(18,-19,5,5,'#f0e0c5');
- px(-34,-28,3,12,'#82684c');px(-39,-32,13,4,'#d8bb7f');
- glow(-33,-30,12,'#e3c17c',.12);
+ px(-8,-10,16,3,'#263947');px(-7,-9,14,1,'#c9c7b7');px(12,-14,4,4,'#f0e0c5');
  ctx.restore();
 }
 function drawWorkstationFronts(){
@@ -716,183 +688,118 @@ function hqCheckBoard(x,y){
  px(-19,-6,10,2,'#c55');ctx.restore();
 }
 function drawFurniture(){
- // Rear shell: a brick feature wall, cool-blue wall panels and panoramic windows.
- for(let x=0;x<W-1;x++){
-  const a=iso(x,0),b=iso(x+1,0);
-  if(x===0||x===5||x===10||x===14){
-   poly([
-    {x:a.x,y:a.y},{x:b.x,y:b.y},
-    {x:b.x,y:b.y-132},{x:a.x,y:a.y-132}
-   ],'#596168','#303a40');
-   px((a.x+b.x)/2-2,(a.y+b.y)/2-128,4,125,'#b59a68');
-  }else if(x<=4){
-   hqWallSegment(a,b,126,'#8a4f3a','#5e3427',true);
-  }else if(x>=11&&x!==12&&x!==13){
-   hqWallSegment(a,b,126,'#23305c','#1a2447',false);
-  }else{
-   hqWindowPanel(a,b,126);
-   px((a.x+b.x)/2-1,(a.y+b.y)/2-124,2,118,'#9bb8b8');
-  }
- }
- // Left glass curtain wall reveals the greenhouse rather than hiding it.
- for(let y=0;y<H-1;y++){
-  const a=iso(0,y),b=iso(0,y+1);
-  hqWindowPanel(a,b,112);
-  px((a.x+b.x)/2-2,(a.y+b.y)/2-110,4,108,'#d2bd88');
- }
+ // REAR FACADE — brick studio wall, broad glass panes and a dark library wall.
+ const r0=iso(0,0),r4=iso(4,0),r8=iso(8,0),r10=iso(10,0),r15=iso(15,0);
+ hqWallSegment(r0,r4,104,'#854a38','#c18a69',true);
+ hqWindowPanel(r4,r8,96);
+ hqWallSegment(r8,r10,104,'#344858','#607b8d',false);
+ hqWindowPanel(r10,r15,96);
+ [[4,0],[8,0],[10,0],[15,0]].forEach(([x,y])=>hqPillar(x,y,0,104));
 
- // FACT UNLOCKED brass identity panel, built from individual pixels and vectors.
- const brand=iso(12,0);
- poly([
-  {x:brand.x-47,y:brand.y-113},{x:brand.x,y:brand.y-137},
-  {x:brand.x+47,y:brand.y-113},{x:brand.x+47,y:brand.y-48},
-  {x:brand.x,y:brand.y-24},{x:brand.x-47,y:brand.y-48}
- ],'#26343c','#b99a65');
- ctx.save();ctx.shadowColor='#e6c778';ctx.shadowBlur=9;
- ctx.strokeStyle='#e6c778';ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(brand.x-13,brand.y-84);ctx.lineTo(brand.x,brand.y-108);
- ctx.lineTo(brand.x+13,brand.y-84);ctx.lineTo(brand.x,brand.y-60);ctx.closePath();ctx.stroke();
- ctx.fillStyle='#f0dfb3';ctx.font='bold 9px system-ui';ctx.textAlign='center';
- ctx.fillText('FACT UNLOCKED',brand.x,brand.y-42);ctx.restore();
-
- // Glass atrium: green tile bed, raised planters and mature plants.
- const ga=iso(0,3),gb=iso(4,3),gc=iso(4,9),gd=iso(0,9);
- poly([ga,gb,gc,gd],'#4b6b5c','#293b37');
- poly([
-  {x:ga.x+10,y:ga.y-4},{x:gb.x-10,y:gb.y-4},
-  {x:gc.x-10,y:gc.y-4},{x:gd.x+10,y:gd.y-4}
- ],'#698b70','#b49a67');
- for(let x=0;x<=4;x++)for(let y=3;y<=9;y++)if((x+y)%2===0){
-  const p=iso(x,y);diamond(p.x,p.y,22,11,'#477654','#315941');
-  px(p.x-5,p.y-5,8,5,'#6aa86e');px(p.x+3,p.y-8,7,6,'#85b878');
+ // LEFT CUTAWAY WALL — one garden window bay instead of a repetitive striped facade.
+ const l0=iso(0,0),l4=iso(0,4),l9=iso(0,9),l13=iso(0,13);
+ hqWallSegment(l0,l4,88,'#344d55','#8da5a0',false);
+ hqWindowPanel(l4,l9,84);
+ hqWallSegment(l9,l13,72,'#6c4b39','#b78c5e',false);
+ ctx.save();ctx.strokeStyle='#d4bb83';ctx.lineWidth=3;
+ for(let t of [.33,.66]){
+  const x=l4.x+(l9.x-l4.x)*t,y=l4.y+(l9.y-l4.y)*t;
+  ctx.beginPath();ctx.moveTo(x,y-3);ctx.lineTo(x,y-84);ctx.stroke();
  }
- hqPlant(1,5,0,true);hqPlant(3,7,0,true);hqPlant(1,9,0,true);
- [[0,3],[4,3],[4,9],[0,9]].forEach(([x,y])=>hqPillar(x,y,0,58));
- // Delicate glass mullions around the atrium.
- for(let y=3;y<9;y++){
-  const a=iso(0,y),b=iso(0,y+1);
-  ctx.save();ctx.strokeStyle='#8fc5c8';ctx.globalAlpha=.75;ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(a.x,a.y-54);ctx.lineTo(b.x,b.y-54);ctx.stroke();ctx.restore();
- }
- for(let x=0;x<4;x++){
-  const a=iso(x,3),b=iso(x+1,3);
-  ctx.save();ctx.strokeStyle='#8fc5c8';ctx.globalAlpha=.75;ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(a.x,a.y-54);ctx.lineTo(b.x,b.y-54);ctx.stroke();ctx.restore();
- }
+ ctx.strokeStyle='#92c4c4';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(l4.x,l4.y-28);ctx.lineTo(l9.x,l9.y-28);ctx.stroke();
+ ctx.restore();
 
- // Ground-floor functional areas — four glass-fronted studios with distinct materials and equipment.
- rug(2.35,2.75,148,82,'#32606a');
- rug(6.35,2.75,130,76,'#354d68');
- rug(9.95,2.75,130,76,'#65573f');
- rug(13.55,2.75,118,76,'#315b59');
- // Floor finishes and wall-mounted displays carry room identity without crossing the walkways.
- hqWallScreen(3,0,0,'VIDEO STUDIO','#70c6ce');
- hqPlant(1,2);hqPlant(5,2);
- hqWallScreen(6,1,0,'SOURCE LIBRARY','#78b9c0');
- hqBookshelf(5,1);hqBookshelf(7,1);
- hqWallScreen(9,1,0,'FACT CHECK','#d4b56d');
- hqWallScreen(13,0,0,'PRODUCTION BAY','#78c6bd');
- hqBookshelf(12.6,1);hqBookshelf(14,1.1);
- hqCameraRig(3.9,4.1);equipment(4.2,2.1,'light');equipment(13.3,4.1,'light');
- hqCameraRig(14.6,3.5);
- hqNoteBoard(.4,5);
- hqCheckBoard(2.3,7.8);
- equipment(15,1.2,'server');
- const rack=iso(14,3);
- ctx.save();ctx.translate(rack.x,rack.y);
- px(-18,-71,36,72,'#505d62');px(-14,-67,28,64,'#1f2d35');
- for(let i=0;i<4;i++){px(-11,-60+i*14,22,8,'#344b55');px(-8,-57+i*14,4,3,'#63c6b5');px(2,-57+i*14,4,3,'#e3bd69')}
- px(-18,-71,36,3,'#d0b477');ctx.restore();
+ // RIGHT CUTAWAY WALL — warm concrete and only three substantial piers.
+ hqWallSegment(iso(15,0),iso(15,13),94,'#34424a','#657985',false);
+ hqPillar(15,4,0,94);hqPillar(15,9,0,94);hqPillar(15,13,0,94);
 
+ // 01 VIDEO STUDIO — brick-backed room, acoustic floor, camera and softboxes.
+ rug(2.8,2.9,118,66,'#355c68');
+ hqWallScreen(2.8,0,0,'VIDEO STUDIO','#72c7cf');
+ hqCameraRig(3.4,4.1);equipment(1.7,3.4,'light');equipment(4.6,4.2,'light');
+ hqNoteBoard(.7,3.0);
 
- // Compact mezzanine: the executive suite occupies the back-right wing only.
- // More than half of the ground floor remains visible from the isometric overview.
- const z=116,x1=9,y1=0,x2=15,y2=5;
+ // 02 RESEARCH LIBRARY — source monitors and warm timber shelving.
+ rug(6.2,3.2,104,58,'#394f63');
+ hqWallScreen(6.2,0,0,'SOURCE LIBRARY','#8fc4c5');
+ hqBookshelf(5.4,.8);hqBookshelf(7.1,.8);hqBookshelf(8.0,2.3);
+ hqPlant(5.1,4.2);hqNoteBoard(7.8,4.0);
+
+ // 03 FACT CHECK / EDITORIAL — shared review table and evidence boards.
+ rug(9.2,3.4,100,56,'#625743');
+ hqWallScreen(9.1,0,0,'FACT CHECK','#d7b978');
+ hqCheckBoard(8.5,3.7);hqNoteBoard(10.4,4.2);
+ hqCoffeeTable(10.2,3.3);
+
+ // 04 PRODUCTION BAY — placed in front of the executive mezzanine so it remains visible.
+ rug(13.0,5.5,108,60,'#31544f');
+ hqWallScreen(13.0,4.4,0,'PRODUCTION BAY','#79c4b9');
+ equipment(14.1,5.3,'server');equipment(14.4,6.0,'light');
+ hqBookshelf(12.4,5.1);hqCameraRig(14.7,5.8);
+
+ // GLASS ATRIUM — a planted garden with broad paving and three mature trees.
+ const ga=iso(.3,4.7),gb=iso(3.8,4.7),gc=iso(3.8,8.6),gd=iso(.3,8.6);
+ poly([ga,gb,gc,gd],'#436956','#253d36');
+ poly([{x:ga.x+9,y:ga.y-3},{x:gb.x-9,y:gb.y-3},{x:gc.x-9,y:gc.y-3},{x:gd.x+9,y:gd.y-3}],'#66866a','#b59b67');
+ for(let x=0;x<=3;x++)for(let y=5;y<=8;y++)if((x+y)%2===0){const p=iso(x,y);diamond(p.x,p.y,24,12,(x+y)%3?'#3d7e55':'#4a9161','#2b5b40')}
+ hqPlant(.8,5.5,0,true);hqPlant(3,6.8,0,true);hqPlant(1.4,8.1,0,true);
+ [[.3,4.7],[3.8,4.7],[3.8,8.6],[.3,8.6]].forEach(([x,y])=>hqPillar(x,y,0,42));
+
+ // COLLABORATION LOUNGE — deliberately low furniture in a clear central circulation lane.
+ rug(7.7,6.5,130,70,'#344c60');
+ hqSofa(7.0,6.2,0,.78);hqSofa(8.9,6.7,0,.72);hqCoffeeTable(8.0,6.65,0);
+ hqPlant(6.1,6.7);hqPlant(9.7,6.4);
+
+ // FOUR WORK PODS — each pair of departments shares one low-profile area rug.
+ rug(6.3,9.4,135,72,'#36536b');
+ rug(12.3,9.4,135,72,'#58513f');
+ rug(6.3,12.3,135,72,'#454a66');
+ rug(12.3,12.3,135,72,'#34574e');
+
+ // COMPACT EXECUTIVE MEZZANINE — rear-right wing, about one third of the former upper area.
+ const z=108,x1=11,y1=0,x2=15,y2=4;
  const A=iso(x1,y1,z),B=iso(x2,y1,z),C=iso(x2,y2,z),D=iso(x1,y2,z);
  const Bb=iso(x2,y1),Cb=iso(x2,y2),Db=iso(x1,y2);
- // Solid floor fascia gives the upper storey a clear architectural thickness.
- poly([D,C,Cb,Db],'#3c4b54','#24323d');
- poly([B,C,Cb,Bb],'#2f414c','#1d2c38');
- poly([A,B,C,D],'#c7c3b7','#59636a');
- for(let y=y1;y<y2;y++)for(let x=x1;x<x2;x++){
-  const p=iso(x,y,z);
-  diamond(p.x,p.y,TW,TH,(x+y)%2?'#d9d4c7':'#c6c2b5','#8d928f');
- }
- // Two soft area rugs separate the private office from the lounge.
- rug(10.4,1.4,88,47,'#526879');rug(12.8,3.7,78,44,'#666052');
- for(let x=x1;x<x2;x++){
-  const a=iso(x,y1,z),b=iso(x+1,y1,z);
-  if(x===9||x===13||x===14){
-   poly([{x:a.x,y:a.y},{x:b.x,y:b.y},{x:b.x,y:b.y-92},{x:a.x,y:a.y-92}],'#334854','#253641');
-  }else hqWindowPanel(a,b,91);
- }
- // Support columns and a restrained glass balustrade.
- hqPillar(9,5,0,116);hqPillar(12,5,0,116);hqPillar(15,5,0,116);
- hqBookshelf(10,1,z);hqBookshelf(11.2,1,z);hqBookshelf(14.2,1.3,z);
- // Executive desk plus a compact lounge cluster.
- hqChair(10.15,3.55,z,'#596f82');
- hqDeskFront(10.15,2.65,z,'#d5a342');
- hqDeskMonitors(10.15,2.65,z,'#e0b75f',true);
- hqSofa(12.1,2.7,z,.86);hqSofa(13.6,4.0,z,.72);
- hqCoffeeTable(12.8,3.45,z);hqCodeDisplay(14,1.0,z);
- // Executive suite is identified by the CEO and the rear wall code display.
- // Compact brass art plinth.
- const statue=iso(14.0,4.0,z);
- ctx.save();ctx.translate(statue.x,statue.y);
- diamond(0,6,27,15,'#4b5355','#aa8d59');
- px(-6,-15,12,20,'#c8c4b6');px(-4,-24,8,11,'#e1ded2');
- px(-2,-30,4,8,'#aaa99f');ctx.restore();
- // Brass-and-glass front rail, following the full mezzanine edge.
- const ra=iso(x1,y2,z),rb=iso(x2,y2,z);
- ctx.save();ctx.globalAlpha=.84;ctx.strokeStyle='#91c9cf';ctx.lineWidth=2.4;
- ctx.beginPath();ctx.moveTo(ra.x,ra.y-28);ctx.lineTo(rb.x,rb.y-28);ctx.stroke();
- ctx.strokeStyle='#d7b975';ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(ra.x,ra.y-34);ctx.lineTo(rb.x,rb.y-34);ctx.stroke();
- for(let i=0;i<=8;i++){
-  const t=i/8,x=ra.x+(rb.x-ra.x)*t,y=ra.y+(rb.y-ra.y)*t;
-  ctx.globalAlpha=.78;ctx.strokeStyle='#d7bd82';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(x,y-28);ctx.lineTo(x,y+1);ctx.stroke();
- }
+ poly([D,C,Cb,Db],'#34434b','#1e2c35');
+ poly([B,C,Cb,Bb],'#263941','#1a2730');
+ poly([A,B,C,D],'#c6c2b4','#59636a');
+ for(let y=y1;y<y2;y++)for(let x=x1;x<x2;x++){const p=iso(x,y);diamond(p.x,p.y,TW,TH,(x+y)%2?'#d4d0c4':'#c4c0b4','#96978e')}
+ // Executive wall, book storage, private workstation and compact lounge.
+ hqWallSegment(iso(11,0,z),iso(15,0,z),78,'#283c4c','#607e8b',false);
+ hqBookshelf(11.8,.7,z);hqBookshelf(12.8,.7,z);
+ hqDeskFront(12.1,2.7,z,'#d5a342');hqDeskMonitors(12.1,2.7,z,'#e0b75f',true);
+ hqChair(12.1,3.6,z,'#596f82');
+ hqSofa(14.0,2.4,z,.7);hqCoffeeTable(13.6,3.25,z);hqCodeDisplay(14.5,.8,z);
+ // Open glass balustrade with a thin brass handrail.
+ const ra=iso(11,4,z),rb=iso(15,4,z);
+ ctx.save();ctx.strokeStyle='#a4d2d0';ctx.globalAlpha=.8;ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(ra.x,ra.y-23);ctx.lineTo(rb.x,rb.y-23);ctx.stroke();
+ ctx.strokeStyle='#d5b879';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ra.x,ra.y-29);ctx.lineTo(rb.x,rb.y-29);ctx.stroke();
+ for(let i=0;i<=6;i++){const t=i/6,x=ra.x+(rb.x-ra.x)*t,y=ra.y+(rb.y-ra.y)*t;px(x-1,y-26,2,27,'#c7ae79')}
  ctx.restore();
- // Stair flight rises from the central circulation lane to the private suite.
- for(let i=0;i<5;i++){
-  const p=iso(8+i,7-i),rise=(i+1)*18;
-  diamond(p.x,p.y-rise,39,21,'#8b8e83','#46545a');
-  poly([{x:p.x-19,y:p.y-rise},{x:p.x,y:p.y+10-rise},{x:p.x,y:p.y+15-rise},{x:p.x-19,y:p.y+5-rise}],'#5c696a','#34434b');
-  poly([{x:p.x,y:p.y+10-rise},{x:p.x+19,y:p.y-rise},{x:p.x+19,y:p.y+5-rise},{x:p.x,y:p.y+15-rise}],'#43545d','#2b3b46');
+ hqPillar(11,4,0,108);hqPillar(13,4,0,108);hqPillar(15,4,0,108);
+
+ // Staircase is a short diagonal flight at the edge of the collaboration lounge.
+ for(let i=0;i<4;i++){
+  const p=iso(9+i,7-i),rise=(i+1)*15;
+  diamond(p.x,p.y-rise,38,20,'#7d877f','#3a4b50');
+  poly([{x:p.x-19,y:p.y-rise},{x:p.x,y:p.y+10-rise},{x:p.x,y:p.y+15-rise},{x:p.x-19,y:p.y+5-rise}],'#53656a','#303e48');
+  poly([{x:p.x,y:p.y+10-rise},{x:p.x+19,y:p.y-rise},{x:p.x+19,y:p.y+5-rise},{x:p.x,y:p.y+15-rise}],'#40545c','#2c3b43');
  }
- // Keep eight individual workstation stations and their own click targets; remove duplicate floor labels.
- // Ground-floor workstations are drawn after the mezzanine so they stay on the correct level.
- officeWorkstations.forEach((s,i)=>hqChair(s.seatX,s.seatY,0,['#536d7a','#526a75','#586b79','#536b79'][i%4]));
+ // Furniture sits under characters; clickable specialist sprites are rendered above it.
+ officeWorkstations.forEach(s=>hqChair(s.seatX,s.seatY,0,'#596d78'));
  officeWorkstations.forEach(s=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual));
- // Shared collaboration nook, plants, warm path lights and water station.
- hqSofa(2,10,0,.8);hqCoffeeTable(2.7,10.8,0);
- [[1,10],[2,12],[15,7],[15,10],[3,13],[9,13],[14,13]].forEach(([x,y],i)=>hqPlant(x,y,0,i===0||i===3));
- [[2,12],[6,13],[10,13],[14,13]].forEach(([x,y])=>{
-  const p=iso(x,y);glow(p.x,p.y-17,20,'#e9c77a',.1);
-  px(p.x-2,p.y-10,4,10,'#555e5b');px(p.x-7,p.y-18,14,7,'#e3c57f');
- });
- // Bulletin board and hydration point complete the office details.
- const water=iso(2,8);ctx.save();ctx.translate(water.x,water.y);
- px(-7,-29,14,27,'#d4d9d4');px(-6,-42,12,14,'#4f91a0');
- px(-4,-40,8,10,'#77b9c3');px(-5,-45,10,4,'#d9e3e0');px(-4,-2,8,3,'#697a7c');
- ctx.restore();
- const notice=iso(1,11);ctx.save();ctx.translate(notice.x,notice.y);
- px(-17,-48,34,44,'#5a4633');px(-14,-45,28,38,'#c5a879');
- px(-11,-40,8,7,'#f0e0bd');px(1,-41,10,9,'#95b3a9');
- px(-10,-28,18,2,'#7f6650');px(-10,-22,7,8,'#b36d62');
- px(0,-20,11,7,'#d9c28e');ctx.restore();
 }
 // Four-by-two workstation grid: each agent owns a desk, monitor and chair.
 const officeWorkstations=[
- {id:'strategy',x:5,y:8,accent:'#507ab8',dual:false},
- {id:'research',x:8,y:8,accent:'#2f9e55',dual:false},
- {id:'fact',x:11,y:8,accent:'#b88c39',dual:false},
- {id:'editorial',x:14,y:8,accent:'#ad6d9a',dual:false},
- {id:'creative',x:5,y:11,accent:'#a65cbd',dual:true},
- {id:'production',x:8,y:11,accent:'#3f80bd',dual:true},
- {id:'distribution',x:11,y:11,accent:'#408f9b',dual:false},
- {id:'analytics',x:14,y:11,accent:'#7a9c57',dual:false}
+ {id:'strategy',x:4.8,y:8.0,accent:'#507ab8',dual:false},
+ {id:'research',x:7.8,y:8.0,accent:'#2f9e55',dual:false},
+ {id:'fact',x:10.9,y:8.0,accent:'#b88c39',dual:false},
+ {id:'editorial',x:13.9,y:8.0,accent:'#ad6d9a',dual:false},
+ {id:'creative',x:4.8,y:11.1,accent:'#a65cbd',dual:true},
+ {id:'production',x:7.8,y:11.1,accent:'#3f80bd',dual:true},
+ {id:'distribution',x:10.9,y:11.1,accent:'#408f9b',dual:false},
+ {id:'analytics',x:13.9,y:11.1,accent:'#7a9c57',dual:false}
 ].map(s=>{
  const seat=worldPoint(s.x+1,s.y+1);
  return {...s,seatX:s.x+1,seatY:s.y+1,agentX:seat.x,agentY:seat.y-5};
@@ -902,7 +809,7 @@ const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
 const ceoData=staff.find(data=>data.id==='ceo');
-const ceoStart=worldPoint(11,2,116);
+const ceoStart=worldPoint(12,2,108);
 const ceoState={data:ceoData,x:ceoStart.x,y:ceoStart.y,targetX:ceoStart.x,targetY:ceoStart.y,wait:90,phase:0,lastFrame:null};
 let ceoRouteIndex=0;
 function sprite(x,y,shirt,hair,walking,phase,size=1){const p=iso(x,y);const bob=walking?Math.round(Math.sin(phase)*2):0;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);diamond(0,1,18,8,'#1a2638aa',null);px(-6,-8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');px(2,-24+bob,3,3,'#f3d17d');ctx.restore()}
@@ -1078,7 +985,7 @@ function drawCEO(t){
  if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
   ceoState.wait--;
   if(ceoState.wait<=0){
-   const stops=[worldPoint(11,2,116),worldPoint(13,3,116),worldPoint(14,4,116),worldPoint(8,6,0),worldPoint(7,7,0),worldPoint(10,7,0),worldPoint(13,8,0)];
+   const stops=[worldPoint(12,2,108),worldPoint(14,2,108),worldPoint(13,3,108),worldPoint(8,6,0),worldPoint(7,7,0),worldPoint(10,7,0),worldPoint(13,8,0)];
    const dest=stops[ceoRouteIndex++%stops.length];
    ceoState.targetX=dest.x;ceoState.targetY=dest.y;ceoState.wait=230;
   }
@@ -1105,7 +1012,7 @@ function moveCEO(tx,ty){
 function officeView(){
  // Fit the actual illustrated building, not the unused transparent canvas margins.
  // This enlarges the two-storey HQ while keeping all corners, pillars and floor trim visible.
- const frame={x:120,y:28,w:700,h:520};
+ const frame={x:84,y:20,w:736,h:555};
  const fit=Math.min((stage.clientWidth-20)/frame.w,(stage.clientHeight-18)/frame.h);
  const view=fit*scale;
  const ox=(stage.clientWidth-frame.w*view)/2-frame.x*view;
