@@ -489,29 +489,6 @@ function hqCameraRig(x,y){
  ctx.strokeStyle='#d9bd80';ctx.lineWidth=2;ctx.strokeRect(-20,-35,40,27);
  glow(0,-24,30,'#73bdcb',.18);ctx.restore();
 }
-function hqCodeDisplay(x,y,z=0){
- const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
- // Wall-mounted developer monitor, inspired by the IDE panel in the PIXEL AGENTS reference.
- ctx.globalAlpha=.28;ctx.fillStyle='#071321';ctx.beginPath();ctx.ellipse(0,8,91,12,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
- px(-88,-118,176,108,'#202a32');px(-84,-114,168,100,'#111b27');
- px(-84,-114,168,12,'#2d3944');
- px(-79,-110,4,4,'#d8a65e');px(-72,-110,4,4,'#b46c70');px(-65,-110,4,4,'#75a99a');
- px(55,-110,20,3,'#6b7b89');px(55,-105,20,2,'#425768');
- // Editor sidebar.
- px(-80,-97,22,76,'#182532');px(-76,-91,14,2,'#5c8c91');
- for(let r=0;r<8;r++){px(-76,-83+r*8,11-(r%3)*2,2,r%2?'#627b8e':'#977b58')}
- px(-53,-98,1,77,'#42515d');
- const syntax=['const office = createHQ();','function renderAgents(){','  scene.draw(floor);','  staff.forEach(agent => {','    agent.work();','    agent.updateStatus();','  });','return render(scene);'];
- const colors=['#78b4bd','#d9b66e','#b58caf','#82a68d','#d5d7d0','#82a68d','#d5d7d0','#78b4bd'];
- for(let i=0;i<syntax.length;i++){
-  ctx.fillStyle=colors[i];ctx.font='6px monospace';ctx.textAlign='left';ctx.textBaseline='alphabetic';
-  ctx.fillText(syntax[i],-47,-91+i*10,128);
- }
- px(-79,-9,158,1,'#374959');px(-79,-5,50,2,'#4c9b91');px(65,-5,14,2,'#c7a867');
- // Small stand and brass hinge.
- px(-5,-10,10,7,'#59656a');px(-17,-4,34,3,'#9b8057');
- ctx.restore();
-}
 function hqPillar(x,y,z=0,height=108){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
  poly([{x:-11,y:0},{x:0,y:6},{x:11,y:0},{x:11,y:-height},{x:0,y:-height-6},{x:-11,y:-height}],'#8e8a7d','#42484b');
@@ -670,29 +647,13 @@ function hqWallSegment(a,b,height,base,accent,brick=false){
  ctx.beginPath();ctx.moveTo(a.x,a.y-5);ctx.lineTo(b.x,b.y-5);ctx.stroke();
  ctx.restore();
 }
-function hqNoteBoard(x,y){
- const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
- px(-22,-70,44,48,'#5a4633');px(-19,-67,38,42,'#d9c8a0');
- px(-15,-62,10,8,'#f3d66b');px(-2,-63,12,9,'#9ed0b8');
- px(-14,-50,9,8,'#f08a7a');px(0,-50,14,8,'#f3d66b');
- px(-14,-38,28,2,'#6b5a45');ctx.restore();
-}
-function hqCheckBoard(x,y){
- const p=iso(x,y);ctx.save();ctx.translate(p.x,p.y);
- px(-24,-4,3,16,'#4c5560');px(21,-4,3,16,'#4c5560');
- px(-26,-62,52,60,'#5a4633');px(-23,-59,46,54,'#e9e2cf');
- for(let i=0;i<4;i++){
-  px(-19,-52+i*12,6,6,'#2f9e55');
-  px(-10,-50+i*12,24,2,'#7d8794');
- }
- px(-19,-6,10,2,'#c55');ctx.restore();
-}
 function drawFurniture(){
  // REAR FACADE — brick studio wall, broad glass panes and a dark library wall.
  const r0=iso(0,0),r4=iso(4,0),r8=iso(8,0),r10=iso(10,0),r15=iso(15,0);
  hqWallSegment(r0,r4,104,'#854a38','#c18a69',true);
  hqWindowPanel(r4,r8,96);
  hqWallSegment(r8,r10,104,'#344858','#607b8d',false);
+ hqWallScreen(9,0,0,'FACT UNLOCKED HQ','#d5b879');
  hqWindowPanel(r10,r15,96);
  [[4,0],[8,0],[10,0],[15,0]].forEach(([x,y])=>hqPillar(x,y,0,104));
 
@@ -715,25 +676,25 @@ function drawFurniture(){
 
  // 01 VIDEO STUDIO — brick-backed room, acoustic floor, camera and softboxes.
  rug(2.8,2.9,118,66,'#355c68');
- hqWallScreen(2.8,0,0,'VIDEO STUDIO','#72c7cf');
+ 
  hqCameraRig(3.4,4.1);equipment(1.7,3.4,'light');equipment(4.6,4.2,'light');
- hqNoteBoard(.7,3.0);
+ 
 
- // 02 RESEARCH LIBRARY — source monitors and warm timber shelving.
+ // 02 RESEARCH LIBRARY — warm timber shelving and reference books.
  rug(6.2,3.2,104,58,'#394f63');
- hqWallScreen(6.2,0,0,'SOURCE LIBRARY','#8fc4c5');
+ 
  hqBookshelf(5.4,.8);hqBookshelf(7.1,.8);hqBookshelf(8.0,2.3);
- hqPlant(5.1,4.2);hqNoteBoard(7.8,4.0);
+ hqPlant(5.1,4.2);
 
- // 03 FACT CHECK / EDITORIAL — shared review table and evidence boards.
+ // 03 FACT CHECK / EDITORIAL — simple review table and open discussion area.
  rug(9.2,3.4,100,56,'#625743');
- hqWallScreen(9.1,0,0,'FACT CHECK','#d7b978');
- hqCheckBoard(8.5,3.7);hqNoteBoard(10.4,4.2);
+ 
+ 
  hqCoffeeTable(10.2,3.3);
 
  // 04 PRODUCTION BAY — placed in front of the executive mezzanine so it remains visible.
  rug(13.0,5.5,108,60,'#31544f');
- hqWallScreen(13.0,4.4,0,'PRODUCTION BAY','#79c4b9');
+ 
  equipment(14.1,5.3,'server');equipment(14.4,6.0,'light');
  hqBookshelf(12.4,5.1);hqCameraRig(14.7,5.8);
 
@@ -759,13 +720,13 @@ function drawFurniture(){
   // CEO PRIVATE OFFICE — same ground level as every team; no raised deck, columns or stairs.
  // A dark timber rug marks the executive area without lifting the floor plane.
  rug(13.0,2.7,112,62,'#495a65');
- hqWallScreen(13.0,0,0,'CEO / CONTENT DIRECTOR','#d8b875');
+ 
  hqBookshelf(11.4,.7,0);hqBookshelf(14.5,.8,0);
  hqDeskFront(12.45,2.25,0,'#d5a342');
  hqDeskMonitors(12.45,2.25,0,'#e0b75f',true);
  hqChair(12.45,3.15,0,'#596f82');
  hqSofa(14.0,2.9,0,.72);hqCoffeeTable(13.7,3.65,0);
- hqCodeDisplay(14.3,.7,0);
+ 
  hqPlant(11.2,3.7,0,true);
  // Floor-level low divider signals a private office while keeping an open sightline.
  const officeA=iso(11.2,4.3),officeB=iso(14.8,4.3);
