@@ -1056,7 +1056,7 @@ function drawNPCs(t=0){
   }catch(err){
    console.warn('NPC render fallback:',n.data.id,err);
    try{
-    drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair,indexForStaff(n.data.id),t/1000);
+    drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair,(staffSpriteIndex[n.data.id]??0),t/1000);
     drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-72,n.data.color,false);
    }catch(fallbackErr){console.warn('NPC fallback unavailable:',n.data.id,fallbackErr)}
   }
