@@ -647,6 +647,82 @@ function hqWallSegment(a,b,height,base,accent,brick=false){
  ctx.beginPath();ctx.moveTo(a.x,a.y-5);ctx.lineTo(b.x,b.y-5);ctx.stroke();
  ctx.restore();
 }
+
+function hqAudioCorner(x,y,z=0){
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ // compact acoustic alcove: deep navy foam panels, brass trim and a restrained cyan status light
+ diamond(0,8,76,38,'#192b38','#9a815a');
+ px(-34,-67,22,53,'#182b39');px(-9,-73,22,59,'#203646');px(16,-66,21,52,'#182b39');
+ for(let col=0;col<3;col++){
+  const xx=-31+col*25;
+  for(let row=0;row<5;row++){
+   px(xx,-61+row*10,3,5,'#486779');
+   px(xx+7,-57+row*10,3,5,'#344e60');
+  }
+ }
+ ctx.strokeStyle='#c3a66e';ctx.lineWidth=1.5;ctx.strokeRect(-35,-68,73,55);
+ // mic stand and pop filter
+ px(-2,-6,4,31,'#64727a');px(-13,23,29,3,'#45565e');
+ px(-3,-38,6,20,'#303e49');px(-5,-45,10,9,'#a8b1ad');
+ ctx.beginPath();ctx.strokeStyle='#d4c6a0';ctx.lineWidth=2;ctx.arc(10,-37,10,0,Math.PI*2);ctx.stroke();
+ ctx.beginPath();ctx.strokeStyle='#728e9a';ctx.lineWidth=1;ctx.moveTo(10,-27);ctx.lineTo(1,-20);ctx.stroke();
+ // small audio interface at the side
+ diamond(28,-3,30,17,'#293c49','#a58a5b');
+ px(17,-11,20,7,'#172633');px(19,-10,3,2,'#61cdb5');px(24,-10,3,2,'#e4bd68');px(29,-10,3,2,'#61cdb5');
+ px(19,-5,14,2,'#93aeb2');
+ ctx.fillStyle='#d8e7e4';ctx.font='bold 5px monospace';ctx.textAlign='center';ctx.fillText('VOICE',0,35);
+ ctx.restore();
+}
+function hqProductionControlWall(x,y,z=0){
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ glow(0,-60,88,'#6ec6ca',.13);
+ // one framed wall-mounted control panel with three clearly differentiated work screens
+ px(-76,-105,152,87,'#111d29');px(-72,-101,144,79,'#344552');
+ px(-68,-97,136,71,'#0d1b29');
+ px(-68,-97,136,8,'#273d4a');
+ ctx.fillStyle='#f2d89d';ctx.font='bold 6px monospace';ctx.textAlign='left';ctx.fillText('FACT UNLOCKED  /  CONTROL ROOM',-63,-91);
+ // picture monitor: a tiny shot preview and frame strip
+ px(-63,-83,39,43,'#203647');px(-60,-80,33,25,'#447584');
+ poly([{x:-59,y:-56},{x:-50,y:-72},{x:-41,y:-62},{x:-34,y:-72},{x:-28,y:-56}],'#71a6a0','#9cc6bf');
+ px(-59,-52,31,2,'#e6d6b2');px(-59,-47,21,2,'#8cb7c0');
+ // audio waveform monitor
+ px(-19,-83,40,43,'#1c3140');px(-16,-80,34,37,'#102534');
+ ctx.strokeStyle='#65cbb9';ctx.lineWidth=1.2;ctx.beginPath();
+ for(let i=0;i<30;i++){const xx=-13+i,hh=3+Math.abs(Math.sin(i*.83))*13;ctx.moveTo(xx,-61-hh/2);ctx.lineTo(xx,-61+hh/2)}
+ ctx.stroke();px(-14,-47,29,2,'#d6c49b');
+ // timeline monitor with stacked video/audio tracks
+ px(26,-83,37,43,'#203342');px(29,-80,31,37,'#122432');
+ for(let row=0;row<4;row++){
+  px(32,-75+row*7,24,3,'#314c5b');
+  px(32,-75+row*7,6+(row%2)*6,3,row===2?'#d6b36d':'#6fc1bd');
+ }
+ px(32,-47,22,2,'#8baeb2');
+ // status bar and brass outer edge
+ px(-67,-34,134,3,'#3b596a');px(-67,-30,90,2,'#d4b16a');
+ ctx.strokeStyle='#b89c67';ctx.lineWidth=1.4;ctx.strokeRect(-76,-105,152,87);
+ ctx.fillStyle='#9fc6c3';ctx.font='5px monospace';ctx.textAlign='right';ctx.fillText('LIVE  /  EDIT  /  EXPORT',67,-23);
+ ctx.restore();
+}
+function hqEditConsole(x,y,z=0){
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ ctx.globalAlpha=.22;ctx.fillStyle='#08121b';ctx.beginPath();ctx.ellipse(0,17,48,17,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ // low-profile editing desk with equipment drawer
+ px(-34,-1,5,28,'#36434a');px(29,-1,5,28,'#36434a');
+ poly([{x:-37,y:-7},{x:0,y:10},{x:0,y:24},{x:-37,y:7}],'#4f3a2c','#28343b');
+ poly([{x:0,y:10},{x:37,y:-7},{x:37,y:7},{x:0,y:24}],'#43352d','#28343b');
+ diamond(0,-11,90,47,'#59442f','#b88d58');
+ diamond(0,-15,84,43,'#b58c57','#e2c38b');
+ diamond(0,-17,73,34,'#293c49','#7a9ca0');
+ // multichannel jog/shuttle deck and keyboard
+ px(-26,-18,21,5,'#172836');px(-24,-17,17,2,'#86b2b5');
+ for(let i=0;i<5;i++)px(-22+i*4,-23,2,3,i===2?'#e7bf69':'#64c9b5');
+ px(8,-19,22,5,'#172836');px(10,-18,18,2,'#c4d0c7');
+ px(30,-22,6,6,'#d9c38b');px(32,-24,2,3,'#f5e3ae');
+ // drawer badge
+ px(-13,8,26,2,'#d6b879');px(-2,10,4,2,'#e5d6b0');
+ ctx.restore();
+}
+
 function drawFurniture(){
  // REAR FACADE — brick studio wall, broad glass panes and a dark library wall.
  const r0=iso(0,0),r4=iso(4,0),r8=iso(8,0),r10=iso(10,0),r15=iso(15,0);
@@ -677,7 +753,7 @@ function drawFurniture(){
  rug(2.8,2.9,118,66,'#355c68');
  hqWallScreen(2.8,0,0,'VIDEO STUDIO','#72c7cf');
  hqCameraRig(3.4,4.1);equipment(1.7,3.4,'light');equipment(4.6,4.2,'light');
- hqNoteBoard(.7,3.0);
+ hqAudioCorner(1.05,2.75);
 
  // 02 RESEARCH LIBRARY — source monitors and warm timber shelving.
  rug(6.2,3.2,104,58,'#394f63');
@@ -693,9 +769,10 @@ function drawFurniture(){
 
  // 04 PRODUCTION BAY — placed in front of the executive mezzanine so it remains visible.
  rug(13.0,5.5,108,60,'#31544f');
- hqWallScreen(13.0,4.4,0,'PRODUCTION BAY','#79c4b9');
+ hqProductionControlWall(13.0,4.4,0);
  equipment(14.1,5.3,'server');equipment(14.4,6.0,'light');
  hqCameraRig(14.7,5.8);
+ hqEditConsole(12.2,6.65,0);
 
  // GLASS ATRIUM — a planted garden with broad paving and three mature trees.
  const ga=iso(.3,4.7),gb=iso(3.8,4.7),gc=iso(3.8,8.6),gd=iso(.3,8.6);
