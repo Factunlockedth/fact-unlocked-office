@@ -389,36 +389,53 @@ function drawFloor(){
 }
 function hqDeskFront(x,y,z=0,accent='#64b9c6'){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
- ctx.globalAlpha=.25;ctx.fillStyle='#08131d';ctx.beginPath();ctx.ellipse(0,10,29,11,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
- px(-21,-4,4,19,'#35424a');px(17,-4,4,19,'#35424a');
- px(-19,8,4,8,'#98704a');px(16,8,4,8,'#72543b');
- poly([{x:-23,y:-7},{x:0,y:5},{x:0,y:16},{x:-23,y:4}],'#503b2d','#283238');
- poly([{x:0,y:5},{x:23,y:-7},{x:23,y:4},{x:0,y:16}],'#43352c','#283238');
- diamond(0,-10,60,32,'#47372b','#252d31');
- diamond(0,-13,56,29,'#bb8f5a','#e1c38a');
- diamond(0,-15,47,22,'#6b5a47','#947952');
- px(-8,-14,16,3,'#283949');px(-7,-13,14,1,'#c5c6b7');
- px(14,-22,7,5,'#eee3ce');px(15,-24,4,2,'#ffffff');
- px(-20,-23,4,8,'#8d7958');px(-23,-26,8,3,'#d9be83');
- px(21,-10,4,4,accent);ctx.restore();
+ ctx.globalAlpha=.24;ctx.fillStyle='#07111b';ctx.beginPath();ctx.ellipse(0,13,36,14,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ // Graphite legs and timber apron.
+ px(-27,-4,5,23,'#2c3b44');px(22,-4,5,23,'#2c3b44');
+ px(-25,10,4,10,'#9b744d');px(22,10,4,10,'#79593d');
+ poly([{x:-30,y:-8},{x:0,y:8},{x:0,y:22},{x:-30,y:6}],'#503b2d','#28343a');
+ poly([{x:0,y:8},{x:30,y:-8},{x:30,y:6},{x:0,y:22}],'#43352d','#28343a');
+ // Wider desktop, bevel and warm front edge.
+ diamond(0,-12,76,40,'#49372b','#252d31');
+ diamond(0,-16,72,38,'#c1935e','#e1c38a');
+ diamond(0,-18,61,30,'#6c5a47','#947952');
+ poly([{x:-30,y:-5},{x:0,y:10},{x:0,y:14},{x:-30,y:-1}],'#83603e','#49382c');
+ poly([{x:0,y:10},{x:30,y:-5},{x:30,y:-1},{x:0,y:14}],'#705034','#49382c');
+ // Keyboard, paper tablet and colour-coded work lamp.
+ px(-11,-17,21,4,'#243747');px(-10,-16,18,2,'#d0cbb9');
+ px(18,-26,10,7,'#eee3ce');px(19,-28,7,2,'#ffffff');
+ px(-25,-26,5,10,'#8d7958');px(-28,-30,11,4,'#d9be83');
+ px(27,-12,5,5,accent);glow(28,-14,12,accent,.1);
+ ctx.restore();
 }
 function hqDeskMonitors(x,y,z=0,accent='#64b9c6',dual=false){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
  const n=dual?2:1;
  for(let i=0;i<n;i++){
-  const mx=(i-(n-1)/2)*18;
-  glow(mx,-41,20,accent,.15);
-  px(mx-7,-54,14,17,'#121f2c');px(mx-5,-52,10,13,'#315567');
-  px(mx-4,-50,8,2,accent);px(mx-4,-46,7,2,'#e8e2d1');
-  px(mx-4,-42,8,2,'#86b7bd');px(mx-4,-38,5,2,'#d7d6c7');
-  px(mx-2,-34,4,5,'#777e79');px(mx-8,-29,16,2,'#26343e');
-  px(mx-7,-54,14,1,'#e2c78e');
+  const mx=(i-(n-1)/2)*21;
+  glow(mx,-44,25,accent,.17);
+  px(mx-9,-59,18,22,'#101e2a');px(mx-7,-57,14,18,'#315668');
+  px(mx-6,-55,12,2,accent);px(mx-6,-50,10,2,'#eee8d8');
+  px(mx-6,-46,12,2,'#8dbbc0');px(mx-6,-42,8,2,'#d7d6c7');
+  px(mx-2,-37,4,7,'#777e79');px(mx-10,-31,20,2,'#26343e');
+  px(mx-9,-59,18,2,'#e2c78e');
  }
- px(-8,-10,16,3,'#263947');px(-7,-9,14,1,'#c9c7b7');px(12,-14,4,4,'#f0e0c5');
+ // Keyboard light and single illuminated task control.
+ px(-10,-12,20,3,'#263947');px(-9,-11,18,1,'#c9c7b7');
+ px(14,-17,5,5,'#f0e0c5');px(17,-18,3,3,accent);
  ctx.restore();
 }
 function drawWorkstationFronts(){
- officeWorkstations.forEach(s=>hqDeskFront(s.x,s.y,0,s.accent));
+ officeWorkstations.forEach((s,i)=>{
+  try{
+   hqDeskFront(s.x,s.y,0,s.accent);
+  }catch(err){
+   console.warn('Desk render fallback:',s.id,err);
+   const p=iso(s.x,s.y);
+   diamond(p.x,p.y-10,72,38,'#60452e','#d0ad76');
+   diamond(p.x,p.y-13,66,34,'#a77b4e','#ead19c');
+  }
+ });
 }
 function hqChair(x,y,z=0,color='#526674'){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
@@ -648,6 +665,19 @@ function hqWallSegment(a,b,height,base,accent,brick=false){
  ctx.restore();
 }
 
+function hqBrandFascia(x,y,z=0){
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ glow(0,-19,58,'#ddb66e',.14);
+ poly([{x:-58,y:-31},{x:0,y:-45},{x:58,y:-31},{x:58,y:-4},{x:0,y:10},{x:-58,y:-4}],
+      '#172a39','#b99a65');
+ ctx.strokeStyle='#d8bd80';ctx.lineWidth=1.5;
+ ctx.beginPath();ctx.moveTo(-50,-28);ctx.lineTo(0,-40);ctx.lineTo(50,-28);ctx.stroke();
+ ctx.fillStyle='#f3e5c6';ctx.textAlign='center';ctx.font='bold 8px monospace';
+ ctx.fillText('FACT UNLOCKED',0,-18);
+ ctx.fillStyle='#8ec5c4';ctx.font='6px monospace';
+ ctx.fillText('CONTENT  /  RESEARCH  /  PRODUCTION',0,-8);
+ ctx.restore();
+}
 function hqAudioCorner(x,y,z=0){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
  // compact acoustic alcove: deep navy foam panels, brass trim and a restrained cyan status light
@@ -750,6 +780,7 @@ function drawFurniture(){
  hqPillar(15,4,0,94);hqPillar(15,9,0,94);hqPillar(15,13,0,94);
 
  // 01 VIDEO STUDIO — brick-backed room, acoustic floor, camera and softboxes.
+ hqBrandFascia(8.8,0,0);
  rug(2.8,2.9,118,66,'#355c68');
  hqWallScreen(2.8,0,0,'VIDEO STUDIO','#72c7cf');
  hqCameraRig(3.4,4.1);equipment(1.7,3.4,'light');equipment(4.6,4.2,'light');
@@ -784,6 +815,8 @@ function drawFurniture(){
 
  // COLLABORATION LOUNGE — deliberately low furniture in a clear central circulation lane.
  rug(7.7,6.5,130,70,'#344c60');
+ const lounge=iso(7.7,6.5);ctx.save();ctx.globalAlpha=.35;ctx.strokeStyle='#b89d6a';ctx.lineWidth=1.4;
+ ctx.beginPath();ctx.moveTo(lounge.x-57,lounge.y);ctx.lineTo(lounge.x,lounge.y-28);ctx.lineTo(lounge.x+57,lounge.y);ctx.lineTo(lounge.x,lounge.y+28);ctx.closePath();ctx.stroke();ctx.restore();
  hqSofa(7.0,6.2,0,.78);hqSofa(8.9,6.7,0,.72);hqCoffeeTable(8.0,6.65,0);
  hqPlant(6.1,6.7);hqPlant(9.7,6.4);
 
@@ -1014,10 +1047,19 @@ function drawDeskAgent(x,y,shirt,hair,index,time){
  ctx.restore();
 }
 function drawNPCs(t=0){
- [...npcState].sort((a,b)=>a.y-b.y).forEach(n=>{
-  const index=staffSpriteIndex[n.data.id]??0;
-  drawDeskAgent(n.x,n.y,n.data.color,n.data.hair,index,t/1000);
-  drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-82,n.data.color,hoveredStaffId===n.data.id);
+ const ordered=[...npcState].sort((a,b)=>a.y-b.y);
+ ordered.forEach(n=>{
+  try{
+   const index=staffSpriteIndex[n.data.id]??0;
+   drawDeskAgent(n.x,n.y,n.data.color,n.data.hair,index,t/1000);
+   drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-82,n.data.color,hoveredStaffId===n.data.id);
+  }catch(err){
+   console.warn('NPC render fallback:',n.data.id,err);
+   try{
+    drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair,indexForStaff(n.data.id),t/1000);
+    drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-72,n.data.color,false);
+   }catch(fallbackErr){console.warn('NPC fallback unavailable:',n.data.id,fallbackErr)}
+  }
  });
 }
 function drawCEO(t){
@@ -1094,10 +1136,10 @@ function draw(t=performance.now()){
  ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight);
  ctx.save();
  ctx.translate(v.ox,v.oy);ctx.scale(v.view,v.view);ctx.translate(camX,camY);
- drawOfficeBackground();
- drawNPCs(t);
- drawWorkstationFronts();
- drawCEO(t);
+ try{drawOfficeBackground()}catch(err){console.error('Office architecture render failed',err)}
+ try{drawNPCs(t)}catch(err){console.error('Office NPC layer failed',err)}
+ try{drawWorkstationFronts()}catch(err){console.error('Office desk layer failed',err)}
+ try{drawCEO(t)}catch(err){console.error('Office CEO layer failed',err)}
  ctx.restore();
 }
 function animate(t){
