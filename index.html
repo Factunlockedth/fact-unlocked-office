@@ -411,7 +411,7 @@ html,body,#app{background:#07121a;color:#edf3ef}
   <button class="navtab" data-view="settings"><b>⚙</b><small>ตั้งค่า</small></button>
  </nav>
  <div class="resourcebox"><span>⚡ 120/120</span><span>◉ 3,560</span><span>💎 240</span></div>
- <div class="topright"><span id="status">AI 9</span><button id="meeting">CEO</button><button id="bridgeopen">META AI</button></div>
+ <div class="topright"><span id="status">8 แผนก</span><button id="meeting">CEO</button><button id="bridgeopen">META AI</button></div>
 </header>
 <div id="stage">
  <canvas id="game"></canvas>
@@ -434,7 +434,7 @@ html,body,#app{background:#07121a;color:#edf3ef}
   <div class="mission-row"><i>05</i><span>Creative · ออกแบบภาพ</span></div>
   <div class="mission-row"><i>06</i><span>Production · ผลิตคลิป</span></div>
   <div class="mission-row"><i>07</i><span>Distribution · เผยแพร่</span></div>
-  <div class="mission-row"><i>08</i><span>Analytics · วิเคราะห์ผล</span></div>
+  <div class="mission-row"><i>08</i><span>CEO · อนุมัติและกำกับงาน</span></div>
   <div class="mission-progress"><div><b>ทีม AI ทั้งหมด</b><strong>8 แผนก</strong></div><span><i></i></span></div>
  </section>
  <section id="activity-panel" class="hud-card">
@@ -523,7 +523,7 @@ const staff=[
 {id:'creative',name:'Creative AI',role:'ออกแบบและ Storyboard',x:3,y:9,color:'#a65cbd',hair:'#312a38',desc:'ออกแบบ Moodboard, Storyboard และแนวทางภาพ Cinematic'},
 {id:'production',name:'Production AI',role:'ผลิตวิดีโอและเสียง',x:3,y:2,color:'#3f80bd',hair:'#332a26',desc:'ผลิตวิดีโอ เสียงบรรยาย ภาพประกอบ และตรวจคุณภาพงาน'},
 {id:'distribution',name:'Distribution AI',role:'เผยแพร่คอนเทนต์',x:7,y:9,color:'#408f9b',hair:'#30282e',desc:'เตรียมโพสต์และจัดตาราง TikTok, YouTube, Facebook, Instagram'},
-{id:'analytics',name:'Analytics AI',role:'วิเคราะห์ผล',x:10,y:8,color:'#7a9c57',hair:'#292633',desc:'วิเคราะห์ Views, Retention, CTR และเสนอการปรับปรุง'}
+{id:'analytics',name:'Analytics AI',role:'ผู้ช่วยวิเคราะห์ผล',x:10,y:8,color:'#7a9c57',hair:'#292633',virtual:true,desc:'วิเคราะห์ Views, Retention, CTR และเสนอการปรับปรุง'}
 ]; 
 // Procedural Canvas office scene; no office background image is loaded.
 function worldPoint(x,y,z=0){return {x:(x-y)*TW/2+OX,y:(x+y)*TH/2+OY-z}}
@@ -1075,7 +1075,7 @@ function drawFurniture(){
  hqSafeDraw('production control wall',()=>hqProductionControlWall(13.5,4.8,0));
  hqSafeDraw('production edit console',()=>hqEditConsole(12.5,7.1,0));
 
- // Eight clear workstations. Each has only a chair, monitor and desk.
+ // Seven specialist workstations; the CEO has a separate office.
  officeWorkstations.forEach(s=>hqSafeDraw('chair '+s.id,()=>hqChair(s.seatX,s.seatY,0,'#526875')));
  officeWorkstations.forEach(s=>hqSafeDraw('monitor '+s.id,()=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual)));
 }
@@ -1088,13 +1088,12 @@ const officeWorkstations=[
  {id:'fact',x:4.2,y:10.9,accent:'#d8b56e',dual:false},
  {id:'editorial',x:7.2,y:10.9,accent:'#c58cb5',dual:false},
  {id:'distribution',x:11.8,y:10.9,accent:'#5fc4bd',dual:false},
- {id:'analytics',x:14.8,y:10.9,accent:'#a6c77c',dual:false}
 ].map(s=>{
  const seat=worldPoint(s.x+1,s.y+1);
  return {...s,seatX:s.x+1,seatY:s.y+1,agentX:seat.x,agentY:seat.y-5};
 });
 const officeSeats=Object.fromEntries(officeWorkstations.map(s=>[s.id,{x:s.agentX,y:s.agentY}]));
-const npcState=staff.filter(data=>data.id!=='ceo').map((data,i)=>({
+const npcState=staff.filter(data=>data.id!=='ceo'&&!data.virtual).map((data,i)=>({
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
 const ceoData=staff.find(data=>data.id==='ceo');
@@ -1823,9 +1822,9 @@ document.getElementById('hudclose').onclick=closeHud;
 document.getElementById('hudbg').addEventListener('click',e=>{if(e.target.id==='hudbg')closeHud()});
 const viewContent={
  projects:['โปรเจกต์ CONTENT STUDIO','<p>จัดการงานสารคดีตั้งแต่เลือกหัวข้อจนถึงเตรียมเผยแพร่</p><button class="hud-action" id="open-bridge"><b>META AI PRODUCTION BRIDGE</b><br>เปิดพื้นที่ทำ Prompt แยกฉากและติดตามสถานะคลิป</button><p class="hud-muted">การสร้างวิดีโอใน Meta AI ยังเป็นขั้นตอนที่ผู้ใช้คัดลอก Prompt ไปดำเนินการเอง</p>'],
- team:['ทีมงาน AI','<p>เลือกพนักงานเพื่อเริ่มสนทนาโดยตรง</p>'+staff.map(n=>'<button class="hud-action" data-chat-id="'+n.id+'"><b>'+n.name+'</b><br>'+n.role+'</button>').join('')],
+ team:['ทีมงาน AI','<p>ทีมหลัก 8 แผนก เลือกพนักงานเพื่อเริ่มสนทนาโดยตรง</p>'+staff.filter(n=>!n.virtual).map(n=>'<button class="hud-action" data-chat-id="'+n.id+'"><b>'+n.name+'</b><br>'+n.role+'</button>').join('')],
  knowledge:['คลังความรู้','<p>Research รวบรวมข้อมูลต้นทาง ส่วน Fact Check ตรวจสอบคำกล่าวอ้างและระดับความน่าเชื่อถือ</p><p class="hud-muted">พื้นที่นี้เป็นทางลัดไปยังทีมงาน ยังไม่ได้เป็นฐานเอกสารที่ซิงก์ไฟล์อัตโนมัติ</p><button class="hud-action" data-chat-id="research">คุยกับ Research AI</button><button class="hud-action" data-chat-id="fact">คุยกับ Fact Check AI</button>'],
- reports:['รายงานและ Analytics','<p>พื้นที่สำหรับวิเคราะห์ยอดรับชม การดูต่อเนื่อง อัตราคลิก และผลลัพธ์ของคอนเทนต์</p><p class="hud-muted">รายงานจริงจะแสดงเมื่อเชื่อมข้อมูลแพลตฟอร์มและระบบวิเคราะห์เรียบร้อย</p><button class="hud-action" data-chat-id="analytics">คุยกับ Analytics AI</button>'],
+ reports:['รายงานและ Analytics','<p>Analytics AI เป็นผู้ช่วยวิเคราะห์ผลสำหรับเมนูรายงาน ไม่ใช่แผนกแยกในผังสำนักงานใหญ่</p><p class="hud-muted">รายงานจริงจะแสดงเมื่อเชื่อมข้อมูลแพลตฟอร์มและระบบวิเคราะห์เรียบร้อย</p><button class="hud-action" data-chat-id="analytics">คุยกับ Analytics AI</button>'],
  settings:['การใช้งานสำนักงาน','<p>แตะพนักงานหรือโต๊ะเพื่อเปิดแชต · แตะพื้นที่ว่างเพื่อให้ CEO เดิน · ใช้ปุ่ม + / − เพื่อซูม และ ⌖ เพื่อจัดมุมมองใหม่</p><p class="hud-muted">บน iPhone สามารถลากฉากเพื่อเลื่อนมุมกล้องได้</p>']
 };
 document.querySelectorAll('#mainnav [data-view]').forEach(btn=>btn.addEventListener('click',()=>{
