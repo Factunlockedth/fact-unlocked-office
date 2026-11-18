@@ -511,7 +511,7 @@ staffAtlas.onerror=()=>console.warn('Staff sprite atlas unavailable; using fallb
 staffAtlas.src='./assets/fact-hq-pixel-staff-v3.png?v=20261112a';
 const CW=900,CH=650,TW=46,TH=23,OX=450,OY=170;
 let dpr=1,scale=1,camX=0,camY=0,selected=null,drag=null;
-const W=18,H=18;
+const W=16,H=14;
 const floor=Array.from({length:H},()=>Array(W).fill(1));
 const furniture=[];
 const staff=[
@@ -1046,26 +1046,48 @@ function hqMezzanineRail(x1,y1,x2,y2,z){
 }
 
 function drawFurniture(){
- // One single-level office. The CEO occupies a compact rear suite with a quiet backdrop.
- hqSafeDraw('CEO back wall',()=>hqWallSegment(iso(2.4,0.9),iso(9.0,0.9),80,'#263b40','#78908a',false));
- hqSafeDraw('CEO brand sign',()=>hqBrandFascia(5.7,0.9,70));
- hqSafeDraw('CEO desk',()=>hqDeskFront(6.0,2.6,0,'#d5a342'));
- hqSafeDraw('CEO monitors',()=>hqDeskMonitors(6.0,2.6,0,'#72bdc2',true));
- hqSafeDraw('CEO chair',()=>hqChair(6.0,3.6,0,'#526f83'));
+ // Minimal rear wall: one studio display and a calm glass facade.
+ hqSafeDraw('rear studio wall',()=>hqWallSegment(iso(0,0),iso(4.1,0),112,'#34434a','#a88d69',true));
+ hqSafeDraw('studio display',()=>hqVideoStage(2.2,0,0));
+ hqSafeDraw('panoramic rear glazing',()=>hqCityWindow(4.2,0,7.1,0,0,104));
+ hqSafeDraw('rear brand wall',()=>hqWallSegment(7.1,0,9.3,0,104,'#1b3039','#718c8b',false));
+ hqSafeDraw('right rear glazing',()=>hqCityWindow(9.3,0,15.2,0,0,96));
+ hqSafeDraw('left side return',()=>hqWallSegment(iso(0,0),iso(0,4.6),74,'#1b3540','#718e8d',false));
 
- // The seven department desks are deliberately plain and evenly spaced.
+ // CEO suite: one compact raised office, one desk and a clear glass boundary.
+ const z=92,x1=8,y1=0,x2=15,y2=4;
+ const A=iso(x1,y1,z),B=iso(x2,y1,z),C=iso(x2,y2,z),D=iso(x1,y2,z);
+ const B0=iso(x2,y1),C0=iso(x2,y2),D0=iso(x1,y2);
+ poly([D,C,C0,D0],'#263b43','#142a34');
+ poly([B,C,C0,B0],'#1c323b','#11242d');
+ poly([A,B,C,D],'#819a98','#4d696d');
+ hqSafeDraw('CEO suite wall',()=>hqWallSegment(iso(8,0,z),iso(10.5,0,z),66,'#3c3a37','#ad936d',true));
+ hqSafeDraw('CEO suite window',()=>hqCityWindow(10.5,0,15,0,z,58));
+ hqSafeDraw('CEO name fascia',()=>hqBrandFascia(8.8,0,108));
+ hqSafeDraw('CEO desk',()=>hqDeskFront(10.8,2.0,z,'#d5a342'));
+ hqSafeDraw('CEO monitors',()=>hqDeskMonitors(10.8,2.0,z,'#72bdc2',true));
+ hqSafeDraw('CEO chair',()=>hqChair(10.8,2.9,z,'#526f83'));
+ hqSafeDraw('CEO glass rail',()=>hqMezzanineRail(8,4,15,4,z));
+ hqSafeDraw('CEO support left',()=>hqPillar(8,4,0,z));
+ hqSafeDraw('CEO support right',()=>hqPillar(15,4,0,z));
+
+ // Production corner: one control wall and one edit console; no extra prop clusters.
+ hqSafeDraw('production control wall',()=>hqProductionControlWall(13.5,4.8,0));
+ hqSafeDraw('production edit console',()=>hqEditConsole(12.5,7.1,0));
+
+ // Seven specialist workstations; the CEO has a separate office.
  officeWorkstations.forEach(s=>hqSafeDraw('chair '+s.id,()=>hqChair(s.seatX,s.seatY,0,'#526875')));
  officeWorkstations.forEach(s=>hqSafeDraw('monitor '+s.id,()=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual)));
 }
-// Seven departments: four across the rear row and three centred in front.
+// Match the reference layout: four departments on the rear row, three on the front row.
 const officeWorkstations=[
- {id:'strategy',x:2.45,y:12.05,accent:'#5ca7d1',dual:false},
- {id:'research',x:4.85,y:9.65,accent:'#5ac5a3',dual:false},
- {id:'fact',x:7.25,y:7.25,accent:'#d8b56e',dual:false},
- {id:'editorial',x:9.65,y:4.85,accent:'#c58cb5',dual:false},
- {id:'creative',x:7.75,y:15.75,accent:'#b28be0',dual:false},
- {id:'production',x:11.75,y:11.75,accent:'#5ba4d7',dual:true},
- {id:'distribution',x:15.75,y:7.75,accent:'#5fc4bd',dual:false}
+ {id:'strategy',x:1.2,y:7.9,accent:'#5ca7d1',dual:false},
+ {id:'research',x:4.2,y:7.9,accent:'#5ac5a3',dual:false},
+ {id:'fact',x:8.8,y:7.9,accent:'#d8b56e',dual:true},
+ {id:'editorial',x:11.8,y:7.9,accent:'#c58cb5',dual:false},
+ {id:'creative',x:4.2,y:10.9,accent:'#b28be0',dual:false},
+ {id:'production',x:7.2,y:10.9,accent:'#5ba4d7',dual:true},
+ {id:'distribution',x:11.8,y:10.9,accent:'#5fc4bd',dual:false}
 ].map(s=>{
  const seat=worldPoint(s.x+1,s.y+1);
  return {...s,seatX:s.x+1,seatY:s.y+1,agentX:seat.x,agentY:seat.y-5};
@@ -1075,7 +1097,7 @@ const npcState=staff.filter(data=>data.id!=='ceo'&&!data.virtual).map((data,i)=>
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
 const ceoData=staff.find(data=>data.id==='ceo');
-const ceoStart=worldPoint(7.0,3.6,0);
+const ceoStart=worldPoint(10.8,2.0,96);
 const ceoState={data:ceoData,x:ceoStart.x,y:ceoStart.y,targetX:ceoStart.x,targetY:ceoStart.y,wait:90,phase:0,lastFrame:null};
 
 function sprite(x,y,shirt,hair,walking,phase,size=1){const p=iso(x,y);const bob=walking?Math.round(Math.sin(phase)*2):0;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);diamond(0,1,18,8,'#1a2638aa',null);px(-6,-8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');px(2,-24+bob,3,3,'#f3d17d');ctx.restore()}
@@ -1189,15 +1211,15 @@ function drawSeatedWorker(x,y,shirt,hair,index=0,time=0){
 }
 function drawStaffNameplate(label,x,topY,accent,active=false){
  ctx.save();
- ctx.font='bold 7px monospace';
- const width=Math.max(48,Math.min(92,ctx.measureText(label).width+14));
- const left=Math.round(x-width/2),top=Math.round(topY),height=12;
- ctx.shadowColor='rgba(0,0,0,.16)';ctx.shadowBlur=active?3:0;
- ctx.fillStyle='rgba(8,22,29,.97)';ctx.strokeStyle=active?'#e0c184':'rgba(117,153,153,.62)';ctx.lineWidth=.8;
+ ctx.font='bold 5.8px monospace';
+ const width=Math.max(42,Math.min(78,ctx.measureText(label).width+12));
+ const left=Math.round(x-width/2),top=Math.round(topY),height=10;
+ ctx.shadowColor='rgba(0,0,0,.14)';ctx.shadowBlur=active?2:0;
+ ctx.fillStyle='rgba(8,22,29,.97)';ctx.strokeStyle=active?'#e0c184':'rgba(117,153,153,.62)';ctx.lineWidth=.7;
  ctx.fillRect(left,top,width,height);ctx.strokeRect(left,top,width,height);ctx.shadowBlur=0;
- ctx.fillStyle=accent;ctx.fillRect(left+4,top+4,3,4);
+ ctx.fillStyle=accent;ctx.fillRect(left+3,top+3,2.5,3);
  ctx.fillStyle='#e5eee9';ctx.textAlign='center';ctx.textBaseline='middle';
- ctx.fillText(label,x+2,top+6,width-15);
+ ctx.fillText(label,x+1.5,top+5,width-10);
  ctx.restore();
 }
 function drawDeskAgentBase(x,y,shirt,hair,index,time){
@@ -1239,7 +1261,7 @@ function drawDeskAgent(x,y,shirt,hair,index,time){
  ctx.restore();
 }
 function staffShortLabel(id){
- return ({strategy:'STRATEGY',research:'RESEARCH',fact:'FACT CHECK',editorial:'EDITORIAL',creative:'CREATIVE',production:'PRODUCTION',distribution:'DISTRIBUTION',analytics:'ANALYTICS'})[id]||id.toUpperCase();
+ return ({strategy:'STRATEGY',research:'RESEARCH',fact:'FACT CHECK',editorial:'EDITORIAL',creative:'CREATIVE',production:'PROD',distribution:'DISTRIBUTION',analytics:'ANALYTICS'})[id]||id.toUpperCase();
 }
 function drawNPCs(t=0){
  const ordered=[...npcState].sort((a,b)=>a.y-b.y);
@@ -1286,9 +1308,9 @@ function moveCEO(tx,ty){
  ceoState.wait=0;
 }
 function officeView(){
- const frame={x:40,y:95,w:840,h:490};
+ const frame={x:112,y:28,w:705,h:500};
  const fit=Math.min((stage.clientWidth-20)/frame.w,(stage.clientHeight-18)/frame.h);
- const view=fit*scale*(stage.clientWidth<760?.86:1);
+ const view=fit*scale*.92;
  const ox=(stage.clientWidth-frame.w*view)/2-frame.x*view;
  const oy=(stage.clientHeight-frame.h*view)/2-frame.y*view;
  return {fit,view,ox,oy};
