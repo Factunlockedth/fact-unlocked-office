@@ -1089,7 +1089,7 @@ const npcState=staff.filter(data=>data.id!=='ceo'&&!data.virtual).map((data,i)=>
 const ceoData=staff.find(data=>data.id==='ceo');
 const ceoStart=worldPoint(2.2,0.45,42);
 const ceoState={data:ceoData,x:ceoStart.x,y:ceoStart.y,targetX:ceoStart.x,targetY:ceoStart.y,wait:90,phase:0,lastFrame:null};
-let ceoRouteIndex=0;
+
 function sprite(x,y,shirt,hair,walking,phase,size=1){const p=iso(x,y);const bob=walking?Math.round(Math.sin(phase)*2):0;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);diamond(0,1,18,8,'#1a2638aa',null);px(-6,-8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');px(2,-24+bob,3,3,'#f3d17d');ctx.restore()}
 function seatedSprite(x,y,shirt,hair){
  ctx.save();ctx.translate(Math.round(x),Math.round(y));
@@ -1259,25 +1259,18 @@ function drawNPCs(t=0){
   try{
    const index=staffSpriteIndex[n.data.id]??0;
    drawDeskAgent(n.x,n.y,n.data.color,n.data.hair,index,t/1000);
-   drawStaffNameplate(staffShortLabel(n.data.id),n.x,n.y-82,n.data.color,hoveredStaffId===n.data.id);
+   
   }catch(err){
    console.warn('NPC render fallback:',n.data.id,err);
    try{
     drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair,(staffSpriteIndex[n.data.id]??0),t/1000);
-    drawStaffNameplate(staffShortLabel(n.data.id),n.x,n.y-72,n.data.color,false);
+    
    }catch(fallbackErr){console.warn('NPC fallback unavailable:',n.data.id,fallbackErr)}
   }
  });
 }
 function drawCEO(t){
- if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
-  ceoState.wait--;
-  if(ceoState.wait<=0){
-   const stops=[worldPoint(2.2,0.45,42),worldPoint(3.2,1.0,38),worldPoint(4.8,5.2,0),worldPoint(6.8,8.4,0),worldPoint(5.2,12.0,0),worldPoint(10.0,7.0,0),worldPoint(8.0,10.0,0)];
-   const dest=stops[ceoRouteIndex++%stops.length];
-   ceoState.targetX=dest.x;ceoState.targetY=dest.y;ceoState.wait=230;
-  }
- }
+ // The CEO stays in the dedicated office until the owner moves them manually.
  const dt=ceoState.lastFrame===null?1/60:Math.min(.05,Math.max(.001,(t-ceoState.lastFrame)/1000));
  ceoState.lastFrame=t;
  const dx=ceoState.targetX-ceoState.x,dy=ceoState.targetY-ceoState.y,d=Math.hypot(dx,dy);
@@ -1290,7 +1283,14 @@ function drawCEO(t){
   }
  }
  drawWalkingCEO(ceoState.x,ceoState.y,t/260);
- drawStaffNameplate('CEO AI',ceoState.x,ceoState.y-50,'#d5a342',false);
+ 
+}
+function drawStaffNameplates(){
+ const ordered=[...npcState].sort((a,b)=>a.y-b.y);
+ ordered.forEach(n=>{
+  drawStaffNameplate(staffShortLabel(n.data.id),n.x,n.y-82,n.data.color,hoveredStaffId===n.data.id);
+ });
+ drawStaffNameplate('CEO AI',ceoState.x,ceoState.y-65,'#d5a342',false);
 }
 function moveCEO(tx,ty){
  ceoState.targetX=Math.max(90,Math.min(840,tx));
@@ -1300,7 +1300,7 @@ function moveCEO(tx,ty){
 function officeView(){
  const frame={x:112,y:28,w:705,h:500};
  const fit=Math.min((stage.clientWidth-20)/frame.w,(stage.clientHeight-18)/frame.h);
- const view=fit*scale*.92;
+ const view=fit*scale*(stage.clientWidth<760?.94:1.02);
  const ox=(stage.clientWidth-frame.w*view)/2-frame.x*view;
  const oy=(stage.clientHeight-frame.h*view)/2-frame.y*view;
  return {fit,view,ox,oy};
@@ -1343,6 +1343,7 @@ function draw(t=performance.now()){
  try{drawNPCs(t)}catch(err){console.error('Office NPC layer failed',err)}
  try{drawWorkstationFronts()}catch(err){console.error('Office desk layer failed',err)}
  try{drawCEO(t)}catch(err){console.error('Office CEO layer failed',err)}
+ try{drawStaffNameplates()}catch(err){console.error('Office nameplate layer failed',err)}
  ctx.restore();
 }
 function animate(t){
@@ -1850,7 +1851,7 @@ document.getElementById('explore').onclick=()=>{
 
 document.getElementById('close').onclick=()=>document.getElementById('panelbg').style.display='none';document.getElementById('panelbg').addEventListener('click',e=>{if(e.target.id==='panelbg')e.currentTarget.style.display='none'});
 document.getElementById('zoomin').onclick=()=>{scale=Math.min(1.6,scale+.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('zoomout').onclick=()=>{scale=Math.max(.65,scale-.1);document.getElementById('zoomlevel').textContent=Math.round(scale*100)+'%';draw()};document.getElementById('center').onclick=()=>{camX=camY=0;scale=1;document.getElementById('zoomlevel').textContent='100%';draw()};
-document.getElementById('meeting').onclick=()=>{const n=npcState[ceoRouteIndex%npcState.length];ceoRouteIndex++;moveCEO(n.x+18,n.y+55);toast('CEO กำลังเดินไปตรวจงานที่ '+n.data.name)};
+document.getElementById('meeting').onclick=()=>openChat(ceoData);
 window.addEventListener('resize',resize);resize();requestAnimationFrame(animate);
 })();
 </script></body></html>
