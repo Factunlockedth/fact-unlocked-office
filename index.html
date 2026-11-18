@@ -305,6 +305,41 @@ html,body,#app{background:#07121a;color:#edf3ef}
  #mission-panel{backdrop-filter:blur(9px)}
 }
 
+
+/* QUIET HUD — reduce overlay competition and let the office breathe */
+#stage:before{opacity:.10!important;background-size:72px 72px,72px 72px,360px 290px,400px 320px!important}
+#left-rail{width:52px;left:8px;gap:5px}
+#left-rail button{height:48px;border-radius:8px;box-shadow:0 2px 6px #0007}
+#left-rail button b{font-size:17px}#left-rail button small{font-size:7px}
+.hud-card{background:rgba(7,20,30,.82)!important;border:1px solid rgba(92,127,137,.62)!important;box-shadow:0 5px 15px #0005!important;backdrop-filter:blur(8px)}
+#mission-panel{right:12px;top:12px;width:276px;padding:8px 9px;column-gap:8px}
+#mission-panel .hud-title{font-size:10px;padding-bottom:5px;margin-bottom:3px}
+#mission-panel .mission-row{font-size:7.2px;padding:3px 0;gap:5px}
+#mission-panel .mission-row i{width:15px;height:15px;font-size:7px}
+#mission-panel .mission-progress{margin-top:2px;padding-top:5px}
+#mission-panel .mission-progress div{font-size:7px;margin-bottom:3px}
+#mission-panel .mission-progress>span{height:5px}
+#activity-panel{left:12px;bottom:88px;width:218px;padding:7px 9px}
+#activity-panel .hud-title{font-size:10px;padding-bottom:5px;margin-bottom:3px}
+#activity-panel .activity-row{font-size:7px;padding:4px 0;gap:5px}
+#activity-panel .activity-row i{width:6px;height:6px}
+#minimap-panel{right:12px;bottom:88px;width:136px;padding:7px}
+#minimap-panel .hud-title{font-size:9px;padding-bottom:4px;margin-bottom:4px}
+#minimap-panel .mini-map{height:66px}
+#bottom-toolbar{bottom:11px;gap:4px;padding:4px;border-radius:9px}
+#bottom-toolbar>button{font-size:8px;padding:6px 8px}
+#bottom-toolbar>button b{font-size:11px;margin-right:3px}
+#controls button{padding:5px 7px;font-size:10px}
+#zoomlevel{font-size:8px}
+#hint{opacity:.72;font-size:7px;padding:5px 8px;max-width:210px;white-space:normal;border-radius:7px}
+@media(max-width:760px){
+ #mission-panel{width:206px;padding:7px}#mission-panel .mission-row{font-size:6.4px}
+ #activity-panel{width:182px}#activity-panel .activity-row{font-size:6.4px}
+ #minimap-panel{width:116px}#minimap-panel .mini-map{height:58px}
+ #left-rail{width:44px}#left-rail button{height:43px}
+}
+@media(max-width:440px){#mission-panel{width:166px}#activity-panel{width:150px}#minimap-panel{width:104px}}
+
 </style></head><body><div id="app">
 <header id="topbar">
  <div class="identity">
@@ -472,7 +507,7 @@ function drawFloor(){
  ctx.beginPath();ctx.moveTo(a.x,a.y+1);ctx.lineTo(b.x,b.y+1);ctx.lineTo(c.x,c.y+1);ctx.lineTo(d.x,d.y+1);ctx.stroke();ctx.restore();
 }
 function hqDeskFront(x,y,z=0,accent='#64b9c6'){
- const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);ctx.scale(.9,.9);
  ctx.globalAlpha=.24;ctx.fillStyle='#07111b';ctx.beginPath();ctx.ellipse(0,13,36,14,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
  // Graphite legs and timber apron.
  px(-27,-4,5,23,'#2c3b44');px(22,-4,5,23,'#2c3b44');
@@ -493,7 +528,7 @@ function hqDeskFront(x,y,z=0,accent='#64b9c6'){
  ctx.restore();
 }
 function hqDeskMonitors(x,y,z=0,accent='#64b9c6',dual=false){
- const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);ctx.scale(.92,.92);
  const n=dual?2:1;
  for(let i=0;i<n;i++){
   const mx=(i-(n-1)/2)*21;
@@ -662,10 +697,7 @@ function equipment(x,y,type){
   }
 }
 function rug(x,y,w=64,h=34,c='#223854'){
-  const p=iso(x,y);
-  diamond(p.x,p.y+3,w,h,'#1a2431','#b38e56');
-  diamond(p.x,p.y,w-8,h-5,c,'#8092a1');
-  diamond(p.x,p.y-2,w-23,h-13,'#293d54','#c3a266');
+ const p=iso(x,y);diamond(p.x,p.y+2,w,h,'#172a35','#405a62');diamond(p.x,p.y,w-8,h-6,c,'#5b7477');
 }
 function plaque(x,y,title,sub,accent='#e0ba6c'){
   const p=iso(x,y),w=Math.max(42,title.length*3.7);
@@ -788,7 +820,7 @@ function hqAudioCorner(x,y,z=0){
  ctx.restore();
 }
 function hqProductionControlWall(x,y,z=0){
- const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);ctx.scale(.86,.86);
  glow(0,-60,88,'#6ec6ca',.13);
  // one framed wall-mounted control panel with three clearly differentiated work screens
  px(-76,-105,152,87,'#111d29');px(-72,-101,144,79,'#344552');
@@ -853,7 +885,7 @@ function hqCityWindow(x1,y1,x2,y2,z=0,height=82){
  const bg=ctx.createLinearGradient(0,-height,0,0);bg.addColorStop(0,'#102b49');bg.addColorStop(1,'#1b5367');
  ctx.fillStyle=bg;ctx.fillRect(0,-height,len,height);
  // A restrained night skyline, each tower has its own tiny lit windows.
- const towers=[.08,.22,.39,.56,.72,.88];
+ const towers=[.14,.39,.66,.88];
  towers.forEach((t,i)=>{
   const bw=10+(i%3)*5,bh=height*(.32+((i*7)%5)*.105),xx=len*t;
   px(xx,-bh,bw,bh,'#12283c');px(xx+2,-bh+3,bw-4,2,'#5a99a8');
@@ -864,8 +896,8 @@ function hqCityWindow(x1,y1,x2,y2,z=0,height=82){
   }
  });
  // Soft blue horizon and window reflections.
- ctx.globalAlpha=.2;ctx.fillStyle='#66c4cf';ctx.fillRect(0,-height*.22,len,2);
- ctx.globalAlpha=.15;ctx.fillStyle='#b6dce0';
+ ctx.globalAlpha=.12;ctx.fillStyle='#66c4cf';ctx.fillRect(0,-height*.22,len,2);
+ ctx.globalAlpha=.08;ctx.fillStyle='#b6dce0';
  for(let i=0;i<4;i++)ctx.fillRect(len*(.12+i*.22),-height+8,2,height-18);
  ctx.restore();
  ctx.save();ctx.strokeStyle='#d1b477';ctx.lineWidth=2;
@@ -899,14 +931,14 @@ function hqVideoStage(x,y,z=0){
  ctx.restore();
 }
 function hqHologramGlobe(x,y,z=0){
- const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);ctx.scale(.88,.88);
  // Floating base with several concentric illuminated rings.
  ctx.globalAlpha=.3;ctx.fillStyle='#06101a';ctx.beginPath();ctx.ellipse(0,12,91,24,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
  ctx.fillStyle='#0c1d2b';ctx.beginPath();ctx.ellipse(0,6,84,24,0,0,Math.PI*2);ctx.fill();
  ctx.strokeStyle='#bd985d';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,5,82,23,0,0,Math.PI*2);ctx.stroke();
  ctx.strokeStyle='#35c6db';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,1,70,18,0,0,Math.PI*2);ctx.stroke();
  ctx.globalAlpha=.7;ctx.strokeStyle='#e5c47b';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,-3,58,14,0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;
- glow(0,-67,100,'#27c9e4',.34);
+ glow(0,-67,100,'#27c9e4',.21);
  // Globe body with a luminous radial gradient.
  const gy=-72,r=43;
  const grad=ctx.createRadialGradient(-15,gy-17,4,0,gy,r);
@@ -925,14 +957,14 @@ function hqHologramGlobe(x,y,z=0){
  ctx.restore();
  ctx.strokeStyle='#a4f4ed';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,gy,r,0,Math.PI*2);ctx.stroke();
  // Small orbit nodes and a physical FU badge on the base.
- ctx.strokeStyle='rgba(92,221,234,.65)';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,gy,56,19,-.22,0,Math.PI*2);ctx.stroke();
- [[-52,gy-12],[47,gy-9],[0,gy-r-7]].forEach(([x0,y0],i)=>{glow(x0,y0,12,'#62e9ec',.5);px(x0-2,y0-2,4,4,i===1?'#f0c875':'#b9fff1')});
+ ctx.strokeStyle='rgba(92,221,234,.34)';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,gy,56,19,-.22,0,Math.PI*2);ctx.stroke();
+ [[-52,gy-12],[47,gy-9],[0,gy-r-7]].forEach(([x0,y0],i)=>{glow(x0,y0,12,'#62e9ec',.25);px(x0-2,y0-2,4,4,i===1?'#f0c875':'#b9fff1')});
  px(-22,17,44,15,'#112d3a');ctx.strokeStyle='#d9b77c';ctx.lineWidth=1.5;ctx.strokeRect(-22,17,44,15);
  ctx.fillStyle='#f3dca9';ctx.font='bold 9px monospace';ctx.textAlign='center';ctx.fillText('FU',0,28);
  ctx.restore();
 }
 function hqVoiceBooth(x,y,z=0){
- const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);
+ const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);ctx.scale(.82,.82);
  // A compact glass-fronted vocal booth: two acoustic walls and a bright door frame.
  diamond(0,5,88,49,'#152c38','#c0a06a');
  poly([{x:-41,y:1},{x:0,y:22},{x:0,y:-63},{x:-41,y:-84}],'#1b303b','#8b9b92');
@@ -941,7 +973,7 @@ function hqVoiceBooth(x,y,z=0){
  px(9,-76,26,5,'#273d4b');px(9,-60,26,5,'#273d4b');px(9,-44,26,5,'#273d4b');
  // Glass entrance and amber frame.
  ctx.strokeStyle='#d8b779';ctx.lineWidth=2;ctx.strokeRect(-2,-61,36,65);
- ctx.globalAlpha=.3;ctx.fillStyle='#78c6cf';ctx.fillRect(0,-59,32,61);ctx.globalAlpha=1;
+ ctx.globalAlpha=.18;ctx.fillStyle='#78c6cf';ctx.fillRect(0,-59,32,61);ctx.globalAlpha=1;
  px(27,-31,3,6,'#e6c985');
  // Mic, pop filter and small recording lamp.
  px(-12,-4,4,22,'#7f8d8c');px(-22,15,26,3,'#596c73');
@@ -974,50 +1006,38 @@ function drawFurniture(){
 
  // LEFT WING — the film set, cameras and studio lighting.
  hqSafeDraw('studio floor',()=>rug(2.8,3.1,140,76,'#254657'));
- hqSafeDraw('studio camera A',()=>hqCameraRig(1.1,4.5));
- hqSafeDraw('studio camera B',()=>hqCameraRig(4.3,4.5));
- hqSafeDraw('studio key light',()=>equipment(1.1,2.8,'light'));
- hqSafeDraw('studio fill light',()=>equipment(4.5,2.8,'light'));
- hqSafeDraw('studio operator console',()=>hqEditConsole(3.5,5.2,0));
+ hqSafeDraw('studio camera',()=>hqCameraRig(2.7,4.5));
+ hqSafeDraw('studio key light',()=>equipment(1.4,2.8,'light'));
 
- // UPPER CEO SUITE — broad mezzanine slab with a visible fascia and glass balcony.
- const z=96,x1=6,y1=0,x2=15,y2=5;
+ // UPPER CEO SUITE — compact glass mezzanine with a quiet floor and essential furniture.
+ const z=96,x1=8,y1=0,x2=15,y2=4;
  const A=iso(x1,y1,z),B=iso(x2,y1,z),C=iso(x2,y2,z),D=iso(x1,y2,z);
  const B0=iso(x2,y1),C0=iso(x2,y2),D0=iso(x1,y2);
- poly([D,C,C0,D0],'#344852','#162833');
- poly([B,C,C0,B0],'#263d48','#12242e');
- poly([A,B,C,D],'#bdc4ba','#586d70');
- for(let yy=y1;yy<y2;yy++)for(let xx=x1;xx<x2;xx++){
-  const p=iso(xx,yy,z);
-  diamond(p.x,p.y,TW-1,TH-1,(xx+yy)%2?'#cbd1c8':'#aebbb6','#718489');
-  if((xx+yy)%3===0){ctx.save();ctx.globalAlpha=.2;ctx.strokeStyle='#e4d0a3';ctx.beginPath();ctx.moveTo(p.x-9,p.y);ctx.lineTo(p.x+9,p.y);ctx.stroke();ctx.restore()}
+ poly([D,C,C0,D0],'#263b43','#142a34');poly([B,C,C0,B0],'#1c323b','#11242d');poly([A,B,C,D],'#8fa6a4','#4d696d');
+ ctx.save();ctx.globalAlpha=.2;ctx.strokeStyle='#e5d7b4';ctx.lineWidth=1;
+ for(let t of [.25,.5,.75]){
+  const p1={x:A.x+(D.x-A.x)*t,y:A.y+(D.y-A.y)*t},p2={x:B.x+(C.x-B.x)*t,y:B.y+(C.y-B.y)*t};
+  ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.stroke();
  }
- // Upper suite back wall and panoramic city glazing.
- hqSafeDraw('upper executive wall',()=>hqWallSegment(iso(6,0,z),iso(9.2,0,z),76,'#543e3c','#d0a16f',true));
- hqSafeDraw('upper executive window',()=>hqCityWindow(9.2,0,15,0,z,66));
- hqSafeDraw('CEO fascia',()=>hqBrandFascia(7.6,0,116));
- hqSafeDraw('CEO workstation',()=>hqDeskFront(10.1,2.1,z,'#d5a342'));
- hqSafeDraw('CEO dual monitors',()=>hqDeskMonitors(10.1,2.1,z,'#66d3dc',true));
- hqSafeDraw('CEO executive chair',()=>hqChair(10.1,3.0,z,'#526f83'));
- hqSafeDraw('executive lounge',()=>hqSofa(12.5,2.6,z,.86));
- hqSafeDraw('executive coffee table',()=>hqCoffeeTable(12.6,3.45,z));
- hqSafeDraw('executive plant',()=>hqPlant(14.1,1.6,z,true));
- hqSafeDraw('mezzanine railing',()=>hqMezzanineRail(6,5,15,5,z));
- hqSafeDraw('mezzanine support left',()=>hqPillar(6,5,0,z));
- hqSafeDraw('mezzanine support centre',()=>hqPillar(10.5,5,0,z));
- hqSafeDraw('mezzanine support right',()=>hqPillar(15,5,0,z));
-
- // STAIRCASE — six illuminated steps from the holographic atrium to the CEO level.
- for(let i=0;i<6;i++){
-  const t=i/5,xx=8.3-t*1.55,yy=7.4-t*2.0,zz=t*z;
-  const p=iso(xx,yy,zz);
-  diamond(p.x,p.y+7,43,24,'#293e4a','#bc9c69');
-  poly([{x:p.x-21,y:p.y-5},{x:p.x,y:p.y+7},{x:p.x,y:p.y+15},{x:p.x-21,y:p.y+3}],'#344b55','#172a34');
-  poly([{x:p.x,y:p.y+7},{x:p.x+21,y:p.y-5},{x:p.x+21,y:p.y+3},{x:p.x,y:p.y+15}],'#263e49','#172a34');
-  ctx.save();ctx.strokeStyle='#e3c37d';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(p.x-15,p.y+1);ctx.lineTo(p.x+15,p.y+1);ctx.stroke();ctx.restore();
+ ctx.restore();
+ hqSafeDraw('upper executive wall',()=>hqWallSegment(iso(8,0,z),iso(10.5,0,z),72,'#543e3c','#c49a71',true));
+ hqSafeDraw('upper city window',()=>hqCityWindow(10.5,0,15,0,z,62));
+ hqSafeDraw('CEO fascia',()=>hqBrandFascia(8.8,0,112));
+ hqSafeDraw('CEO workstation',()=>hqDeskFront(10.8,2.0,z,'#d5a342'));
+ hqSafeDraw('CEO dual monitors',()=>hqDeskMonitors(10.8,2.0,z,'#66d3dc',true));
+ hqSafeDraw('CEO executive chair',()=>hqChair(10.8,2.9,z,'#526f83'));
+ hqSafeDraw('executive plant',()=>hqPlant(14.1,1.6,z,false));
+ hqSafeDraw('mezzanine railing',()=>hqMezzanineRail(8,4,15,4,z));
+ hqSafeDraw('mezzanine support left',()=>hqPillar(8,4,0,z));
+ hqSafeDraw('mezzanine support right',()=>hqPillar(15,4,0,z));
+ // Four broad, muted steps instead of the decorative gold staircase.
+ for(let i=0;i<4;i++){
+  const t=i/3,xx=7.9-t*1.1,yy=7.1-t*1.3,zz=t*z,p=iso(xx,yy,zz);
+  diamond(p.x,p.y+6,38,20,'#2b414a','#6d8280');
+  poly([{x:p.x-19,y:p.y-4},{x:p.x,y:p.y+6},{x:p.x,y:p.y+12},{x:p.x-19,y:p.y+2}],'#344b55','#172a34');
+  poly([{x:p.x,y:p.y+6},{x:p.x+19,y:p.y-4},{x:p.x+19,y:p.y+2},{x:p.x,y:p.y+12}],'#263e49','#172a34');
  }
-
- // RIGHT WING — production command room and a dedicated voice booth.
+// RIGHT WING — production command room and a dedicated voice booth.
  hqSafeDraw('production floor',()=>rug(13.4,5.7,128,72,'#1c4144'));
  hqSafeDraw('production control wall',()=>hqProductionControlWall(13.5,4.8,0));
  hqSafeDraw('production server',()=>equipment(14.7,6.3,'server'));
@@ -1050,14 +1070,14 @@ function drawFurniture(){
 }
 // Four-by-two workstation grid: each agent owns a desk, monitor and chair.
 const officeWorkstations=[
- {id:'strategy',x:2.0,y:8.5,accent:'#5ca7d1',dual:false},
- {id:'research',x:5.0,y:8.1,accent:'#5ac5a3',dual:true},
- {id:'fact',x:2.0,y:11.1,accent:'#d8b56e',dual:false},
- {id:'editorial',x:5.1,y:10.8,accent:'#c58cb5',dual:false},
- {id:'creative',x:10.4,y:8.2,accent:'#b28be0',dual:true},
- {id:'production',x:13.2,y:7.7,accent:'#5ba4d7',dual:true},
- {id:'distribution',x:10.2,y:11.1,accent:'#5fc4bd',dual:false},
- {id:'analytics',x:13.1,y:10.5,accent:'#a6c77c',dual:true}
+ {id:'strategy',x:1.2,y:7.9,accent:'#5ca7d1',dual:false},
+ {id:'research',x:4.2,y:7.9,accent:'#5ac5a3',dual:false},
+ {id:'creative',x:8.8,y:7.9,accent:'#b28be0',dual:true},
+ {id:'production',x:11.8,y:7.9,accent:'#5ba4d7',dual:false},
+ {id:'fact',x:4.2,y:10.9,accent:'#d8b56e',dual:false},
+ {id:'editorial',x:7.2,y:10.9,accent:'#c58cb5',dual:false},
+ {id:'distribution',x:11.8,y:10.9,accent:'#5fc4bd',dual:false},
+ {id:'analytics',x:14.8,y:10.9,accent:'#a6c77c',dual:false}
 ].map(s=>{
  const seat=worldPoint(s.x+1,s.y+1);
  return {...s,seatX:s.x+1,seatY:s.y+1,agentX:seat.x,agentY:seat.y-5};
@@ -1111,13 +1131,10 @@ function drawMascots(){
     // fluffy forehead tufts
     px(-2,-36,5,5,body);px(-8,-32,3,4,body);px(5,-32,3,4,body);
     ctx.restore();
-    const w=Math.max(48,name.length*5+12);
-    ctx.fillStyle='#0e1b2c';ctx.fillRect(p.x-w/2,p.y-48,w,11);
-    ctx.strokeStyle='#d0ae6b';ctx.lineWidth=1;ctx.strokeRect(p.x-w/2,p.y-48,w,11);
-    ctx.fillStyle='#f6e3b8';ctx.font='bold 6px system-ui';ctx.textAlign='center';ctx.fillText(name,p.x,p.y-40);
+
   }
-  dog(.65,10.2,'#f4ead7','#d3c2a5','#d8ae58','TUAYFOO',performance.now()/230);
-  dog(1.45,11.0,'#d9a36d','#a86d46','#5eb7c1','UDONG',performance.now()/190+1);
+  dog(.45,13.0,'#f4ead7','#d3c2a5','#d8ae58','',performance.now()/230);
+  dog(1.5,13.4,'#d9a36d','#a86d46','#5eb7c1','',performance.now()/190+1);
 }
 const staffSpriteIndex={strategy:0,research:1,fact:2,editorial:3,creative:4,production:5,distribution:6,analytics:7};
 function drawSeatedWorker(x,y,shirt,hair,index=0,time=0){
@@ -1183,16 +1200,16 @@ function drawSeatedWorker(x,y,shirt,hair,index=0,time=0){
  ctx.restore();
 }
 function drawStaffNameplate(label,x,topY,accent,active=false){
- ctx.save();ctx.font='600 6.4px system-ui,sans-serif';
+ ctx.save();ctx.font='600 5.6px system-ui,sans-serif';
  const shortLabel=label.replace(/ AI$/,'');
- const width=Math.max(42,Math.min(74,ctx.measureText(shortLabel).width+14));
- const left=Math.round(x-width/2),top=Math.round(topY),height=11;
- ctx.shadowColor='rgba(12,20,30,.25)';ctx.shadowBlur=active?3:1;
- ctx.fillStyle='rgba(26,37,43,.94)';ctx.strokeStyle=active?'#ead08f':'rgba(172,145,99,.82)';ctx.lineWidth=.85;
+ const width=Math.max(34,Math.min(56,ctx.measureText(shortLabel).width+10));
+ const left=Math.round(x-width/2),top=Math.round(topY),height=9;
+ ctx.shadowColor='rgba(12,20,30,.18)';ctx.shadowBlur=active?2:0;
+ ctx.fillStyle='rgba(17,30,39,.96)';ctx.strokeStyle=active?'#d9bd82':'rgba(117,153,153,.55)';ctx.lineWidth=.7;
  ctx.fillRect(left,top,width,height);ctx.strokeRect(left,top,width,height);ctx.shadowBlur=0;
- ctx.fillStyle=accent;ctx.fillRect(left+4,top+4,3,3);
- ctx.fillStyle='#f3ead5';ctx.textAlign='center';ctx.textBaseline='middle';
- ctx.fillText(shortLabel,x+2,top+5.6,width-14);ctx.restore();
+ ctx.fillStyle=accent;ctx.fillRect(left+3,top+3,2.5,3);
+ ctx.fillStyle='#e5eee9';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText(shortLabel,x+1.5,top+4.6,width-11);ctx.restore();
 }
 function drawDeskAgentBase(x,y,shirt,hair,index,time){
  // Staff sit behind their own monitor and type at a calm, staggered rhythm.
@@ -1232,18 +1249,21 @@ function drawDeskAgent(x,y,shirt,hair,index,time){
  drawDeskAgentBase(x,y,shirt,hair,index,time);
  ctx.restore();
 }
+function staffShortLabel(id){
+ return ({strategy:'STRATEGY',research:'RESEARCH',fact:'FACT',editorial:'EDIT',creative:'CREATIVE',production:'PROD',distribution:'DIST',analytics:'DATA'})[id]||id.toUpperCase();
+}
 function drawNPCs(t=0){
  const ordered=[...npcState].sort((a,b)=>a.y-b.y);
  ordered.forEach(n=>{
   try{
    const index=staffSpriteIndex[n.data.id]??0;
    drawDeskAgent(n.x,n.y,n.data.color,n.data.hair,index,t/1000);
-   drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-82,n.data.color,hoveredStaffId===n.data.id);
+   drawStaffNameplate(staffShortLabel(n.data.id),n.x,n.y-82,n.data.color,hoveredStaffId===n.data.id);
   }catch(err){
    console.warn('NPC render fallback:',n.data.id,err);
    try{
     drawSeatedWorker(n.x,n.y,n.data.color,n.data.hair,(staffSpriteIndex[n.data.id]??0),t/1000);
-    drawStaffNameplate(n.data.name.toUpperCase(),n.x,n.y-72,n.data.color,false);
+    drawStaffNameplate(staffShortLabel(n.data.id),n.x,n.y-72,n.data.color,false);
    }catch(fallbackErr){console.warn('NPC fallback unavailable:',n.data.id,fallbackErr)}
   }
  });
@@ -1279,7 +1299,7 @@ function moveCEO(tx,ty){
 function officeView(){
  const frame={x:112,y:28,w:705,h:500};
  const fit=Math.min((stage.clientWidth-20)/frame.w,(stage.clientHeight-18)/frame.h);
- const view=fit*scale;
+ const view=fit*scale*.92;
  const ox=(stage.clientWidth-frame.w*view)/2-frame.x*view;
  const oy=(stage.clientHeight-frame.h*view)/2-frame.y*view;
  return {fit,view,ox,oy};
@@ -1304,24 +1324,12 @@ function drawOfficeAtmosphere(){
  });
 }
 function drawOfficeBackground(){
- const g=ctx.createLinearGradient(0,0,0,CH);
- g.addColorStop(0,'#071522');g.addColorStop(.48,'#0c2030');g.addColorStop(1,'#07131f');
+ const g=ctx.createLinearGradient(0,0,0,CH);g.addColorStop(0,'#071522');g.addColorStop(.5,'#0c2030');g.addColorStop(1,'#07131f');
  ctx.fillStyle=g;ctx.fillRect(0,0,CW,CH);
- // Distant city lights frame the campus; the office itself remains the focal point.
- ctx.save();ctx.globalAlpha=.32;
- for(let i=0;i<26;i++){
-  const x=18+i*34,y=35+((i*17)%95),h=28+((i*13)%56);
-  ctx.fillStyle=i%3===0?'#17364b':'#102b3d';ctx.fillRect(x,y,18,h);
-  for(let wy=y+5;wy<y+h-3;wy+=9)for(let wx=x+4;wx<x+16;wx+=7){
-   if(((wx+wy+i)%3)!==0){ctx.fillStyle=(i+wy)%2?'#5c9eab':'#d1b16f';ctx.fillRect(wx,wy,2,3)}
-  }
- }
- ctx.restore();
- glow(450,280,280,'#1d7080',.055);glow(650,180,220,'#bf9252',.04);
- hqSafeDraw('floor',drawFloor);
- hqSafeDraw('furniture',drawFurniture);
- hqSafeDraw('lighting',drawOfficeAtmosphere);
- hqSafeDraw('mascots',drawMascots);
+ ctx.save();ctx.globalAlpha=.11;
+ [[58,72],[142,128],[754,64],[824,146],[690,88],[220,54],[570,125],[860,90]].forEach(([x,y],i)=>{ctx.fillStyle=i%3===0?'#78b7bf':'#d7b778';ctx.fillRect(x,y,2,2)});
+ ctx.restore();glow(450,280,250,'#1d7080',.035);
+ hqSafeDraw('floor',drawFloor);hqSafeDraw('furniture',drawFurniture);hqSafeDraw('lighting',drawOfficeAtmosphere);hqSafeDraw('mascots',drawMascots);
 }
 function draw(t=performance.now()){
  const v=officeView();
