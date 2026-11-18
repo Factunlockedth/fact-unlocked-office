@@ -1079,14 +1079,14 @@ function drawFurniture(){
  officeWorkstations.forEach(s=>hqSafeDraw('chair '+s.id,()=>hqChair(s.seatX,s.seatY,0,'#526875')));
  officeWorkstations.forEach(s=>hqSafeDraw('monitor '+s.id,()=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual)));
 }
-// Match the reference layout: four departments on the rear row, three on the front row.
+// Preserve the reference assignments and staggered isometric desk positions.
 const officeWorkstations=[
  {id:'strategy',x:1.2,y:7.9,accent:'#5ca7d1',dual:false},
  {id:'research',x:4.2,y:7.9,accent:'#5ac5a3',dual:false},
- {id:'fact',x:8.8,y:7.9,accent:'#d8b56e',dual:true},
- {id:'editorial',x:11.8,y:7.9,accent:'#c58cb5',dual:false},
- {id:'creative',x:4.2,y:10.9,accent:'#b28be0',dual:false},
- {id:'production',x:7.2,y:10.9,accent:'#5ba4d7',dual:true},
+ {id:'creative',x:8.8,y:7.9,accent:'#b28be0',dual:true},
+ {id:'production',x:11.8,y:7.9,accent:'#5ba4d7',dual:false},
+ {id:'fact',x:4.2,y:10.9,accent:'#d8b56e',dual:false},
+ {id:'editorial',x:7.2,y:10.9,accent:'#c58cb5',dual:false},
  {id:'distribution',x:11.8,y:10.9,accent:'#5fc4bd',dual:false}
 ].map(s=>{
  const seat=worldPoint(s.x+1,s.y+1);
