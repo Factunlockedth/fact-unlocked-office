@@ -340,6 +340,61 @@ html,body,#app{background:#07121a;color:#edf3ef}
 }
 @media(max-width:440px){#mission-panel{width:166px}#activity-panel{width:150px}#minimap-panel{width:104px}}
 
+
+/* Minimal HQ pass — remove dashboard clutter and focus the room. */
+#topbar{height:64px;padding:5px 12px;gap:10px;background:linear-gradient(100deg,#09151e,#102630 52%,#0b1922);border-bottom:1px solid #607d78;box-shadow:0 3px 12px #0006}
+.identity{min-width:0;gap:8px}
+.avatar-chip{width:36px;height:36px;font-size:12px;box-shadow:0 0 0 2px #b89b6520}
+#topbar .brand{font-size:11px;letter-spacing:.08em}
+#topbar .brand small{font-size:7px;letter-spacing:.14em}
+.levelbox,.resourcebox{display:none!important}
+#mainnav{gap:3px;justify-content:center}
+#mainnav .navtab{min-width:56px;padding:3px 7px;margin:3px 0}
+#mainnav .navtab b{font-size:17px}
+#mainnav .navtab small{font-size:8px}
+#topbar .topright{gap:5px}
+#topbar .topright button{padding:6px 9px;font-size:9px}
+#status{font-size:9px}
+#stage{background:radial-gradient(ellipse at 50% 42%,#18313a 0%,#0b1c26 58%,#07131b 100%)}
+#stage:before{opacity:.045!important;background-size:100px 100px,100px 100px,480px 380px,520px 420px!important}
+#left-rail,#mission-panel,#activity-panel,#minimap-panel{display:none!important}
+#bottom-toolbar{bottom:12px;padding:5px;gap:5px;background:#0a1b23ed;border:1px solid #4b6a6b;box-shadow:0 4px 14px #0006}
+#bottom-toolbar>button{padding:7px 10px;font-size:9px;background:#17313a;border-color:#3d5c60}
+#controls button{padding:5px 8px;font-size:11px;background:#17313a;border-color:#4b6a6b}
+#hint{left:50%;bottom:60px;transform:translateX(-50%);max-width:min(90%,360px);white-space:normal;text-align:center;opacity:.9;font-size:8px;padding:6px 10px;background:#0a1b23eF;border:1px solid #456b6d;box-shadow:0 3px 10px #0006}
+#panel,#chatbox,#hudbox{background:linear-gradient(145deg,#19333b,#0b1b23 72%);border-color:#607e77;box-shadow:0 10px 30px #0008}
+#chathead,#chatform,#hudhead{background:#10272f;border-color:#35545a}
+#chatinput{background:#07171f;border-color:#4d6c6b}
+#chatsend{background:linear-gradient(90deg,#d7bd8b,#a98d5c);color:#15252a}
+#bridgebox{background:linear-gradient(145deg,#19333b,#0b1b23);border-color:#607e77}
+#bridgehead,#bridgefoot{background:#10272f;border-color:#35545a}
+.bridge-note{background:#10262e;border-color:#45676a}
+.bridge-btn{background:#17363e;border-color:#587571}
+.bridge-btn.primary{background:linear-gradient(90deg,#d7bd8b,#a98d5c);color:#15252a}
+@media(max-width:760px){
+ #topbar{height:56px;padding:4px 6px;gap:5px}
+ .identity{gap:5px}
+ .avatar-chip{width:32px;height:32px;font-size:10px}
+ #topbar .brand{font-size:9px;letter-spacing:.05em}
+ #topbar .brand small{font-size:6px}
+ #mainnav{gap:1px}
+ #mainnav .navtab{min-width:36px;padding:2px 3px}
+ #mainnav .navtab b{font-size:15px}
+ #mainnav .navtab small{font-size:6px}
+ #topbar .topright{gap:3px}
+ #topbar .topright button{font-size:7px;padding:5px 6px}
+ #status{font-size:7px;padding:0 2px}
+ #bottom-toolbar{bottom:8px;max-width:calc(100% - 12px);gap:3px}
+ #bottom-toolbar>button{font-size:7px;padding:6px 7px}
+ #controls button{font-size:9px;padding:4px 6px}
+ #hint{bottom:51px;font-size:7px;max-width:86%}
+}
+@media(max-width:390px){
+ #mainnav .navtab:nth-child(4),#mainnav .navtab:nth-child(6){display:none}
+ #topbar .topright #status{display:none}
+ #topbar .topright button{padding:5px}
+}
+
 </style></head><body><div id="app">
 <header id="topbar">
  <div class="identity">
@@ -490,21 +545,19 @@ function glow(x,y,r,color,alpha=.2){
   ctx.globalAlpha=alpha;ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();
 }
 function drawFloor(){
- const palette=['#172a35','#1b303b','#203842','#1a2d38'];
+ // Quiet graphite floor with low-contrast seams; the workstations remain the visual focus.
+ const floorTone='#1a2c35';
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-  const p=iso(x,y),tone=palette[(x*3+y*2)%palette.length];
-  diamond(p.x,p.y,TW-1,TH-1,tone,'#0c1b25');
-  if((x+y)%4===0){
-   ctx.save();ctx.globalAlpha=.10;ctx.strokeStyle='#91b8b4';ctx.lineWidth=.7;
-   ctx.beginPath();ctx.moveTo(p.x-12,p.y-1);ctx.lineTo(p.x+12,p.y-1);ctx.stroke();ctx.restore();
-  }
+  const p=iso(x,y);
+  diamond(p.x,p.y,TW-1,TH-1,floorTone,'#14252e');
  }
- // Dark steel foundation and fine brass edge.
+ // A simple dark plinth with one restrained brass edge.
  const a=iso(0,H-1),b=iso(W-1,H-1),c=iso(W-1,0),d=iso(0,0);
- poly([{x:a.x,y:a.y+1},{x:b.x,y:b.y+1},{x:b.x,y:b.y+16},{x:a.x,y:a.y+16}],'#202f37','#0b1821');
- poly([{x:b.x,y:b.y+1},{x:c.x,y:c.y+1},{x:c.x,y:c.y+16},{x:b.x,y:b.y+16}],'#172a34','#0b1821');
- ctx.save();ctx.strokeStyle='#c09a60';ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(a.x,a.y+1);ctx.lineTo(b.x,b.y+1);ctx.lineTo(c.x,c.y+1);ctx.lineTo(d.x,d.y+1);ctx.stroke();ctx.restore();
+ poly([{x:a.x,y:a.y+1},{x:b.x,y:b.y+1},{x:b.x,y:b.y+12},{x:a.x,y:a.y+12}],'#17262e','#101d25');
+ poly([{x:b.x,y:b.y+1},{x:c.x,y:c.y+1},{x:c.x,y:c.y+12},{x:b.x,y:b.y+12}],'#14242c','#101d25');
+ ctx.save();ctx.strokeStyle='#8d7957';ctx.globalAlpha=.65;ctx.lineWidth=1.2;
+ ctx.beginPath();ctx.moveTo(a.x,a.y+1);ctx.lineTo(b.x,b.y+1);ctx.lineTo(c.x,c.y+1);ctx.stroke();
+ ctx.restore();
 }
 function hqDeskFront(x,y,z=0,accent='#64b9c6'){
  const p=iso(x,y,z);ctx.save();ctx.translate(p.x,p.y);ctx.scale(.9,.9);
@@ -993,79 +1046,37 @@ function hqMezzanineRail(x1,y1,x2,y2,z){
 }
 
 function drawFurniture(){
- // REAR ARCHITECTURE — a warm video wall, panoramic night glazing and a dark branded control wall.
- hqSafeDraw('studio brick wall',()=>hqWallSegment(iso(0,0),iso(4.1,0),126,'#633d39','#d29a72',true));
- hqSafeDraw('studio rear screen',()=>hqVideoStage(2.2,0,0));
- hqSafeDraw('rear panoramic city window',()=>hqCityWindow(4.2,0,7.1,0,0,112));
- hqSafeDraw('rear brand wall',()=>hqWallSegment(7.1,0,9.3,0,112,'#192c3e','#8caaa8',false));
- hqSafeDraw('rear control glazing',()=>hqCityWindow(9.3,0,15.2,0,0,104));
- // A restrained side return frames the studio without closing the cutaway building.
- hqSafeDraw('left garden wall',()=>hqWallSegment(iso(0,0),iso(0,4.6),86,'#203b49','#89b5b5',false));
- hqSafeDraw('left city window',()=>hqCityWindow(0,4.6,0,8.0,0,78));
- hqSafeDraw('right low return',()=>hqWallSegment(iso(15.2,0),iso(15.2,4.3),66,'#1d3341','#739d9e',false));
+ // Minimal rear wall: one studio display and a calm glass facade.
+ hqSafeDraw('rear studio wall',()=>hqWallSegment(iso(0,0),iso(4.1,0),112,'#34434a','#a88d69',true));
+ hqSafeDraw('studio display',()=>hqVideoStage(2.2,0,0));
+ hqSafeDraw('panoramic rear glazing',()=>hqCityWindow(4.2,0,7.1,0,0,104));
+ hqSafeDraw('rear brand wall',()=>hqWallSegment(7.1,0,9.3,0,104,'#1b3039','#718c8b',false));
+ hqSafeDraw('right rear glazing',()=>hqCityWindow(9.3,0,15.2,0,0,96));
+ hqSafeDraw('left side return',()=>hqWallSegment(iso(0,0),iso(0,4.6),74,'#1b3540','#718e8d',false));
 
- // LEFT WING — the film set, cameras and studio lighting.
- hqSafeDraw('studio floor',()=>rug(2.8,3.1,140,76,'#254657'));
- hqSafeDraw('studio camera',()=>hqCameraRig(2.7,4.5));
- hqSafeDraw('studio key light',()=>equipment(1.4,2.8,'light'));
-
- // UPPER CEO SUITE — compact glass mezzanine with a quiet floor and essential furniture.
- const z=96,x1=8,y1=0,x2=15,y2=4;
+ // CEO suite: one compact raised office, one desk and a clear glass boundary.
+ const z=92,x1=8,y1=0,x2=15,y2=4;
  const A=iso(x1,y1,z),B=iso(x2,y1,z),C=iso(x2,y2,z),D=iso(x1,y2,z);
  const B0=iso(x2,y1),C0=iso(x2,y2),D0=iso(x1,y2);
- poly([D,C,C0,D0],'#263b43','#142a34');poly([B,C,C0,B0],'#1c323b','#11242d');poly([A,B,C,D],'#8fa6a4','#4d696d');
- ctx.save();ctx.globalAlpha=.2;ctx.strokeStyle='#e5d7b4';ctx.lineWidth=1;
- for(let t of [.25,.5,.75]){
-  const p1={x:A.x+(D.x-A.x)*t,y:A.y+(D.y-A.y)*t},p2={x:B.x+(C.x-B.x)*t,y:B.y+(C.y-B.y)*t};
-  ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.stroke();
- }
- ctx.restore();
- hqSafeDraw('upper executive wall',()=>hqWallSegment(iso(8,0,z),iso(10.5,0,z),72,'#543e3c','#c49a71',true));
- hqSafeDraw('upper city window',()=>hqCityWindow(10.5,0,15,0,z,62));
- hqSafeDraw('CEO fascia',()=>hqBrandFascia(8.8,0,112));
- hqSafeDraw('CEO workstation',()=>hqDeskFront(10.8,2.0,z,'#d5a342'));
- hqSafeDraw('CEO dual monitors',()=>hqDeskMonitors(10.8,2.0,z,'#66d3dc',true));
- hqSafeDraw('CEO executive chair',()=>hqChair(10.8,2.9,z,'#526f83'));
- hqSafeDraw('executive plant',()=>hqPlant(14.1,1.6,z,false));
- hqSafeDraw('mezzanine railing',()=>hqMezzanineRail(8,4,15,4,z));
- hqSafeDraw('mezzanine support left',()=>hqPillar(8,4,0,z));
- hqSafeDraw('mezzanine support right',()=>hqPillar(15,4,0,z));
- // Four broad, muted steps instead of the decorative gold staircase.
- for(let i=0;i<4;i++){
-  const t=i/3,xx=7.9-t*1.1,yy=7.1-t*1.3,zz=t*z,p=iso(xx,yy,zz);
-  diamond(p.x,p.y+6,38,20,'#2b414a','#6d8280');
-  poly([{x:p.x-19,y:p.y-4},{x:p.x,y:p.y+6},{x:p.x,y:p.y+12},{x:p.x-19,y:p.y+2}],'#344b55','#172a34');
-  poly([{x:p.x,y:p.y+6},{x:p.x+19,y:p.y-4},{x:p.x+19,y:p.y+2},{x:p.x,y:p.y+12}],'#263e49','#172a34');
- }
-// RIGHT WING — production command room and a dedicated voice booth.
- hqSafeDraw('production floor',()=>rug(13.4,5.7,128,72,'#1c4144'));
+ poly([D,C,C0,D0],'#263b43','#142a34');
+ poly([B,C,C0,B0],'#1c323b','#11242d');
+ poly([A,B,C,D],'#819a98','#4d696d');
+ hqSafeDraw('CEO suite wall',()=>hqWallSegment(iso(8,0,z),iso(10.5,0,z),66,'#3c3a37','#ad936d',true));
+ hqSafeDraw('CEO suite window',()=>hqCityWindow(10.5,0,15,0,z,58));
+ hqSafeDraw('CEO name fascia',()=>hqBrandFascia(8.8,0,108));
+ hqSafeDraw('CEO desk',()=>hqDeskFront(10.8,2.0,z,'#d5a342'));
+ hqSafeDraw('CEO monitors',()=>hqDeskMonitors(10.8,2.0,z,'#72bdc2',true));
+ hqSafeDraw('CEO chair',()=>hqChair(10.8,2.9,z,'#526f83'));
+ hqSafeDraw('CEO glass rail',()=>hqMezzanineRail(8,4,15,4,z));
+ hqSafeDraw('CEO support left',()=>hqPillar(8,4,0,z));
+ hqSafeDraw('CEO support right',()=>hqPillar(15,4,0,z));
+
+ // Production corner: one control wall and one edit console; no extra prop clusters.
  hqSafeDraw('production control wall',()=>hqProductionControlWall(13.5,4.8,0));
- hqSafeDraw('production server',()=>equipment(14.7,6.3,'server'));
  hqSafeDraw('production edit console',()=>hqEditConsole(12.5,7.1,0));
- hqSafeDraw('voice booth',()=>hqVoiceBooth(14.8,8.2,0));
- hqSafeDraw('voice booth accent light',()=>glow(iso(14.8,8.2).x,iso(14.8,8.2).y-62,34,'#e5a860',.13));
 
- // COMMAND CORE — central holographic earth and lit circular plinth.
- hqSafeDraw('central hologram',()=>hqHologramGlobe(8.0,6.7,0));
- hqSafeDraw('atrium palm left',()=>hqPlant(5.5,6.5,0,true));
- hqSafeDraw('atrium palm right',()=>hqPlant(10.7,6.1,0,true));
-
- // FOUR AI PODS — four subtle paired floor inlays, keeping all eight desks readable.
- hqSafeDraw('strategy research rug',()=>rug(3.9,9.55,128,68,'#203d4c'));
- hqSafeDraw('fact editorial rug',()=>rug(3.8,12.1,128,68,'#3d3c37'));
- hqSafeDraw('creative production rug',()=>rug(11.7,9.35,128,68,'#30394f'));
- hqSafeDraw('distribution analytics rug',()=>rug(11.5,12.0,128,68,'#25433e'));
-
- // FRONT LOUNGE — a low crescent seating cluster, kept below the staff workstations.
- hqSafeDraw('front lounge rug',()=>rug(7.7,13.0,126,66,'#263944'));
- hqSafeDraw('lounge sofa left',()=>hqSofa(6.9,12.7,0,.72));
- hqSafeDraw('lounge sofa right',()=>hqSofa(9.2,13.0,0,.72));
- hqSafeDraw('lounge table',()=>hqCoffeeTable(8.1,13.15,0));
- hqSafeDraw('front planter left',()=>hqPlant(1.2,12.1,0,true));
- hqSafeDraw('front planter right',()=>hqPlant(14.7,11.5,0,true));
-
- // Workstation chairs and monitors; desk surfaces and staff sprites are separate render layers.
- officeWorkstations.forEach(s=>hqSafeDraw('chair '+s.id,()=>hqChair(s.seatX,s.seatY,0,'#596f7b')));
+ // Eight clear workstations. Each has only a chair, monitor and desk.
+ officeWorkstations.forEach(s=>hqSafeDraw('chair '+s.id,()=>hqChair(s.seatX,s.seatY,0,'#526875')));
  officeWorkstations.forEach(s=>hqSafeDraw('monitor '+s.id,()=>hqDeskMonitors(s.x,s.y,0,s.accent,s.dual)));
 }
 // Four-by-two workstation grid: each agent owns a desk, monitor and chair.
@@ -1324,12 +1335,13 @@ function drawOfficeAtmosphere(){
  });
 }
 function drawOfficeBackground(){
- const g=ctx.createLinearGradient(0,0,0,CH);g.addColorStop(0,'#071522');g.addColorStop(.5,'#0c2030');g.addColorStop(1,'#07131f');
+ const g=ctx.createLinearGradient(0,0,0,CH);
+ g.addColorStop(0,'#0b1b25');g.addColorStop(.55,'#0d222d');g.addColorStop(1,'#08161f');
  ctx.fillStyle=g;ctx.fillRect(0,0,CW,CH);
- ctx.save();ctx.globalAlpha=.11;
- [[58,72],[142,128],[754,64],[824,146],[690,88],[220,54],[570,125],[860,90]].forEach(([x,y],i)=>{ctx.fillStyle=i%3===0?'#78b7bf':'#d7b778';ctx.fillRect(x,y,2,2)});
- ctx.restore();glow(450,280,250,'#1d7080',.035);
- hqSafeDraw('floor',drawFloor);hqSafeDraw('furniture',drawFurniture);hqSafeDraw('lighting',drawOfficeAtmosphere);hqSafeDraw('mascots',drawMascots);
+ glow(450,280,230,'#2c6871',.025);
+ hqSafeDraw('floor',drawFloor);
+ hqSafeDraw('minimal furniture',drawFurniture);
+ hqSafeDraw('soft office lighting',drawOfficeAtmosphere);
 }
 function draw(t=performance.now()){
  const v=officeView();
@@ -1787,8 +1799,17 @@ canvas.addEventListener('pointerup',e=>{
  const xx=(drag.sx-v.ox)/v.view-camX,yy=(drag.sy-v.oy)/v.view-camY;
  const found=npcState.find(n=>Math.abs(xx-n.x)<27&&Math.abs(yy-(n.y-25))<34);
  if(found)openChat(found.data);
- else if(Math.abs(xx-ceoState.x)<28&&Math.abs(yy-(ceoState.y-25))<35)openChat(ceoData);
- else moveCEO(xx,yy);
+ else {
+  // Desk hit targets make every department clickable even when the sprite is partly covered.
+  const desk=officeWorkstations.find(s=>{
+   const p=worldPoint(s.x,s.y);
+   return Math.abs(xx-p.x)<48 && Math.abs(yy-(p.y-16))<50;
+  });
+  const deskAgent=desk?staff.find(s=>s.id===desk.id):null;
+  if(deskAgent)openChat(deskAgent);
+  else if(Math.abs(xx-ceoState.x)<30&&Math.abs(yy-(ceoState.y-25))<38)openChat(ceoData);
+  else moveCEO(xx,yy);
+ }
  drag=null;
 });
 
