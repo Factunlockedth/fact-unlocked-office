@@ -511,7 +511,7 @@ staffAtlas.onerror=()=>console.warn('Staff sprite atlas unavailable; using fallb
 staffAtlas.src='./assets/fact-hq-pixel-staff-v3.png?v=20261112a';
 const CW=900,CH=650,TW=46,TH=23,OX=450,OY=170;
 let dpr=1,scale=1,camX=0,camY=0,selected=null,drag=null;
-const W=16,H=14;
+const W=16,H=15;
 const floor=Array.from({length:H},()=>Array(W).fill(1));
 const furniture=[];
 const staff=[
@@ -1050,7 +1050,7 @@ function drawFurniture(){
  hqSafeDraw('rear HQ wall',()=>hqWallSegment(iso(0,0),iso(4.4,0),88,'#263b40','#78908a',false));
 
  // Compact CEO office: a small raised platform, one desk and one clear brand sign.
- const z=38,x1=0,y1=0,x2=4.4,y2=2.2;
+ const z=38,x1=0,y1=0,x2=4.4,y2=1.1;
  const A=iso(x1,y1,z),B=iso(x2,y1,z),C=iso(x2,y2,z),D=iso(x1,y2,z);
  const B0=iso(x2,y1),C0=iso(x2,y2),D0=iso(x1,y2);
  poly([D,C,C0,D0],'#263c41','#172d34');
@@ -1061,9 +1061,9 @@ function drawFurniture(){
  ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.lineTo(C.x,C.y);ctx.lineTo(D.x,D.y);ctx.closePath();ctx.stroke();
  ctx.restore();
  hqSafeDraw('CEO brand sign',()=>hqBrandFascia(2.2,0,78));
- hqSafeDraw('CEO desk',()=>hqDeskFront(2.2,0.9,z,'#d5a342'));
- hqSafeDraw('CEO monitors',()=>hqDeskMonitors(2.2,0.9,z,'#72bdc2',true));
- hqSafeDraw('CEO chair',()=>hqChair(2.2,1.9,z,'#526f83'));
+ hqSafeDraw('CEO desk',()=>hqDeskFront(2.2,0.45,z,'#d5a342'));
+ hqSafeDraw('CEO monitors',()=>hqDeskMonitors(2.2,0.45,z,'#72bdc2',true));
+ hqSafeDraw('CEO chair',()=>hqChair(2.2,1.35,z,'#526f83'));
 
  // Seven specialist desks in two balanced, aligned rows.
  officeWorkstations.forEach(s=>hqSafeDraw('chair '+s.id,()=>hqChair(s.seatX,s.seatY,0,'#526875')));
@@ -1071,13 +1071,13 @@ function drawFurniture(){
 }
 // Two orderly, screen-aligned rows: four departments behind, three in front.
 const officeWorkstations=[
- {id:'strategy',x:1.25,y:8.25,accent:'#5ca7d1',dual:false},
- {id:'research',x:3.58,y:5.92,accent:'#5ac5a3',dual:false},
- {id:'fact',x:5.92,y:3.58,accent:'#d8b56e',dual:false},
- {id:'editorial',x:8.25,y:1.25,accent:'#c58cb5',dual:false},
- {id:'creative',x:5.25,y:10.25,accent:'#b28be0',dual:false},
- {id:'production',x:7.75,y:7.75,accent:'#5ba4d7',dual:true},
- {id:'distribution',x:10.25,y:5.25,accent:'#5fc4bd',dual:false}
+ {id:'strategy',x:1.0,y:10.5,accent:'#5ca7d1',dual:false},
+ {id:'research',x:3.4,y:8.1,accent:'#5ac5a3',dual:false},
+ {id:'fact',x:5.8,y:5.7,accent:'#d8b56e',dual:false},
+ {id:'editorial',x:8.2,y:3.3,accent:'#c58cb5',dual:false},
+ {id:'creative',x:4.5,y:13.0,accent:'#b28be0',dual:false},
+ {id:'production',x:8.75,y:8.75,accent:'#5ba4d7',dual:true},
+ {id:'distribution',x:13.0,y:4.5,accent:'#5fc4bd',dual:false}
 ].map(s=>{
  const seat=worldPoint(s.x+1,s.y+1);
  return {...s,seatX:s.x+1,seatY:s.y+1,agentX:seat.x,agentY:seat.y-5};
@@ -1087,7 +1087,7 @@ const npcState=staff.filter(data=>data.id!=='ceo'&&!data.virtual).map((data,i)=>
  data,x:officeSeats[data.id].x,y:officeSeats[data.id].y,phase:i*.8
 }));
 const ceoData=staff.find(data=>data.id==='ceo');
-const ceoStart=worldPoint(2.2,0.9,42);
+const ceoStart=worldPoint(2.2,0.45,42);
 const ceoState={data:ceoData,x:ceoStart.x,y:ceoStart.y,targetX:ceoStart.x,targetY:ceoStart.y,wait:90,phase:0,lastFrame:null};
 let ceoRouteIndex=0;
 function sprite(x,y,shirt,hair,walking,phase,size=1){const p=iso(x,y);const bob=walking?Math.round(Math.sin(phase)*2):0;ctx.save();ctx.translate(Math.round(p.x),Math.round(p.y));ctx.scale(size,size);diamond(0,1,18,8,'#1a2638aa',null);px(-6,-8+bob,5,5,'#263449');px(2,-8-bob,5,5,'#263449');px(-5,-15+bob,4,8,'#394b65');px(2,-15-bob,4,8,'#394b65');px(-7,-27+bob,14,13,shirt);px(-9,-25+bob,3,9,shirt);px(6,-25+bob,3,9,shirt);px(-3,-31+bob,6,5,'#e4b995');px(-6,-42+bob,12,12,'#edc5a0');px(-7,-44+bob,14,5,hair);px(-7,-41+bob,3,6,hair);px(4,-41+bob,3,5,hair);px(-3,-36+bob,2,2,'#273044');px(3,-36+bob,2,2,'#273044');px(2,-24+bob,3,3,'#f3d17d');ctx.restore()}
@@ -1273,7 +1273,7 @@ function drawCEO(t){
  if(Math.hypot(ceoState.targetX-ceoState.x,ceoState.targetY-ceoState.y)<8){
   ceoState.wait--;
   if(ceoState.wait<=0){
-   const stops=[worldPoint(2.2,0.9,42),worldPoint(3.2,1.4,38),worldPoint(4.8,3.6,0),worldPoint(6.8,6.8,0),worldPoint(5.2,10.0,0),worldPoint(10.0,5.0,0),worldPoint(8.0,8.0,0)];
+   const stops=[worldPoint(2.2,0.45,42),worldPoint(3.2,1.0,38),worldPoint(4.8,5.2,0),worldPoint(6.8,8.4,0),worldPoint(5.2,12.0,0),worldPoint(10.0,7.0,0),worldPoint(8.0,10.0,0)];
    const dest=stops[ceoRouteIndex++%stops.length];
    ceoState.targetX=dest.x;ceoState.targetY=dest.y;ceoState.wait=230;
   }
