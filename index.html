@@ -1135,7 +1135,6 @@ function drawFurniture(){
 
  // Production corner: one control wall and one edit console; no extra prop clusters.
  hqSafeDraw('production control wall',()=>hqProductionControlWall(13.5,4.8,0));
- hqSafeDraw('production edit console',()=>hqEditConsole(12.5,7.1,0));
 
  // Seven specialist workstations; the CEO has a separate office.
  officeWorkstations.forEach(s=>hqSafeDraw('chair '+s.id,()=>hqChair(s.seatX,s.seatY,0,'#526875')));
